@@ -6,29 +6,48 @@ export default defineConfig({
   model: {},
   initialState: {},
   request: {},
-  layout: {
-    title: '@umijs/max',
-  },
+  layout: false,
   routes: [
     {
       path: '/',
-      redirect: '/home',
+      redirect: '/dashboard',
     },
     {
       name: '首页',
-      path: '/home',
-      component: './Home',
-    },
-    {
-      name: '权限演示',
-      path: '/access',
-      component: './Access',
-    },
-    {
-      name: ' CRUD 示例',
-      path: '/table',
-      component: './Table',
+      path: '/dashboard',
+      component: './dashboard',
+      routes: [
+        {
+          name: '转换为PDF',
+          path: 'topdf',
+          component: './convertToPDF',
+        },
+        {
+          name: 'PDF转其它',
+          path: 'frompdf',
+          component: './convertFromPDF',
+        },
+        {
+          name: 'PDF功能',
+          path: 'editpdf',
+          component: './editPDF',
+        },
+        {
+          name: '打开文档',
+          path: 'openpdf',
+          component: './openPDF',
+        },
+        {
+          name: '创建文档',
+          path: 'newpdf',
+          component: './newPDF',
+        },
+      ],
     },
   ],
+  locale: {
+    default: 'zh-CN',
+    baseSeparator: '-',
+  },
   npmClient: 'pnpm',
 });
