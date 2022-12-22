@@ -8,6 +8,14 @@
 
     .pdf-logo {
       width: 180px;
+      display: flex;
+      align-items: center;
+
+      .logo {
+        width: 46px;
+        height: 46px;
+        margin-right: 22px;
+      }
     }
   }
 
@@ -47,6 +55,16 @@
     height: 55px;
     margin: 20px 0;
     color: var(--text-color);
+    padding-right: 35px;
+
+    .sider-menu-icon {
+      width: 20px;
+      margin-right: 15px;
+    }
+
+    &.active {
+      background-color: var(--content-bg);
+    }
   }
 }
 
@@ -67,5 +85,44 @@
       background: #fff;
       color: var(--header-bg);
     }
+  }
+}
+
+.pdf-func-col {
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  .icon,
+  .text {
+    display: block;
+    width: 100px;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .text {
+    padding-top: 15px;
+    color: var(--text-color);
+    font-size: 12px;
+  }
+}
+
+.pdf-upload-area {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .icon-upload {
+    width: 126px;
+  }
+
+  .desc {
+    padding: 15px 0;
   }
 }
