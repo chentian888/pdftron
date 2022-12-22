@@ -1,7 +1,13 @@
 // import { PageContainer } from '@ant-design/pro-components';
 // import { Access, useAccess } from '@umijs/max';
 // import { Button } from 'antd';
-import { NavLink, Outlet } from '@umijs/max';
+import {
+  NavLink,
+  Outlet,
+  useIntl,
+  setLocale,
+  FormattedMessage,
+} from '@umijs/max';
 import React from 'react';
 import { Layout, Avatar, Space } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
@@ -10,23 +16,35 @@ import logo from './img/logo.png';
 const { Header, Content, Sider } = Layout;
 
 const Dashboard: React.FC = () => {
+  const intl = useIntl();
+
+  // 顶部菜单
   const headerMenuItem = [
-    { name: '转换为PDF', to: '/dashboard/topdf' },
-    { name: 'PDF转其它', to: '/dashboard/frompdf' },
-    { name: 'PDF功能', to: '/dashboard/editpdf' },
+    { name: 'converttopdf', to: '/dashboard/topdf' },
+    { name: 'convertfrompdf', to: '/dashboard/frompdf' },
+    { name: 'pdffunc', to: '/dashboard/editpdf' },
   ];
+
+  // 左边菜单
   const sideMenuItem = [
-    { name: '打开文档', to: '/dashboard/openpdf', icon: 'icon-menu-open' },
-    { name: '创建文档', to: '/dashboard/newpdf', icon: 'icon-menu-create' },
-    { name: '最近文档', to: '/dashboard/recent', icon: 'icon-menu-create' },
-    { name: '会员中心', to: '/dashboard/user', icon: 'icon-menu-vip' },
+    { name: 'openpdf', to: '/dashboard/openpdf', icon: 'icon-menu-open' },
+    { name: 'createpdf', to: '/dashboard/newpdf', icon: 'icon-menu-create' },
+    { name: 'recentpdf', to: '/dashboard/recent', icon: 'icon-menu-create' },
+    { name: 'usercenter', to: '/dashboard/user', icon: 'icon-menu-vip' },
   ];
+
+  // 切换语言
+  const handleLangSelect = () => {
+    console.log('=======');
+    // 切换时不刷新页面
+    setLocale('en-US', false);
+  };
   return (
     <Layout className="pdftron">
       <Header className="pdf-header">
         <div className="pdf-logo">
           <img className="logo" src={logo} alt="" />
-          PDF万能编辑器
+          <FormattedMessage id="title" />
         </div>
         <div className="pdf-menu">
           {headerMenuItem.map((ele, index) => {
@@ -36,7 +54,7 @@ const Dashboard: React.FC = () => {
                 to={ele.to}
                 className={({ isActive }) => (isActive ? 'active' : '')}
               >
-                {ele.name}
+                <span>{intl.formatMessage({ id: ele.name })}</span>
               </NavLink>
             );
           })}
@@ -44,7 +62,9 @@ const Dashboard: React.FC = () => {
         <Space size={100}>
           <div className="pdf-lang-select">
             <div className="pdf-lang-item active">中文</div>
-            <div className="pdf-lang-item">EN</div>
+            <div className="pdf-lang-item" onClick={() => handleLangSelect()}>
+              EN
+            </div>
           </div>
           <div className="pdf-user">
             <Avatar size={35} icon={<UserOutlined />} />
@@ -68,7 +88,7 @@ const Dashboard: React.FC = () => {
                     src={require(`./img/${ele.icon}.png`)}
                     alt=""
                   />
-                  {ele.name}
+                  {intl.formatMessage({ id: ele.name })}
                 </NavLink>
               );
             })}

@@ -1,16 +1,37 @@
 import React from 'react';
 import { Col, Row } from 'antd';
-import { NavLink } from '@umijs/max';
+import { NavLink, useIntl } from '@umijs/max';
 
 const EditPDF: React.FC = () => {
+  const intl = useIntl();
   const columns = [
-    { text: 'PDF替换图片', img: 'icon-replace-img', to: '' },
-    { text: 'PDF替换文字', img: 'icon-replace-text', to: '' },
-    { text: 'PDF拆分', img: 'icon-split', to: '' },
-    { text: 'PDF合并', img: 'icon-concat', to: '' },
-    { text: 'PDF提取文字', img: 'icon-replace-text', to: '' },
-    { text: 'PDF提取图片', img: 'icon-replace-img', to: '' },
-    { text: 'PDF加密解密', img: 'icon-encrypt', to: '' },
+    {
+      text: 'PDF替换图片',
+      langId: 'pdfReplaceImg',
+      img: 'icon-replace-img',
+      to: '',
+    },
+    {
+      text: 'PDF替换文字',
+      langId: 'pdfReplaceText',
+      img: 'icon-replace-text',
+      to: '',
+    },
+    { text: 'PDF拆分', langId: 'pdfSplit', img: 'icon-split', to: '' },
+    { text: 'PDF合并', langId: 'pdfConcat', img: 'icon-concat', to: '' },
+    {
+      text: 'PDF提取文字',
+      langId: 'pdfFilterText',
+      img: 'icon-replace-text',
+      to: '',
+    },
+    {
+      text: 'PDF提取图片',
+      langId: 'pdfFilterImg',
+      img: 'icon-replace-img',
+      to: '',
+    },
+    { text: 'PDF加密解密', langId: 'pdfEncrypt', img: 'icon-encrypt', to: '' },
   ];
   return (
     <Row gutter={[16, 16]} align="middle">
@@ -22,7 +43,7 @@ const EditPDF: React.FC = () => {
               src={require(`./img/${ele.img}.png`)}
               alt=""
             />
-            <div className="text">{ele?.text}</div>
+            <div className="text">{intl.formatMessage({ id: ele.langId })}</div>
           </NavLink>
         </Col>
       ))}
