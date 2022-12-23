@@ -50,8 +50,8 @@ const Dashboard: React.FC = () => {
 
   // 左边菜单
   const sideMenuItem = [
-    { name: 'openpdf', to: '/dashboard/openpdf', icon: 'icon-menu-open' },
-    { name: 'createpdf', to: '/dashboard/newpdf', icon: 'icon-menu-create' },
+    { name: 'openpdf', to: '/dashboard/open', icon: 'icon-menu-open' },
+    { name: 'createpdf', to: '/dashboard/new', icon: 'icon-menu-create' },
     { name: 'recentpdf', to: '/dashboard/recent', icon: 'icon-menu-create' },
     { name: 'usercenter', to: '/dashboard/user', icon: 'icon-menu-vip' },
   ];

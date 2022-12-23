@@ -29,18 +29,23 @@ export default defineConfig({
         },
         {
           name: 'PDF功能',
-          path: 'editpdf',
+          path: 'edit',
           component: './editPDF',
         },
         {
           name: '打开文档',
-          path: 'openpdf',
+          path: 'open',
           component: './openPDF',
         },
         {
           name: '创建文档',
-          path: 'newpdf',
+          path: 'new',
           component: './newPDF',
+        },
+        {
+          name: '最近文档',
+          path: 'recent',
+          component: './recentPDF',
         },
       ],
     },
