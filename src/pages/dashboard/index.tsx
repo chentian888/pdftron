@@ -8,36 +8,17 @@ import {
   setLocale,
   FormattedMessage,
 } from '@umijs/max';
-import React, { useState } from 'react';
-import { Layout, Avatar, Space, Modal, Button, Form, Input } from 'antd';
-import { UserOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Layout, Avatar, Space } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import LoginModal from '@/components/LoginModal';
+import PayModal from '@/components/PayModal';
 import './index.less';
 import logo from './img/logo.png';
 const { Header, Content, Sider } = Layout;
 
 const Dashboard: React.FC = () => {
   const intl = useIntl();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
-  };
-
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
 
   // 切换语言
   const handleLangSelect = () => {
@@ -98,51 +79,8 @@ const Dashboard: React.FC = () => {
   };
   return (
     <Layout className="pdftron">
-      <Modal
-        className="login-modal"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        closeIcon={<CloseCircleOutlined />}
-        footer={null}
-        width={1047}
-      >
-        <div className="login-modal-content">
-          <div className="left-bg">
-            <img src={require('./img/login-bg.png')} alt="" />
-          </div>
-          <div className="right-form">
-            <div className="login-panel">
-              <div className="login-title">欢迎使用PDF万能编辑器</div>
-              <Form
-                name="basic"
-                labelCol={{ span: 4 }}
-                wrapperCol={{ span: 20 }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-                colon={false}
-                labelAlign="left"
-              >
-                <Form.Item label="邮箱账号" name="username">
-                  <Input placeholder="请输入邮箱账号" />
-                </Form.Item>
-                <Form.Item label="验证码" name="password">
-                  <Input placeholder="请输入验证码" />
-                </Form.Item>
-
-                <Form.Item label="密码" name="password">
-                  <Input.Password placeholder="请输入密码" />
-                </Form.Item>
-
-                <Button type="primary" size="large" block htmlType="submit">
-                  注册
-                </Button>
-              </Form>
-            </div>
-          </div>
-        </div>
-      </Modal>
+      <LoginModal />
+      <PayModal />
       <Header className="pdf-header">
         <div className="pdf-logo">
           <img className="logo" src={logo} alt="" />
@@ -157,11 +95,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="pdf-user">
-            <Avatar
-              size={35}
-              icon={<UserOutlined />}
-              onClick={() => showModal()}
-            />
+            <Avatar size={35} icon={<UserOutlined />} />
           </div>
         </Space>
       </Header>
