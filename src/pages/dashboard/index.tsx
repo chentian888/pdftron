@@ -6,6 +6,7 @@ import {
   Outlet,
   useIntl,
   setLocale,
+  getLocale,
   FormattedMessage,
 } from '@umijs/max';
 import React from 'react';
@@ -19,18 +20,18 @@ const { Header, Content, Sider } = Layout;
 
 const Dashboard: React.FC = () => {
   const intl = useIntl();
-
+  const localLang = getLocale();
   // 切换语言
-  const handleLangSelect = () => {
+  const handleLangSelect = (lang = 'zh-CN') => {
     // 切换时不刷新页面
-    setLocale('en-US', false);
+    setLocale(lang, false);
   };
 
   // 顶部菜单
   const headerMenuItem = [
     { name: 'converttopdf', to: '/dashboard/topdf' },
     { name: 'convertfrompdf', to: '/dashboard/frompdf' },
-    { name: 'pdffunc', to: '/dashboard/editpdf' },
+    { name: 'pdffunc', to: '/dashboard/edit' },
   ];
 
   // 顶部菜单
@@ -89,8 +90,20 @@ const Dashboard: React.FC = () => {
         <div className="pdf-menu">{renderHeaderMenu()}</div>
         <Space size={100}>
           <div className="pdf-lang-select">
-            <div className="pdf-lang-item active">中文</div>
-            <div className="pdf-lang-item" onClick={() => handleLangSelect()}>
+            <div
+              className={`pdf-lang-item ${
+                localLang === 'zh-CN' ? 'active' : ''
+              }`}
+              onClick={() => handleLangSelect('zh-CN')}
+            >
+              中文
+            </div>
+            <div
+              className={`pdf-lang-item ${
+                localLang === 'en-US' ? 'active' : ''
+              }`}
+              onClick={() => handleLangSelect('en-US')}
+            >
               EN
             </div>
           </div>
