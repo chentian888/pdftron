@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { Modal } from 'antd';
 import { CloseCircleOutlined } from '@ant-design/icons';
+import { useModel } from '@umijs/max';
 import LoginForm from './components/LoginForm';
 import RegistryForm from './components/RegistryForm';
 import './index.less';
 
 const LoginModal: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const { showLogin, setShowLoginModal } = useModel('user');
   const [formType, setFormType] = useState('1'); // 1-登录/2-注册
   const handleOk = () => {
-    setIsModalOpen(false);
+    setShowLoginModal(false);
   };
 
   const handleCancel = () => {
-    setIsModalOpen(false);
+    setShowLoginModal(false);
   };
 
   const showLoginForm = () => {
@@ -26,7 +27,7 @@ const LoginModal: React.FC = () => {
   return (
     <Modal
       className="login-modal"
-      open={isModalOpen}
+      open={showLogin}
       onOk={handleOk}
       onCancel={handleCancel}
       closeIcon={<CloseCircleOutlined />}

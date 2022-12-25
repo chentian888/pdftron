@@ -1,3 +1,5 @@
+import type { RequestConfig, AxiosResponse } from '@umijs/max';
+import { message } from 'antd';
 // 运行时配置
 import './style/index.less';
 
@@ -6,3 +8,21 @@ import './style/index.less';
 export async function getInitialState(): Promise<{ name: string }> {
   return { name: '@umijs/max' };
 }
+
+export const request: RequestConfig = {
+  timeout: 1000,
+  errorConfig: {
+    errorHandler() {},
+    errorThrower() {},
+  },
+  requestInterceptors: [],
+  responseInterceptors: [
+    (response) => {
+      const { data } = response as AxiosResponse<API.HttpResponse>;
+      if (data.code >= 300) {
+        message.error(data.msg);
+      }
+      return response;
+    },
+  ],
+};

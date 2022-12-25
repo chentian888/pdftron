@@ -21,7 +21,7 @@ const Dashboard: React.FC = () => {
   const localLang = getLocale();
 
   useEffect(() => {
-    // sendEmailCode({ email: 'chentian.ct@qq.com', subject: '测试注册验证码' });
+    // sendEmailCode({ email: 'chentian', subject: '测试注册验证码' });
   }, []);
   // 切换语言
   const handleLangSelect = (lang = 'zh-CN') => {
