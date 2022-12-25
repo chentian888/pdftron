@@ -1,6 +1,3 @@
-// import { PageContainer } from '@ant-design/pro-components';
-// import { Access, useAccess } from '@umijs/max';
-// import { Button } from 'antd';
 import {
   NavLink,
   Outlet,
@@ -9,11 +6,12 @@ import {
   getLocale,
   FormattedMessage,
 } from '@umijs/max';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Layout, Avatar, Space } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
+// import { sendEmailCode } from '@/services/userController';
 import './index.less';
 import logo from './img/logo.png';
 const { Header, Content, Sider } = Layout;
@@ -21,6 +19,10 @@ const { Header, Content, Sider } = Layout;
 const Dashboard: React.FC = () => {
   const intl = useIntl();
   const localLang = getLocale();
+
+  useEffect(() => {
+    // sendEmailCode({ email: 'chentian.ct@qq.com', subject: '测试注册验证码' });
+  }, []);
   // 切换语言
   const handleLangSelect = (lang = 'zh-CN') => {
     // 切换时不刷新页面

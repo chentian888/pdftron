@@ -55,4 +55,10 @@ export default defineConfig({
     baseSeparator: '-',
   },
   npmClient: 'pnpm',
+  proxy: {
+    '/api': {
+      target: 'https://www.pdfinto.com',
+      changeOrigin: true,
+    },
+  },
 });
