@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, Row } from 'antd';
-import { NavLink, useIntl } from '@umijs/max';
+import { Col, Row, Upload } from 'antd';
+import { useIntl } from '@umijs/max';
 
 const EditPDF: React.FC = () => {
   const intl = useIntl();
@@ -37,14 +37,14 @@ const EditPDF: React.FC = () => {
     <Row gutter={[16, 16]} align="middle">
       {columns.map((ele, index) => (
         <Col key={index} span={4}>
-          <NavLink to={ele.to} className="pdf-func-col">
+          <Upload accept=".pdf" className="pdf-func-col">
             <img
               className="icon"
               src={require(`./img/${ele.img}.png`)}
               alt=""
             />
             <div className="text">{intl.formatMessage({ id: ele.langId })}</div>
-          </NavLink>
+          </Upload>
         </Col>
       ))}
     </Row>

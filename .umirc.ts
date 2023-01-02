@@ -10,7 +10,7 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      redirect: '/dashboard',
+      redirect: '/dashboard/open',
     },
     {
       name: '首页',
