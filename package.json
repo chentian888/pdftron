@@ -15,11 +15,9 @@
     "@ant-design/pro-components": "^2.0.1",
     "@pdftron/webviewer": "^8.11.0",
     "@umijs/max": "^4.0.38",
-    "antd": "^5.0.0",
-    "lodash-es": "^4.17.21"
+    "antd": "^5.0.0"
   },
   "devDependencies": {
-    "@types/lodash-es": "^4.17.6",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "fs-extra": "^11.1.0",
