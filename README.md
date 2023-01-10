@@ -27,3 +27,10 @@
   }
 }
 ```
+
+## 业务
+
+1. PDF 转 word/ppt/pptx/xls/txt`限制文件单选 不显示添加更多文件按钮`
+2. PDF 转图片(png/jpg/tif/bmp)根据、PDF 拆分、PDF 删除内容`缩略图进行选择`
+3. 图片(png/jpg/tif/bmp)转 pdf/pdf 合并`不限制单选可选择多个文件`
+4. 右上角新增`下载打印按钮`

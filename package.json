@@ -5,7 +5,7 @@
     "build": "max build",
     "dev": "max dev",
     "format": "prettier --cache --write .",
-    "postinstall": "max setup",
+    "postinstall": "max setup && node tools/copy-webviewer-files.js",
     "prepare": "husky install",
     "setup": "max setup",
     "start": "npm run dev"
@@ -13,12 +13,16 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@ant-design/pro-components": "^2.0.1",
+    "@pdftron/webviewer": "^8.11.0",
     "@umijs/max": "^4.0.38",
-    "antd": "^5.0.0"
+    "antd": "^5.0.0",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
+    "@types/lodash-es": "^4.17.6",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "fs-extra": "^11.1.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",

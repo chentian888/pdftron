@@ -1,0 +1,43 @@
+.draged-file {
+  padding: 5px;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  outline: transparent solid 2px;
+  outline-offset: 2px;
+  transition: box-shadow 0.15s ease-out 0s;
+  opacity: 1;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 5px;
+  border: 1px dashed var(--theme-color);
+  position: relative;
+
+  .draged-file-thumb {
+    background: #f2f3f6;
+    padding: 10px 5px 5px;
+    flex: 1;
+  }
+
+  .draged-file-info {
+    height: 86px;
+
+    .file-name {
+      padding: 5px;
+      text-align: center;
+      white-space: normal;
+      width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  .file-pages {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 15px;
+    text-align: center;
+    color: #0000003d;
+  }
+}
