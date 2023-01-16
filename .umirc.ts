@@ -58,15 +58,23 @@ export default defineConfig({
     },
     {
       name: '编辑',
-      path: 'editor',
+      path: '/editor',
       component: './editor',
       title: '编辑',
     },
     {
-      name: 'pdf转jpg',
-      path: 'pdfToJpg',
-      component: './pdfToJpg',
-      title: 'pdf转jpg',
+      name: 'pdf转换',
+      path: '/convert',
+      component: '@/layouts/ConvertLayout',
+      title: 'pdf转换',
+      routes: [
+        {
+          name: 'pdf转jpg',
+          path: 'toJpg',
+          component: './pdfToJpg',
+          title: 'pdf转jpg',
+        },
+      ],
     },
   ],
   locale: {
