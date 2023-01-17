@@ -35,32 +35,34 @@ const DragedFile: React.FC<Props> = (props) => {
     const { documentViewer } = instance!.Core;
     documentViewer.addEventListener('documentLoaded', () => {
       const doc = documentViewer.getDocument();
+      console.log(doc);
       const pageNum = 1;
-      doc.loadThumbnail(pageNum, (thumbnail) => {
-        // thumbnail is a HTMLCanvasElement or HTMLImageElement
-        if (thumbnail instanceof HTMLCanvasElement) {
-          const base64 = thumbnail.toDataURL();
-          setThumb(base64);
-        } else if (thumbnail instanceof HTMLImageElement) {
-          thumbnail.crossOrigin = 'anonymous';
-          thumbnail.onload = function () {
-            const base64 = getBase64Image(thumbnail);
+      doc.loadThumbnail(
+        pageNum,
+        (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
+          // thumbnail is a HTMLCanvasElement or HTMLImageElement
+          if (/image\/\w+/.test((file as any as File).type)) {
+            (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
+            (thumbnail as HTMLImageElement).onload = function () {
+              const base64 = getBase64Image(thumbnail as HTMLImageElement);
+              setThumb(base64);
+            };
+          } else {
+            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
             setThumb(base64);
-          };
-        }
-        // if (/image\/\w+/.test((file as any as File).type)) {
-        //   const reader = new FileReader();
-        //   reader.readAsDataURL(file);
-        //   reader.onload = function (e) {
-        //     const base64 = e.target!.result || '';
-        //     setThumb(base64);
-        //   };
-        // } else {
-        //   const base64 = thumbnail.toDataURL();
-        //   setThumb(base64);
-        //   console.log(base64);
-        // }
-      });
+          }
+          // if (thumbnail instanceof HTMLCanvasElement) {
+          //   const base64 = thumbnail.toDataURL();
+          //   setThumb(base64);
+          // } else if (thumbnail instanceof HTMLImageElement) {
+          //   thumbnail.crossOrigin = 'anonymous';
+          //   thumbnail.onload = function () {
+          //     const base64 = getBase64Image(thumbnail);
+          //     setThumb(base64);
+          //   };
+          // }
+        },
+      );
     });
   }, []);
 
