@@ -7,7 +7,7 @@ export default class Office2Pdf {
 
   static async toPDFBuffer(instance: WebViewerInstance, file: UploadFile) {
     // perform the conversion with no optional parameters
-    const buf = await instance.Core.officeToPDFBuffer(file, {
+    const buf = await (instance.Core as any).officeToPDFBuffer(file, {
       l: this.licenseKey,
     });
 

@@ -29,7 +29,7 @@ const PdfToJpg: React.FC = () => {
     setLoading(true);
     const file = fileList[0];
     console.log(file);
-    const blob = await Office2Pdf.toPDFBuffer(instance, file);
+    const blob = await Office2Pdf.toPDFBuffer(instance!, file);
     // await Office2Pdf.openPdfInNewTab(blob);
     await Office2Pdf.download(blob, `${file.name}.pdf`);
 
