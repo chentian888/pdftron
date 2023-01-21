@@ -12,6 +12,7 @@ export default defineConfig({
       path: '/',
       redirect: '/dashboard/open',
     },
+
     {
       name: '首页',
       path: '/dashboard',
@@ -24,30 +25,35 @@ export default defineConfig({
           component: './convertToPDF',
           title: '转换为PDF',
         },
+
         {
           name: 'PDF转其它',
           path: 'frompdf',
           component: './convertFromPDF',
           title: 'PDF转其它',
         },
+
         {
           name: 'PDF功能',
           path: 'edit',
           component: './editPDF',
           title: 'PDF功能',
         },
+
         {
           name: '打开文档',
           path: 'open',
           component: './openPDF',
           title: '打开文档',
         },
+
         {
           name: '创建文档',
           path: 'new',
           component: './newPDF',
           title: '创建文档',
         },
+
         {
           name: '最近文档',
           path: 'recent',
@@ -56,12 +62,14 @@ export default defineConfig({
         },
       ],
     },
+
     {
       name: '编辑',
       path: '/editor',
       component: './editor',
       title: '编辑',
     },
+
     {
       name: 'pdf转换',
       path: '/convert',
@@ -77,10 +85,12 @@ export default defineConfig({
       ],
     },
   ],
+
   locale: {
     default: 'zh-CN',
     baseSeparator: '-',
   },
+
   npmClient: 'pnpm',
   proxy: {
     '/api': {
@@ -88,4 +98,5 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
+  tailwindcss: {},
 });
