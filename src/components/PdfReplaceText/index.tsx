@@ -14,20 +14,31 @@ const PdfReplaceText: React.FC = () => {
             <Button type="primary">预览</Button>
           </div>
         </div>
-        <div className="text-blue-600">
+        <div className="text-red-500 mb-7 leading-7">
           一定要是原文档/扫描件等才能使用替换功能。默认是替换文档中的所有同样的词，如果只想改某一个位置
           的词，请带上这个词前后文字一起进行输入替换。
         </div>
       </div>
       <div className="w-6/12 z-10 relative m-auto">
-        <Row>
-          <Col span={10}>
+        <Row className="mb-5" justify="center" align="middle">
+          <Col span={11}>
             <Input size="large" placeholder="输入需要修改的文字" />
           </Col>
-          <Col span={4}>
-            <div>替换</div>
+          <Col span={2}>
+            <div className="text-center">替换</div>
           </Col>
-          <Col span={10}>
+          <Col span={11}>
+            <Input size="large" placeholder="输入需要修改的文字" />
+          </Col>
+        </Row>
+        <Row className="mb-5" justify="center" align="middle">
+          <Col span={11}>
+            <Input size="large" placeholder="输入需要修改的文字" />
+          </Col>
+          <Col span={2}>
+            <div className=" text-center">替换</div>
+          </Col>
+          <Col span={11}>
             <Input size="large" placeholder="输入需要修改的文字" />
           </Col>
         </Row>
