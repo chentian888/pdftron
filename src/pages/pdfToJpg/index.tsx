@@ -5,6 +5,7 @@ import WebViewer from '@pdftron/webviewer';
 import DragedFile from '@/components/DragedFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
 // import PdfReplaceText from '@/components/PdfReplaceText';
+// import PdfCrop from '@/components/PdfCrop';
 import type { UploadProps } from 'antd/es/upload/interface';
 import Office2Pdf from '@/utils/ofice2pdf';
 
@@ -64,6 +65,7 @@ const PdfToJpg: React.FC = () => {
         {/* <Col span={24}>
           <PdfDeEncrypt />
           <PdfReplaceText />
+          <PdfCrop />
         </Col> */}
       </Row>
 

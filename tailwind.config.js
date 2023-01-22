@@ -8,4 +8,11 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
+  theme: {
+    extend: {
+      width: {
+        1200: '1200px',
+      },
+    },
+  },
 };

@@ -12,7 +12,10 @@ export default defineConfig({
       path: '/',
       redirect: '/dashboard/open',
     },
-
+    {
+      path: '/home',
+      component: './home',
+    },
     {
       name: '首页',
       path: '/dashboard',
