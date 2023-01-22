@@ -10,6 +10,15 @@ export default () => {
     newFileList.splice(index, 1);
     setFileList(newFileList);
   }
+
+  function onReplace(oldFile: UploadFile, newFile: UploadFile) {
+    const index = fileList.indexOf(oldFile);
+    const newFileList = fileList.slice();
+    newFileList.splice(index, 1);
+    newFileList.splice(index, 0, newFile);
+    setFileList(newFileList);
+  }
+
   async function beforeUpload(file: UploadFile) {
     setFileList([...fileList, file]);
     return false;
@@ -18,6 +27,7 @@ export default () => {
     fileList,
     setFileList,
     onRemove,
+    onReplace,
     beforeUpload,
   };
 };

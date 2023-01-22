@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button } from 'antd';
+import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
 import DragedFile from '@/components/DragedFile';
+// import PdfDeEncrypt from '@/components/PdfDeEncrypt';
+// import PdfReplaceText from '@/components/PdfReplaceText';
 import type { UploadProps } from 'antd/es/upload/interface';
 import Office2Pdf from '@/utils/ofice2pdf';
 
@@ -13,6 +15,7 @@ const PdfToJpg: React.FC = () => {
   const [success, setSuccess] = useState<boolean>(false);
   const { fileList, onRemove, beforeUpload } = useModel('files');
   const { instance, setInstance } = useModel('pdf');
+  const [open, setOpen] = useState(false);
 
   const viewer = useRef<HTMLDivElement>(null);
   const props: UploadProps = { onRemove, beforeUpload, fileList };
@@ -25,35 +28,25 @@ const PdfToJpg: React.FC = () => {
     );
   }, []);
 
+  // office类型文件转blob并保存为pdf
   const toPDFBufferAndSave = async () => {
     setLoading(true);
     const file = fileList[0];
+    const fileName = file.name.split('.')[0];
     console.log(file);
+    // 转blob
     const blob = await Office2Pdf.toPDFBuffer(instance!, file);
+    // 浏览器打开
     // await Office2Pdf.openPdfInNewTab(blob);
-    await Office2Pdf.download(blob, `${file.name}.pdf`);
 
-    // instance.UI.loadDocument(blob, { filename: `${file.name}.pdf` });
-
-    // const { documentViewer } = instance.Core;
-    // documentViewer.addEventListener('documentLoaded', () => {
-    //   const doc = documentViewer.getDocument();
-    //   const pageCount = doc.getPageCount();
-    //   console.log(pageCount)
-    //   const pageNum = 1;
-    //   doc.loadThumbnailAsync(pageNum, (thumbnail: HTMLCanvasElement) => {
-    //     // thumbnail is a HTMLCanvasElement or HTMLImageElement
-    //     const base64 = thumbnail.toDataURL();
-    //     console.log(base64);
-    //   });
-    // });
+    // 下载
+    await Office2Pdf.download(blob, `${fileName}.pdf`);
     setLoading(false);
     setSuccess(true);
   };
 
   return (
     <>
-      <div className="webviewer" ref={viewer}></div>
       <Dragger
         {...props}
         // accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx"
@@ -68,7 +61,12 @@ const PdfToJpg: React.FC = () => {
         <Col span={4}>
           <div className="draged-action">添加更多文件</div>
         </Col>
+        {/* <Col span={24}>
+          <PdfDeEncrypt />
+          <PdfReplaceText />
+        </Col> */}
       </Row>
+
       <div className="file-action">
         {success ? (
           <Button type="primary">全部下载</Button>
@@ -82,6 +80,19 @@ const PdfToJpg: React.FC = () => {
           </Button>
         )}
       </div>
+
+      <Modal
+        title="Modal 1000px width"
+        centered
+        forceRender
+        open={open}
+        onOk={() => setOpen(false)}
+        onCancel={() => setOpen(false)}
+        width={1000}
+        footer={null}
+      >
+        <div className="webviewer" ref={viewer}></div>
+      </Modal>
     </>
   );
 };
