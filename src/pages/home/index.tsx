@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from 'antd';
+import Title from '@/components/Title';
 
 type TabType = { name: string; value: string };
 
@@ -245,6 +246,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="page" style={{ background: '#f1f3f8' }}>
+      <Title title="PDF万能编辑器" />
       <div className="flex justify-end">
         <img
           className="block w-1200"
