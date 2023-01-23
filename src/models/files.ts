@@ -19,8 +19,9 @@ export default () => {
     setFileList(newFileList);
   }
 
-  async function beforeUpload(file: UploadFile) {
-    setFileList([...fileList, file]);
+  async function beforeUpload(file: UploadFile, fileList: UploadFile[]) {
+    setFileList([...fileList]);
+    console.log(fileList);
     return false;
   }
   return {

@@ -18,63 +18,26 @@ export default defineConfig({
       component: './home',
     },
     {
-      title: 'PDF万能编辑器',
-      path: '/dashboard',
-      component: './dashboard',
-      routes: [
-        {
-          title: '转换为PDF',
-          path: 'topdf',
-          component: './convertToPDF',
-        },
-
-        {
-          title: 'PDF转其它',
-          path: 'frompdf',
-          component: './convertFromPDF',
-        },
-
-        {
-          title: 'PDF功能',
-          path: 'edit',
-          component: './editPDF',
-        },
-
-        {
-          title: '打开文档',
-          path: 'open',
-          component: './openPDF',
-        },
-
-        {
-          title: '创建文档',
-          path: 'new',
-          component: './newPDF',
-        },
-
-        {
-          title: '最近文档',
-          path: 'recent',
-          component: './recentPDF',
-        },
-      ],
-    },
-
-    {
-      title: '编辑',
-      path: '/editor',
-      component: './editor',
-    },
-
-    {
       title: 'pdf转换',
-      path: '/convert',
+      path: '/convertFrom',
       component: '@/layouts/ConvertLayout',
       routes: [
         {
-          title: 'pdf转jpg',
-          path: 'toJpg',
-          component: './pdfToJpg',
+          title: 'Word转PDF',
+          path: ':from',
+          component: './convertFrom',
+        },
+      ],
+    },
+    {
+      title: '转换为pdf',
+      path: '/convertTo',
+      component: '@/layouts/ConvertLayout',
+      routes: [
+        {
+          title: '转换为pdf',
+          path: ':to',
+          component: './convertTo',
         },
       ],
     },

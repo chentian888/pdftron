@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from 'antd';
+import { Link } from '@umijs/max';
 import Title from '@/components/Title';
 
 type TabType = { name: string; value: string };
@@ -37,38 +38,38 @@ const Home: React.FC = () => {
     const items1 = [
       {
         title: 'Word转PDF',
-        desc: 'word(.doc.docx). 转pdf',
+        desc: 'Word(.doc.docx)转PDF',
         icon: 'icon-word',
         className: '',
-        to: '',
+        to: '/convertFrom/word',
       },
       {
         title: 'PPT转PDF',
-        desc: 'ppt(.ppt.pptx) 转pdf',
+        desc: 'PPT(.ppt.pptx)转PDF',
         icon: 'icon-ppt',
         className: 'justify-self-center',
-        to: '',
+        to: '/convertFrom/ppt',
       },
       {
         title: 'Excel转PDF',
-        desc: 'excel(.xls.xlsx)转pdf',
+        desc: 'Excel(.xls.xlsx)转PDF',
         icon: 'icon-excel',
         className: 'justify-self-end',
-        to: '',
+        to: '/convertFrom/excel',
       },
       {
-        title: 'TXT转PDF',
-        desc: 'txt转PDF',
+        title: 'Txt转PDF',
+        desc: 'Txt转PDF',
         icon: 'icon-txt',
         className: '',
-        to: '',
+        to: '/convertFrom/txt',
       },
       {
         title: '图片转pdf',
-        desc: '图片(.png.jpg)转pdf',
+        desc: '图片(.png.jpg)转PDF',
         icon: 'icon-image',
         className: 'justify-self-center',
-        to: '',
+        to: '/convertFrom/image',
       },
     ];
 
@@ -78,49 +79,49 @@ const Home: React.FC = () => {
         desc: 'PDF转Word',
         icon: 'icon-word',
         className: '',
-        to: '',
+        to: '/convertTo/word',
       },
       {
         title: 'PDF转PPT',
         desc: 'PDF转PPT',
         icon: 'icon-ppt',
         className: 'justify-self-center',
-        to: '',
+        to: '/convertTo/ppt',
       },
       {
         title: 'PDF转Excel',
         desc: 'PDF转Excel',
         icon: 'icon-excel',
         className: 'justify-self-end',
-        to: '',
+        to: '/convertTo/excel',
       },
       {
         title: 'PDF转Xps',
         desc: 'PDF转Xps',
         icon: 'icon-xps',
         className: '',
-        to: '',
+        to: '/convertTo/xps',
       },
       {
         title: 'PDF转Epud',
         desc: 'PDF转Epud',
         icon: 'icon-epud',
         className: 'justify-self-center',
-        to: '',
+        to: '/convertTo/epud',
       },
       {
         title: 'PDF转图片',
         desc: 'PDF转图片 （jpeg,png）',
         icon: 'icon-image',
         className: 'justify-self-end',
-        to: '',
+        to: '/convertTo/image',
       },
       {
         title: 'PDF转PDF/A',
         desc: 'PDF转PDF/A',
         icon: 'icon-pdfa',
         className: '',
-        to: '',
+        to: '/convertTo/pdfa',
       },
     ];
 
@@ -229,16 +230,20 @@ const Home: React.FC = () => {
 
     return cols.map((ele, index) => {
       return (
-        <div className={`mb-16 cursor-pointer ${ele.className}`} key={index}>
-          <img
-            className="w-[140px] block max-w-full m-auto"
-            src={require(`./img/${ele.icon}.png`)}
-            alt=""
-          />
-          <div className=" text-lg py-4 text-center">{ele.title}</div>
-          <div className="w-[140px] text-gray-400 text-center leading-6">
-            {ele.desc}
-          </div>
+        <div className={`mb-16 ${ele.className}`} key={index}>
+          <Link to={ele.to} className="no-underline">
+            <img
+              className="w-[140px] block max-w-full m-auto"
+              src={require(`./img/${ele.icon}.png`)}
+              alt=""
+            />
+            <div className="text-black text-lg py-4 text-center">
+              {ele.title}
+            </div>
+            <div className="w-[140px] text-gray-400 text-center leading-6">
+              {ele.desc}
+            </div>
+          </Link>
         </div>
       );
     });

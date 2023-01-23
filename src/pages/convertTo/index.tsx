@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
+import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
 // import PdfReplaceText from '@/components/PdfReplaceText';
@@ -19,7 +20,14 @@ const PdfToJpg: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const viewer = useRef<HTMLDivElement>(null);
-  const props: UploadProps = { onRemove, beforeUpload, fileList };
+  const props: UploadProps = {
+    onRemove,
+    beforeUpload,
+    fileList,
+    showUploadList: false,
+    accept: '.pdf',
+  };
+
   useEffect(() => {
     WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
       async (instance) => {
@@ -48,15 +56,12 @@ const PdfToJpg: React.FC = () => {
 
   return (
     <>
-      <Dragger
-        {...props}
-        // accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx"
-        showUploadList={false}
-      ></Dragger>
+      <Title title="转为PDF" />
+      <Dragger {...props}></Dragger>
       <Row gutter={16}>
         {fileList.map((file, index) => (
           <Col span={4} key={index}>
-            <DragedFile file={file} />
+            <DragedFile file={file} accept=".pdf" />
           </Col>
         ))}
         <Col span={4}>

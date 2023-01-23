@@ -9,6 +9,7 @@ interface Props {
   file: UploadFile;
   showCheckBox?: boolean;
   showReplaceBtn?: boolean;
+  accept: string;
 }
 
 const DragedFile: React.FC<Props> = (props) => {
@@ -40,7 +41,6 @@ const DragedFile: React.FC<Props> = (props) => {
     const { documentViewer } = instance!.Core;
     documentViewer.addEventListener('documentLoaded', () => {
       const doc = documentViewer.getDocument();
-      console.log(doc);
       const pageNum = 1;
       doc.loadThumbnail(
         pageNum,
