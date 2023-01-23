@@ -1,24 +1,267 @@
+import { useState } from 'react';
 import { Button } from 'antd';
+
+type TabType = { name: string; value: string };
+
 const Home: React.FC = () => {
+  const [tab, setTab] = useState<string>('1');
+
+  const tabs: TabType[] = [
+    { name: '转换为PDF', value: '1' },
+    { name: 'PDF转其他', value: '2' },
+    { name: 'PDF功能层', value: '3' },
+  ];
+
+  const tabChange = (item: TabType) => {
+    setTab(item.value);
+  };
+
+  const renderTabs = () => {
+    return tabs.map((ele, index) => {
+      return (
+        <div
+          className={`w-1/3 flex justify-center items-center rounded-full cursor-pointer  ${
+            tab === ele.value ? 'bg-[#6672FB] text-white' : ''
+          }`}
+          key={index}
+          onClick={() => tabChange(ele)}
+        >
+          {ele.name}
+        </div>
+      );
+    });
+  };
+
+  const renderTabContent = () => {
+    const items1 = [
+      {
+        title: 'Word转PDF',
+        desc: 'word(.doc.docx). 转pdf',
+        icon: 'icon-word',
+        className: '',
+        to: '',
+      },
+      {
+        title: 'PPT转PDF',
+        desc: 'ppt(.ppt.pptx) 转pdf',
+        icon: 'icon-ppt',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'Excel转PDF',
+        desc: 'excel(.xls.xlsx)转pdf',
+        icon: 'icon-excel',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'TXT转PDF',
+        desc: 'txt转PDF',
+        icon: 'icon-txt',
+        className: '',
+        to: '',
+      },
+      {
+        title: '图片转pdf',
+        desc: '图片(.png.jpg)转pdf',
+        icon: 'icon-image',
+        className: 'justify-self-center',
+        to: '',
+      },
+    ];
+
+    const items2 = [
+      {
+        title: 'PDF转Word',
+        desc: 'PDF转Word',
+        icon: 'icon-word',
+        className: '',
+        to: '',
+      },
+      {
+        title: 'PDF转PPT',
+        desc: 'PDF转PPT',
+        icon: 'icon-ppt',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'PDF转Excel',
+        desc: 'PDF转Excel',
+        icon: 'icon-excel',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'PDF转Xps',
+        desc: 'PDF转Xps',
+        icon: 'icon-xps',
+        className: '',
+        to: '',
+      },
+      {
+        title: 'PDF转Epud',
+        desc: 'PDF转Epud',
+        icon: 'icon-epud',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'PDF转图片',
+        desc: 'PDF转图片 （jpeg,png）',
+        icon: 'icon-image',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'PDF转PDF/A',
+        desc: 'PDF转PDF/A',
+        icon: 'icon-pdfa',
+        className: '',
+        to: '',
+      },
+    ];
+
+    const items3 = [
+      {
+        title: 'PDF合并',
+        desc: '选择多个PDF文档文件进行合并操作',
+        icon: 'icon-merge',
+        className: '',
+        to: '',
+      },
+      {
+        title: 'PDF拆分1',
+        desc: '选择PDF中的页面拆分成新的文档',
+        icon: 'icon-split1',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'PDF拆分2',
+        desc: '选择PDF中的页面拆分成多个单独PDF',
+        icon: 'icon-split2',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'PDF裁剪',
+        desc: '将PDF拆分成两半再按正确顺序合并',
+        icon: 'icon-crop',
+        className: '',
+        to: '',
+      },
+      {
+        title: '新建PDF',
+        desc: '新建PDF',
+        icon: 'icon-create',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'PDF替换文字',
+        desc: 'PDF替换文字',
+        icon: 'icon-text',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'PDF替换图片',
+        desc: 'PDF替换图片',
+        icon: 'icon-txt',
+        className: '',
+        to: '',
+      },
+      {
+        title: 'PDF提取文字',
+        desc: 'PDF提取文字',
+        icon: 'icon-extra-text',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'PDF提取小图片',
+        desc: '提取PDF中的所有小图片',
+        icon: 'icon-extra-image',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'PDF删除文字数据',
+        desc: '删除PDF中已选择的文字',
+        icon: 'icon-remove-text',
+        className: '',
+        to: '',
+      },
+      {
+        title: 'PDF删除图片数据',
+        desc: '删除PDF中已选择的图片数据',
+        icon: 'icon-remove-image',
+        className: 'justify-self-center',
+        to: '',
+      },
+      {
+        title: 'PDF压缩',
+        desc: 'PDF压缩',
+        icon: 'icon-compress',
+        className: 'justify-self-end',
+        to: '',
+      },
+      {
+        title: 'PDF加密解密',
+        desc: 'PDF加密解密',
+        icon: 'icon-lock',
+        className: '',
+        to: '',
+      },
+    ];
+
+    let cols = items1;
+    if (tab === '1') {
+      cols = items1;
+    } else if (tab === '2') {
+      cols = items2;
+    } else if (tab === '3') {
+      cols = items3;
+    }
+
+    return cols.map((ele, index) => {
+      return (
+        <div className={`mb-16 cursor-pointer ${ele.className}`} key={index}>
+          <img
+            className="w-[140px] block max-w-full m-auto"
+            src={require(`./img/${ele.icon}.png`)}
+            alt=""
+          />
+          <div className=" text-lg py-4 text-center">{ele.title}</div>
+          <div className="w-[140px] text-gray-400 text-center leading-6">
+            {ele.desc}
+          </div>
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="page" style={{ background: '#f1f3f8' }}>
-      <div className="w-1200 m-auto">
+      <div className="flex justify-end">
         <img
-          className=" block max-w-full"
+          className="block w-1200"
           src={require('./img/banner.png')}
           alt=""
         />
       </div>
-      <div className=" w-1200 m-auto rounded-3xl bg-white p-16">
+      <div className="w-1200 m-auto rounded-3xl bg-white p-16 -mt-60 z-10 relative">
         <img
-          className=" max-w-full m-auto block"
+          className="max-w-full m-auto block"
           src={require('./img/feature.png')}
           alt=""
         />
         <div className="bg-[#EBF0FE] w-[860px] h-[255px] m-auto mt-20 mb-4 p-12 flex justify-between items-center rounded-lg ">
           <div>
             <div className="text-4xl pb-4">欢迎您，尊敬的用户</div>
-            <div className=" text-gray-400 pb-7">
+            <div className="text-gray-400 pb-7">
               万能PDF编辑专注PDF在线编辑服务，为你提供最便捷 的操作方案与服务！
             </div>
             <Button size="large" type="primary">
@@ -33,76 +276,23 @@ const Home: React.FC = () => {
         </div>
         <div className="w-[860px] m-auto">
           <div className="h-[50px] flex justify-between rounded-full bg-[#EBF0FE]">
-            <div className="w-1/3 flex justify-center items-center rounded-full cursor-pointer">
-              转换为PDF
-            </div>
-            <div className="w-1/3 flex justify-center items-center rounded-full cursor-pointer">
-              PDF转其他
-            </div>
-            <div className="w-1/3 flex justify-center items-center rounded-full cursor-pointer">
-              PDF功能层
-            </div>
+            {renderTabs()}
           </div>
           <div className="grid grid-cols-3 justify-items-start pt-10">
-            <div className="w-1/3 mb-16 cursor-pointer">
-              <img
-                className="block max-w-full m-auto"
-                src={require('./img/icon-word.png')}
-                alt=""
-              />
-              <div className=" text-lg py-4 text-center">Word转PDF</div>
-              <div className=" text-gray-400 text-center leading-6">
-                word(.doc.docx). 转pdf
-              </div>
-            </div>
-            <div className="w-1/3 mb-16 justify-self-center cursor-pointer">
-              <img
-                className="block max-w-full m-auto"
-                src={require('./img/icon-ppt.png')}
-                alt=""
-              />
-              <div className=" text-lg py-4 text-center">PPT转PDF</div>
-              <div className=" text-gray-400 text-center leading-6">
-                ppt(.ppt.pptx) 转pdf
-              </div>
-            </div>
-            <div className="w-1/3 mb-16 justify-self-end cursor-pointer">
-              <img
-                className="block max-w-full m-auto"
-                src={require('./img/icon-excel.png')}
-                alt=""
-              />
-              <div className=" text-lg py-4 text-center">Excel转PDF</div>
-              <div className=" text-gray-400 text-center leading-6">
-                excel(.xls.xlsx)转pdf
-              </div>
-            </div>
-            <div className="w-1/3 mb-16 cursor-pointer">
-              <img
-                className="block max-w-full m-auto"
-                src={require('./img/icon-txt.png')}
-                alt=""
-              />
-              <div className="text-lg py-4 text-center">TXT转PDF</div>
-              <div className="text-gray-400 text-center leading-6">
-                txt转PDF
-              </div>
-            </div>
-            <div className="w-1/3 mb-16 justify-self-center cursor-pointer">
-              <img
-                className="block max-w-full m-auto"
-                src={require('./img/icon-image.png')}
-                alt=""
-              />
-              <div className=" text-lg py-4 text-center">图片转pdf</div>
-              <div className=" text-gray-400 text-center leading-6">
-                图片(.png.jpg)转pdf
-              </div>
-            </div>
+            {renderTabContent()}
           </div>
         </div>
       </div>
       <div className="w-[1000px] h-[400px] bg-white m-auto my-10 rounded-2xl"></div>
+      <div
+        className="h-[763px] flex justify-center items-center relative"
+        style={{ backgroundImage: `url(${require('./img/bg-footer.png')})` }}
+      >
+        <div className="w-[180px] h-[180px] rounded-lg bg-white"></div>
+        <div className="h-[60px] text-gray-300  bg-[#725697] bg-opacity-50  absolute left-0 bottom-0 w-full flex justify-center items-center">
+          ©2018 Yubanmei. All rights reserved. Website by yubanmei@163.co
+        </div>
+      </div>
     </div>
   );
 };
