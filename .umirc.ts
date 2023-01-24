@@ -41,6 +41,11 @@ export default defineConfig({
         },
       ],
     },
+    {
+      title: '登录',
+      path: '/login',
+      component: './login',
+    },
   ],
 
   locale: {
