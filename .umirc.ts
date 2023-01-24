@@ -46,6 +46,11 @@ export default defineConfig({
       path: '/login',
       component: './login',
     },
+    {
+      title: '注册',
+      path: '/register',
+      component: './register',
+    },
   ],
 
   locale: {

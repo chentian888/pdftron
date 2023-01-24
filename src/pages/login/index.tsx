@@ -71,7 +71,7 @@ const Login: React.FC = () => {
             </Form.Item>
           </Form>
           <div className="flex justify-between px-5">
-            <Link className="no-underline text-black" to="/">
+            <Link className="no-underline text-black" to="/register">
               去注册
             </Link>
             <Link className="no-underline text-black" to="/">
