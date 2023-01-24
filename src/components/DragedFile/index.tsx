@@ -79,7 +79,7 @@ const DragedFile: React.FC<Props> = (props) => {
     <>
       <div className="draged-file">
         <div className="draged-file-thumb">
-          <div className="thumb-img">
+          <div className="thumb-img flex justify-center items-center">
             <img className="thumb" src={thumb} alt="" />
           </div>
         </div>

@@ -65,7 +65,7 @@ const Home: React.FC = () => {
         to: '/convertFrom/txt',
       },
       {
-        title: '图片转pdf',
+        title: '图片转PDF',
         desc: '图片(.png.jpg)转PDF',
         icon: 'icon-image',
         className: 'justify-self-center',
