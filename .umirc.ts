@@ -1,7 +1,13 @@
 import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
-  antd: {},
+  antd: {
+    theme: {
+      token: {
+        colorPrimary: '#7F66FA',
+      },
+    },
+  },
   access: {},
   model: {},
   initialState: {},
