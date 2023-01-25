@@ -266,9 +266,9 @@ const Home: React.FC = () => {
           alt=""
         />
         <div className="bg-[#EBF0FE] w-[860px] h-[255px] m-auto mt-20 mb-4 p-12 flex justify-between items-center rounded-lg ">
-          <div>
+          <div className="w-1/2">
             <div className="text-4xl pb-4">欢迎您，尊敬的用户</div>
-            <div className="text-gray-400 pb-7">
+            <div className="text-gray-400 pb-7 leading-6">
               万能PDF编辑专注PDF在线编辑服务，为你提供最便捷 的操作方案与服务！
             </div>
             <Button size="large" type="primary">
