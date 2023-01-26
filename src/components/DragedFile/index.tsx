@@ -13,7 +13,7 @@ interface Props {
 }
 
 const DragedFile: React.FC<Props> = (props) => {
-  const { file, showCheckBox = false, showReplaceBtn = true } = props;
+  const { file, showCheckBox = false, showReplaceBtn = true, accept } = props;
   const { onRemove, onReplace } = useModel('files');
   const { instance } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
@@ -29,27 +29,40 @@ const DragedFile: React.FC<Props> = (props) => {
     const ctx = canvas.getContext('2d');
     ctx!.drawImage(img, 0, 0, img.width, img.height);
     const dataURL = canvas.toDataURL();
-    console.log(dataURL);
+    // console.log(dataURL);
     return dataURL;
     // return dataURL.replace("data:image/png;base64,", "");
   };
 
+  // const getDocument = async (file: File) => {
+  //   const newDoc = await instance!.Core.createDocument(file);
+  //   return await newDoc.getPDFDoc();
+  // };
+
   useEffect(() => {
-    console.log(file);
     // @pdftron/webviewer api
-    instance!.UI.loadDocument(file as any as File, { filename: file.name });
-    const { documentViewer } = instance!.Core;
-    documentViewer.addEventListener('documentLoaded', () => {
-      const doc = documentViewer.getDocument();
-      const pageNum = 1;
+    console.log(thumb);
+    // const fileName = file.name.split('.')[0];
+    instance?.Core.createDocument(file as any as File).then((doc) => {
       doc.loadThumbnail(
-        pageNum,
+        1,
         (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
           // thumbnail is a HTMLCanvasElement or HTMLImageElement
           if (/image\/\w+/.test((file as any as File).type)) {
             (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
             (thumbnail as HTMLImageElement).onload = function () {
               const base64 = getBase64Image(thumbnail as HTMLImageElement);
+              // console.log(thumb)
+              // const reader = new FileReader();
+              // reader.readAsDataURL(file as any as File);
+              // reader.addEventListener(
+              //   'load',
+              //   () => {
+              //     console.log(reader.result);
+              //   },
+              //   false,
+              // );
+
               setThumb(base64);
             };
           } else {
@@ -59,6 +72,8 @@ const DragedFile: React.FC<Props> = (props) => {
         },
       );
     });
+
+    // getDocument(file as any as File).then((doc) => console.log(doc));
   }, [file]);
 
   // 移除
@@ -107,7 +122,11 @@ const DragedFile: React.FC<Props> = (props) => {
         </Tooltip>
 
         {showReplaceBtn && (
-          <Upload beforeUpload={beforeUpload} showUploadList={false}>
+          <Upload
+            beforeUpload={beforeUpload}
+            accept={accept}
+            showUploadList={false}
+          >
             <Tooltip title="替换文件">
               <UploadOutlined style={style} className="file-reload" />
             </Tooltip>
