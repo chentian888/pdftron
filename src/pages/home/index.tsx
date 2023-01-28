@@ -57,18 +57,18 @@ const Home: React.FC = () => {
         className: 'justify-self-end',
         to: '/convertFrom/excel',
       },
-      {
-        title: 'Txt转PDF',
-        desc: 'Txt转PDF',
-        icon: 'icon-txt',
-        className: '',
-        to: '/convertFrom/txt',
-      },
+      // {
+      //   title: 'Txt转PDF',
+      //   desc: 'Txt转PDF',
+      //   icon: 'icon-txt',
+      //   className: '',
+      //   to: '/convertFrom/txt',
+      // },
       {
         title: '图片转PDF',
         desc: '图片(.png.jpg)转PDF',
         icon: 'icon-image',
-        className: 'justify-self-center',
+        className: '',
         to: '/convertFrom/image',
       },
     ];
