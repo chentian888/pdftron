@@ -16,6 +16,17 @@ export default class PDF {
     return blob;
   }
 
+  static async image2pdf(instance: WebViewerInstance, file: UploadFile) {
+    const doc = await instance.Core.createDocument(file as any as File, {
+      filename: file.name,
+    });
+    const data = await doc.getFileData();
+    // const arrBuf = new Uint8Array(data);
+
+    // const blob = new Blob([arrBuf], { type: 'application/pdf' });
+    return data;
+  }
+
   static async openInNewTab(blob: Blob) {
     const url = URL.createObjectURL(blob);
     window.open(url);
