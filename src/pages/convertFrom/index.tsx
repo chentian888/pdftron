@@ -8,7 +8,7 @@ import DragedFile from '@/components/DragedFile';
 // import PdfReplaceText from '@/components/PdfReplaceText';
 // import PdfCrop from '@/components/PdfCrop';
 import type { UploadProps } from 'antd/es/upload/interface';
-import Office2Pdf from '@/utils/ofice2pdf';
+import PDF from '@/utils/pdf';
 
 const { Dragger } = Upload;
 
@@ -93,12 +93,12 @@ const ConvertFrom: React.FC = () => {
     const fileName = file.name.split('.')[0];
     console.log(file);
     // 转blob
-    const blob = await Office2Pdf.toPDFBuffer(instance!, file);
+    const blob = await PDF.office2pdf(instance!, file);
     // 浏览器打开
-    // await Office2Pdf.openPdfInNewTab(blob);
+    // await PDF.openPdfInNewTab(blob);
 
     // 下载
-    await Office2Pdf.download(blob, `${fileName}.pdf`);
+    await PDF.download(blob, `${fileName}.pdf`);
     setLoading(false);
     setSuccess(true);
   };
