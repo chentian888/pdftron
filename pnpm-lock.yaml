@@ -13,6 +13,7 @@ specifiers:
   fs-extra: ^11.1.0
   husky: ^8.0.1
   lint-staged: ^13.0.3
+  lodash-es: ^4.17.21
   prettier: ^2.7.1
   prettier-plugin-organize-imports: ^2
   prettier-plugin-packagejson: ^2
@@ -26,6 +27,7 @@ dependencies:
   '@umijs/max': 4.0.38_116280f3cc9f0c889128846528a19f4c
   antd: 5.1.0
   file-saver: 2.0.5
+  lodash-es: 4.17.21
 
 devDependencies:
   '@types/file-saver': 2.0.5
@@ -6864,6 +6866,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
+    dev: false
+
+  /lodash-es/4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
     dev: false
 
   /lodash.debounce/4.0.8:
