@@ -17,8 +17,8 @@ const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const { fileList, onRemove, beforeUpload, checkFileList } = useModel('files');
-  const { instance, setInstance } = useModel('pdf');
-  const [open, setOpen] = useState(false);
+  const { instance, setInstance, showWebviewer, setShowWebviewer } =
+    useModel('pdf');
   const { from = 'word' } = useParams();
 
   const fileType: Record<string, any> = {
@@ -189,13 +189,14 @@ const ConvertFrom: React.FC = () => {
         </Col> */}
       {renderAction()}
       <Modal
+        className="webviewer-modal"
         title="Modal 1000px width"
         centered
         forceRender
-        open={open}
-        onOk={() => setOpen(false)}
-        onCancel={() => setOpen(false)}
-        width={1000}
+        open={showWebviewer}
+        onOk={() => setShowWebviewer(false)}
+        onCancel={() => setShowWebviewer(false)}
+        width={'100%'}
         footer={null}
       >
         <div className="webviewer" ref={viewer}></div>

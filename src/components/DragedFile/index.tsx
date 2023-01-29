@@ -16,7 +16,7 @@ interface Props {
 const DragedFile: React.FC<Props> = (props) => {
   const { file, showCheckBox = false, showReplaceBtn = true, accept } = props;
   const { onRemove, onReplace, unCheckFile, checkFile } = useModel('files');
-  const { instance } = useModel('pdf');
+  const { instance, setShowWebviewer } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
   const [totalPage] = useState<number>(0);
 
@@ -89,7 +89,15 @@ const DragedFile: React.FC<Props> = (props) => {
     return false;
   };
 
-  const handlePreview = () => {};
+  // 预览
+  const handlePreview = () => {
+    setShowWebviewer(true);
+    instance?.UI.loadDocument(file as any as File, { filename: file.name });
+    const { documentViewer } = instance!.Core;
+    documentViewer!.addEventListener('documentLoaded', () => {
+      // perform document operations
+    });
+  };
 
   const checkBoxChange = (e: CheckboxChangeEvent) => {
     const val = e.target.checked;
