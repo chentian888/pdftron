@@ -38,6 +38,16 @@ export default class PDF {
     return blob;
   }
 
+  static file2Buf(file: File) {
+    return new Promise<ArrayBuffer>((resolve) => {
+      const fr = new FileReader();
+      fr.readAsArrayBuffer(file);
+      fr.addEventListener('loadend', () => {
+        resolve(fr.result as ArrayBuffer);
+      });
+    });
+  }
+
   static async openInNewTab(blob: Blob) {
     const url = URL.createObjectURL(blob);
     window.open(url);

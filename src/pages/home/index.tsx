@@ -111,7 +111,7 @@ const Home: React.FC = () => {
       },
       {
         title: 'PDF转图片',
-        desc: 'PDF转图片 （jpeg,png）',
+        desc: 'PDF转图片（jpeg,png）',
         icon: 'icon-image',
         className: 'justify-self-end',
         to: '/convertTo/image',
