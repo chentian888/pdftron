@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
+import { last, split, nth } from 'lodash-es';
 import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
@@ -15,7 +16,7 @@ const { Dragger } = Upload;
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload } = useModel('files');
+  const { fileList, onRemove, beforeUpload, checkFileList } = useModel('files');
   const { instance, setInstance } = useModel('pdf');
   const [open, setOpen] = useState(false);
   const { from = 'word' } = useParams();
@@ -69,7 +70,11 @@ const ConvertFrom: React.FC = () => {
   const renderFile = () => {
     return fileList.map((file, index) => (
       <Col span={4} key={index}>
-        <DragedFile file={file} accept={baseData.accept} />
+        <DragedFile
+          file={file}
+          accept={baseData.accept}
+          showCheckBox={from === 'image'}
+        />
       </Col>
     ));
   };
@@ -86,16 +91,23 @@ const ConvertFrom: React.FC = () => {
     );
   };
 
-  // office类型文件转blob并保存为pdf
-  const toPDFBufferAndSave = async () => {
+  // 转换
+  const convert = async () => {
     setLoading(true);
-    const file = fileList[0];
-    const fileName = file.name.split('.')[0];
-    console.log(file);
+    // 始终取最后一个文件做为下载显示的文件名
+    const lastFile = last(fileList);
+    const fileName = nth(split(lastFile?.name, '.'), 0);
+    console.log(lastFile);
+
     // 转blob
-    const blob = await PDF.office2pdf(instance!, file);
-    // 浏览器打开
-    // await PDF.openPdfInNewTab(blob);
+    let blob = null;
+    if (from === 'image') {
+      blob = await PDF.image2pdf(instance!, checkFileList);
+    } else {
+      blob = await PDF.office2pdf(instance!, lastFile!);
+      // 浏览器打开
+      // await PDF.openPdfInNewTab(blob);
+    }
 
     // 下载
     await PDF.download(blob, `${fileName}.pdf`);
@@ -128,6 +140,9 @@ const ConvertFrom: React.FC = () => {
   // 操作按钮
   const renderAction = () => {
     let action;
+    // image转pdf勾选后才能转换
+    const convertBtnDisabled = from === 'image' && !checkFileList.length;
+
     if (fileList.length && success) {
       action = (
         <Button type="primary" size="large" block>
@@ -140,8 +155,9 @@ const ConvertFrom: React.FC = () => {
           type="primary"
           size="large"
           block
+          disabled={convertBtnDisabled}
           loading={loading}
-          onClick={() => toPDFBufferAndSave()}
+          onClick={() => convert()}
         >
           转换
         </Button>

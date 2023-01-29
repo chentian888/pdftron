@@ -3,6 +3,7 @@ import { Checkbox, Tooltip, Upload } from 'antd';
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
 import type { UploadFile } from 'antd/es/upload/interface';
+import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import './index.less';
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
 
 const DragedFile: React.FC<Props> = (props) => {
   const { file, showCheckBox = false, showReplaceBtn = true, accept } = props;
-  const { onRemove, onReplace } = useModel('files');
+  const { onRemove, onReplace, unCheckFile, checkFile } = useModel('files');
   const { instance } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
   const [totalPage] = useState<number>(0);
@@ -90,6 +91,16 @@ const DragedFile: React.FC<Props> = (props) => {
 
   const handlePreview = () => {};
 
+  const checkBoxChange = (e: CheckboxChangeEvent) => {
+    const val = e.target.checked;
+    if (val) {
+      checkFile(file);
+    } else {
+      unCheckFile(file);
+    }
+    console.log(val);
+  };
+
   return (
     <>
       <div className="draged-file">
@@ -103,7 +114,13 @@ const DragedFile: React.FC<Props> = (props) => {
         </div>
         {!!totalPage && <div className="file-pages">{totalPage} pages</div>}
 
-        {showCheckBox && <Checkbox style={style} className="file-pick" />}
+        {showCheckBox && (
+          <Checkbox
+            style={style}
+            className="file-pick"
+            onChange={checkBoxChange}
+          />
+        )}
 
         <Tooltip title="预览文件">
           <EyeOutlined
