@@ -125,7 +125,7 @@ const DragedFile: React.FC<Props> = (props) => {
         {showCheckBox && (
           <Checkbox
             style={style}
-            className="file-pick"
+            className="cursor-pointer absolute right-[15px] top-[5px]"
             onChange={checkBoxChange}
           />
         )}
@@ -133,7 +133,7 @@ const DragedFile: React.FC<Props> = (props) => {
         <Tooltip title="预览文件">
           <EyeOutlined
             style={style}
-            className="file-preview"
+            className="cursor-pointer absolute left-[15px] top-[8px]"
             onClick={() => handlePreview()}
           />
         </Tooltip>
@@ -141,7 +141,7 @@ const DragedFile: React.FC<Props> = (props) => {
         <Tooltip title="删除文件">
           <DeleteOutlined
             style={style}
-            className="file-remove"
+            className="cursor-pointer absolute left-[15px] bottom-[15px]"
             onClick={(e) => handleRemove(e, file)}
           />
         </Tooltip>
@@ -153,7 +153,10 @@ const DragedFile: React.FC<Props> = (props) => {
             showUploadList={false}
           >
             <Tooltip title="替换文件">
-              <UploadOutlined style={style} className="file-reload" />
+              <UploadOutlined
+                style={style}
+                className="cursor-pointer absolute right-[15px] bottom-[15px]"
+              />
             </Tooltip>
           </Upload>
         )}
