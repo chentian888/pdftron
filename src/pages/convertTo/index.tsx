@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
-import WebViewer, { Core } from '@pdftron/webviewer';
+import WebViewer from '@pdftron/webviewer';
 import { last, split, nth } from 'lodash-es';
 import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
+import ImageFile from '@/components/ImageFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
 // import PdfReplaceText from '@/components/PdfReplaceText';
 // import PdfCrop from '@/components/PdfCrop';
@@ -16,7 +17,8 @@ const { Dragger } = Upload;
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload } = useModel('files');
+  const { fileList, onRemove, beforeUpload, imageList, setImageList } =
+    useModel('files');
   const { instance, setInstance, showWebviewer, setShowWebviewer } =
     useModel('pdf');
   const { to = 'word' } = useParams();
@@ -68,6 +70,7 @@ const ConvertFrom: React.FC = () => {
     );
   }, []);
 
+  // 文件列表
   const renderFile = () => {
     return fileList.map((file, index) => (
       <Col span={4} key={index}>
@@ -78,6 +81,21 @@ const ConvertFrom: React.FC = () => {
         />
       </Col>
     ));
+  };
+
+  // 转换为image列表
+  const renderConvertImage = () => {
+    if (imageList.length) {
+      return (
+        <Row gutter={[16, 16]}>
+          {imageList.map((img, index) => (
+            <Col span={4} key={img.file.size}>
+              <ImageFile img={img} index={index + 1} />
+            </Col>
+          ))}
+        </Row>
+      );
+    }
   };
 
   const renderMoreFileButton = () => {
@@ -105,27 +123,20 @@ const ConvertFrom: React.FC = () => {
     if (to === 'image') {
       // blob = await PDF.image2pdf(instance!, checkFileList);
       const buf = await PDF.file2Buf(lastFile as any as File);
-      console.log(Core);
-      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-      console.log(doc);
-      const pdfdraw = await Core.PDFNet.PDFDraw.create(92);
-      const itr = await doc.getPageIterator(1);
-      const currPage = await itr.current();
-      const pngBuffer = await pdfdraw.exportBuffer(currPage, 'PNG');
-      const arrBuf = new Uint8Array(pngBuffer);
-      console.log(arrBuf);
-      blob = new Blob([arrBuf], { type: 'image/png' });
-      console.log(blob);
+      const res = await PDF.pdf2image(instance!, buf, lastFile!);
+      setImageList(res);
     } else {
       blob = await PDF.office2pdf(instance!, lastFile!);
-      // 浏览器打开
-      // await PDF.openPdfInNewTab(blob);
+      // 下载
+      await PDF.download(blob, `${fileName}.pdf`);
     }
 
-    // 下载
-    await PDF.download(blob, `${fileName}.png`);
     setLoading(false);
     setSuccess(true);
+  };
+
+  const downloadAll = async () => {
+    await PDF.downloadZip(imageList);
   };
 
   // 内容区域
@@ -156,7 +167,7 @@ const ConvertFrom: React.FC = () => {
 
     if (fileList.length && success) {
       action = (
-        <Button type="primary" size="large" block>
+        <Button type="primary" size="large" block onClick={downloadAll}>
           全部下载
         </Button>
       );
@@ -188,12 +199,15 @@ const ConvertFrom: React.FC = () => {
         {...props}
         openFileDialogOnClick={false}
       ></Dragger>
-      {fileList.length && (
-        <Row gutter={16}>
+
+      {!imageList.length && fileList.length && (
+        <Row gutter={[16, 16]}>
           {renderFile()}
           {renderMoreFileButton()}
         </Row>
       )}
+
+      {renderConvertImage()}
 
       {renderContent()}
       {renderAction()}
