@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from 'antd';
 import { Link } from '@umijs/max';
-import Title from '@/components/Title';
+// import Title from '@/components/Title';
 
 type TabType = { name: string; value: string };
 
@@ -251,10 +251,10 @@ const Home: React.FC = () => {
 
   return (
     <div className="page" style={{ background: '#f1f3f8' }}>
-      <Title title="PDF万能编辑器" />
-      <div className="flex justify-end">
+      {/* <Title title="PDF万能编辑器" /> */}
+      <div className="flex justify-center">
         <img
-          className="block w-1200"
+          className="block max-w-full"
           src={require('./img/banner.png')}
           alt=""
         />

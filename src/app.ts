@@ -1,3 +1,5 @@
+// @ts-nocheck
+import { matchRoutes } from '@umijs/max';
 import type { RequestConfig, AxiosResponse } from '@umijs/max';
 import { message } from 'antd';
 // 运行时配置
@@ -8,6 +10,13 @@ import './style/index.less';
 // 更多信息见文档：https://next.umijs.org/docs/api/runtime-config#getinitialstate
 export async function getInitialState(): Promise<{ name: string }> {
   return { name: '@umijs/max' };
+}
+
+export function onRouteChange({ clientRoutes, location }) {
+  const route = matchRoutes(clientRoutes, location.pathname)?.pop()?.route;
+  if (route) {
+    document.title = route.title || '';
+  }
 }
 
 export const request: RequestConfig = {

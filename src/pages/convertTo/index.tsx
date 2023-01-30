@@ -3,7 +3,7 @@ import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
 import { last, split, nth } from 'lodash-es';
-import Title from '@/components/Title';
+// import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 import ImageFile from '@/components/ImageFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
@@ -121,10 +121,12 @@ const ConvertFrom: React.FC = () => {
     // 转blob
     let blob = null;
     if (to === 'image') {
-      // blob = await PDF.image2pdf(instance!, checkFileList);
       const buf = await PDF.file2Buf(lastFile as any as File);
       const res = await PDF.pdf2image(instance!, buf, lastFile!);
       setImageList(res);
+    } else if (to === 'pdfa') {
+      blob = await PDF.pdf2pdfa(instance!, lastFile!);
+      await PDF.download(blob, `${fileName}.pdf`);
     } else {
       blob = await PDF.office2pdf(instance!, lastFile!);
       // 下载
@@ -193,7 +195,7 @@ const ConvertFrom: React.FC = () => {
 
   return (
     <>
-      <Title title="转为PDF" />
+      {/* <Title title="转为PDF" /> */}
       <Dragger
         className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}

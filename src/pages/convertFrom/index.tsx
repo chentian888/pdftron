@@ -3,7 +3,7 @@ import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
 import { last, split, nth } from 'lodash-es';
-import Title from '@/components/Title';
+// import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
 // import PdfReplaceText from '@/components/PdfReplaceText';
@@ -172,7 +172,7 @@ const ConvertFrom: React.FC = () => {
 
   return (
     <>
-      <Title title="转为PDF" />
+      {/* <Title title="转为PDF" /> */}
       <Dragger
         className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}

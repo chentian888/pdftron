@@ -1,6 +1,10 @@
 import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
+  define: {
+    LICENSE_KEY:
+      'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+  },
   antd: {
     theme: {
       token: {

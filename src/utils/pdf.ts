@@ -62,6 +62,24 @@ export default class PDF {
     return allBlob;
   }
 
+  // PDF转PDF/A
+  static async pdf2pdfa(instance: WebViewerInstance, file: UploadFile) {
+    return new Promise<Blob>((resolve) => {
+      async function main() {
+        const source = await PDF.file2Buf(file as any as File);
+        const pdfa =
+          await instance?.Core.PDFNet.PDFACompliance.createFromBuffer(
+            true,
+            source,
+          );
+        const buf = await pdfa!.saveAsFromBuffer(false);
+        const blob = new Blob([buf], { type: 'application/pdf' });
+        resolve(blob);
+      }
+      instance?.Core.PDFNet.runWithCleanup(main, LICENSE_KEY);
+    });
+  }
+
   // ArrayBuffer转为Blob
   static async buf2Blob(buf: ArrayBuffer, type: string = 'application/pdf') {
     const arrBuf = new Uint8Array(buf);
