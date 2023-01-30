@@ -25,7 +25,7 @@ const PdfCrop: React.FC = () => {
         不输入则裁剪所有，有多个跳过的页“/”隔开，例：“1/3/6”
       </div>
       <div className="flex justify-between w-full mb-10">
-        <div className="w-48 h-48 flex flex-col justify-center items-center bg-white rounded-lg border border-dashed border-purple-500">
+        <div className="w-48 h-48 flex flex-col justify-center items-center bg-white rounded-lg border border-dashed border-purple-600">
           <img
             className=" w-[46px] h-[46px] block"
             src={require('./img/icon-corp-horizontal.png')}
@@ -33,7 +33,7 @@ const PdfCrop: React.FC = () => {
           />
           <div className="mt-4">左右对半裁剪</div>
         </div>
-        <div className="w-48 h-48 flex flex-col justify-center items-center  bg-white rounded-lg border border-dashed border-purple-500">
+        <div className="w-48 h-48 flex flex-col justify-center items-center  bg-white rounded-lg border border-dashed border-purple-600">
           <img
             className=" w-[46px] h-[46px] block"
             src={require('./img/icon-corp-vertical.png')}

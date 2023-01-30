@@ -33,11 +33,17 @@ export default class PDF {
 
     // 获取文件数据流
     const data = await firstDoc.getFileData();
-    const arrBuf = new Uint8Array(data);
-    const blob = new Blob([arrBuf], { type: 'application/pdf' });
+    return PDF.buf2Blob(data);
+  }
+
+  // ArrayBuffer转为blob
+  static buf2Blob(buf: ArrayBuffer, type: string = 'application/pdf') {
+    const arrBuf = new Uint8Array(buf);
+    const blob = new Blob([arrBuf], { type });
     return blob;
   }
 
+  // file转为ArrayBuffer
   static file2Buf(file: File) {
     return new Promise<ArrayBuffer>((resolve) => {
       const fr = new FileReader();

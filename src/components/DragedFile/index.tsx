@@ -4,7 +4,6 @@ import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
-import './index.less';
 
 interface Props {
   file: UploadFile;
@@ -111,16 +110,26 @@ const DragedFile: React.FC<Props> = (props) => {
 
   return (
     <>
-      <div className="draged-file">
-        <div className="draged-file-thumb">
-          <div className="thumb-img flex justify-center items-center">
-            <img className="thumb" src={thumb} alt="" />
+      <div className="h-[240px] relative flex flex-col bg-white rounded-md border border-dashed border-purple-600 overflow-hidden">
+        <div className="bg-[#f2f3f6] flex-1 p-2 pt-8">
+          <div className="h-[127px] flex justify-center items-center">
+            <img
+              className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
+              src={thumb}
+              alt=""
+            />
           </div>
         </div>
-        <div className="draged-file-info">
-          <div className="file-name">{file.name}</div>
+        <div className="h-[86px]">
+          <div className="text-gray-400 p-1 text-center overflow-hidden text-ellipsis whitespace-normal">
+            {file.name}
+          </div>
         </div>
-        {!!totalPage && <div className="file-pages">{totalPage} pages</div>}
+        {!!totalPage && (
+          <div className="absolute text-center left-8 right-8 bottom-5 text-black">
+            {totalPage} pages
+          </div>
+        )}
 
         {showCheckBox && (
           <Checkbox
