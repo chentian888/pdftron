@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
-import { map, slice, forEach, nth, split } from 'lodash-es';
+import { map, slice, forEach, nth, split, flatten } from 'lodash-es';
 import { ConvertFile } from '@/types/typings.d';
 
 export default class PDF {
@@ -27,21 +26,18 @@ export default class PDF {
 
       const data = await doc.getFileData();
       const blob = await this.buf2Blob(data);
-      // console.log(buf);
-      //optionally save the blob to a file or upload to a server
-      // const blob = new Blob([buf], { type: 'application/pdf' });
       console.log(blob);
       return { file: file, newfile: blob, fileName: `${fileName}.pdf` };
     };
 
     // const aa = map(files, convert);
     const mergePromise = function* () {
-      const p1 = yield convert(files[0]);
-      const p2 = yield convert(files[1]);
-      return Promise.resolve([p1, p2]);
+      for (let i = 0; i < files.length; i++) {
+        yield convert(files[i]);
+      }
     };
 
-    function run(fn: Generator): Promise<ConvertFile[]> {
+    function run(fn: Generator<Promise<ConvertFile>>): Promise<ConvertFile[]> {
       return new Promise((resolve) => {
         const g = fn;
         const arr: ConvertFile[] = [];
@@ -56,7 +52,7 @@ export default class PDF {
             resolve(arr);
           } else {
             //函数没有执行完毕则递归执行
-            result.value.then(function (nowData: ConvertFile) {
+            result.value.then((nowData: ConvertFile) => {
               next(nowData);
             });
           }
@@ -99,9 +95,8 @@ export default class PDF {
     instance: WebViewerInstance,
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
-    let allBlob: ConvertFile[] = [];
-
     const convert = async (file: UploadFile) => {
+      let allBlob: ConvertFile[] = [];
       const fileName = nth(split(file.name, '.'), 0);
       const buf = await PDF.file2Buf(file as any as File);
       const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
@@ -120,9 +115,13 @@ export default class PDF {
         });
         itr?.next();
       }
+      return allBlob;
     };
-    forEach(files, convert);
-    return allBlob;
+    const a = map(files, convert);
+    console.log(a);
+    const aal = await Promise.all(a);
+    console.log(aal);
+    return flatten(aal);
   }
 
   // PDF转PDF/A

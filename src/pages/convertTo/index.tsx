@@ -17,7 +17,7 @@ const { Dragger } = Upload;
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload, imageList, setImageList } =
+  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
     useModel('files');
   const { instance, setInstance, showWebviewer, setShowWebviewer } =
     useModel('pdf');
@@ -26,23 +26,27 @@ const ConvertFrom: React.FC = () => {
   const fileType: Record<string, any> = {
     word: {
       accept: '.pdf',
+      multiple: true,
       title: 'PDF转Word',
       desc: 'PDF转Word',
     },
     ppt: {
       accept: '.pdf',
+      multiple: true,
       title: 'PDF转PPT',
       desc: 'PDF转PPT',
     },
     excel: {
       accept: '.pdf',
+      multiple: true,
       title: 'PDF转Excel',
       desc: 'PDF转Excel',
     },
-    xps: { accept: '.pdf', title: 'PDF转Xps', desc: 'PDF转Xps' },
-    epud: { accept: '.pdf', title: 'PDF转Epud', desc: 'PDF转Epud' },
+    // xps: { accept: '.pdf', title: 'PDF转Xps', desc: 'PDF转Xps' },
+    // epud: { accept: '.pdf', title: 'PDF转Epud', desc: 'PDF转Epud' },
     image: {
       accept: '.pdf',
+      multiple: true,
       title: 'PDF转图片',
       desc: 'PDF转图片（jpeg,png）',
     },
@@ -70,34 +74,6 @@ const ConvertFrom: React.FC = () => {
     );
   }, []);
 
-  // 文件列表
-  const renderFile = () => {
-    return fileList.map((file, index) => (
-      <Col span={4} key={index}>
-        <DragedFile
-          file={file}
-          accept={baseData.accept}
-          showCheckBox={to === 'image'}
-        />
-      </Col>
-    ));
-  };
-
-  // 转换为image列表
-  const renderConvertImage = () => {
-    if (imageList.length) {
-      return (
-        <Row gutter={[16, 16]}>
-          {imageList.map((img, index) => (
-            <Col span={4} key={img.file.size}>
-              <ImageFile img={img} index={index + 1} />
-            </Col>
-          ))}
-        </Row>
-      );
-    }
-  };
-
   const renderMoreFileButton = () => {
     return (
       baseData.multiple && (
@@ -108,6 +84,39 @@ const ConvertFrom: React.FC = () => {
         </Col>
       )
     );
+  };
+
+  // 文件列表
+  const renderInitFile = () => {
+    const list = fileList.map((file, index) => (
+      <Col span={4} key={index}>
+        <DragedFile
+          file={file}
+          accept={baseData.accept}
+          showCheckBox={to === 'image'}
+        />
+      </Col>
+    ));
+    if (!success && fileList.length) {
+      return (
+        <Row gutter={16}>
+          {list}
+          {renderMoreFileButton()}
+        </Row>
+      );
+    }
+  };
+
+  // 转换为image列表
+  const renderConvertFile = () => {
+    const list = convertList.map((file, index) => (
+      <Col span={4} key={index}>
+        <ImageFile img={file} index={index} />
+      </Col>
+    ));
+    if (success) {
+      return <Row gutter={16}>{list}</Row>;
+    }
   };
 
   // 转换
@@ -123,13 +132,14 @@ const ConvertFrom: React.FC = () => {
     if (to === 'image') {
       // const buf = await PDF.file2Buf(lastFile as any as File);
       const res = await PDF.pdf2image(instance!, fileList);
-      setImageList(res);
+      console.log(res);
+      setConvertList(res);
     } else if (to === 'pdfa') {
       blob = await PDF.pdf2pdfa(instance!, lastFile!);
       await PDF.download(blob, `${fileName}.pdf`);
     } else {
       const arr = await PDF.office2pdf(instance!, fileList);
-      setImageList(arr);
+      setConvertList(arr);
       // 下载
       await PDF.downloadZip(arr);
     }
@@ -139,11 +149,12 @@ const ConvertFrom: React.FC = () => {
   };
 
   const downloadAll = async () => {
-    await PDF.downloadZip(imageList);
+    console.log(convertList);
+    await PDF.downloadZip(convertList);
   };
 
   // 内容区域
-  const renderContent = () => {
+  const renderInitContent = () => {
     if (!fileList.length) {
       return (
         <div className="w-1/3 m-auto h-full flex justify-center items-center flex-col relative z-10">
@@ -168,7 +179,7 @@ const ConvertFrom: React.FC = () => {
   const renderAction = () => {
     let action;
 
-    if (fileList.length && success) {
+    if (success) {
       action = (
         <Button type="primary" size="large" block onClick={downloadAll}>
           全部下载
@@ -202,17 +213,10 @@ const ConvertFrom: React.FC = () => {
         {...props}
         openFileDialogOnClick={false}
       ></Dragger>
+      {renderInitFile()}
+      {renderInitContent()}
+      {renderConvertFile()}
 
-      {!imageList.length && fileList.length && (
-        <Row gutter={[16, 16]}>
-          {renderFile()}
-          {renderMoreFileButton()}
-        </Row>
-      )}
-
-      {renderConvertImage()}
-
-      {renderContent()}
       {renderAction()}
       <Modal
         className="webviewer-modal"
