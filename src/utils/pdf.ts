@@ -1,24 +1,79 @@
+// @ts-nocheck
 import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
 import { map, slice, forEach, nth, split } from 'lodash-es';
-import { ConvertImageFile } from '@/types/convert';
+import { ConvertFile } from '@/types/typings.d';
+
 export default class PDF {
-  private static licenseKey: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0';
+  private static licenseKey =
+    'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0';
 
-  static async office2pdf(instance: WebViewerInstance, file: UploadFile) {
-    // perform the conversion with no optional parameters
-    const buf = await (instance.Core as any).officeToPDFBuffer(file, {
-      l: this.licenseKey,
-    });
+  static async office2pdf(
+    instance: WebViewerInstance,
+    files: UploadFile[],
+  ): Promise<ConvertFile[]> {
+    const convert = async (file: UploadFile): Promise<ConvertFile> => {
+      const fileName = nth(split(file?.name, '.'), 0);
+      // const buf = await (instance.Core as any).officeToPDFBuffer(file, {
+      //   l: this.licenseKey,
+      // });
 
-    //optionally save the blob to a file or upload to a server
-    const blob = new Blob([buf], { type: 'application/pdf' });
-    return blob;
+      const doc = await instance.Core.createDocument(file as any as File, {
+        filename: file.name,
+        loadAsPDF: true,
+      });
+
+      const data = await doc.getFileData();
+      const blob = await this.buf2Blob(data);
+      // console.log(buf);
+      //optionally save the blob to a file or upload to a server
+      // const blob = new Blob([buf], { type: 'application/pdf' });
+      console.log(blob);
+      return { file: file, newfile: blob, fileName: `${fileName}.pdf` };
+    };
+
+    // const aa = map(files, convert);
+    const mergePromise = function* () {
+      const p1 = yield convert(files[0]);
+      const p2 = yield convert(files[1]);
+      return Promise.resolve([p1, p2]);
+    };
+
+    function run(fn: Generator): Promise<ConvertFile[]> {
+      return new Promise((resolve) => {
+        const g = fn;
+        const arr: ConvertFile[] = [];
+        function next(preData?: ConvertFile) {
+          if (preData) {
+            //如果有数据则push进数组
+            arr.push(preData);
+          }
+          let result = g.next(preData); //获取每一步执行结果，其中value为promise对象，done表示是否执行完成
+          if (result.done) {
+            //函数执行完毕则resolve数组
+            resolve(arr);
+          } else {
+            //函数没有执行完毕则递归执行
+            result.value.then(function (nowData: ConvertFile) {
+              next(nowData);
+            });
+          }
+        }
+        next();
+      });
+    }
+    const blobArray = await run(mergePromise());
+    // const blobArray = await Promise.all(aa);
+    // console.log(blobArray);
+    return blobArray;
   }
 
-  static async image2pdf(instance: WebViewerInstance, files: UploadFile[]) {
+  static async image2pdf(
+    instance: WebViewerInstance,
+    files: UploadFile[],
+  ): Promise<ConvertFile[]> {
     // 通过文件创建pdf类型文档
     const docsPromise = map(files, async (file) => {
       return await instance.Core.createDocument(file as any as File, {
@@ -35,30 +90,38 @@ export default class PDF {
 
     // 获取文件数据流
     const data = await firstDoc.getFileData();
-    return await PDF.buf2Blob(data);
+    const blob = await PDF.buf2Blob(data);
+    return [{ file: files[0], newfile: blob, fileName: 'all.pdf' }];
   }
 
   // PDF转Image
   static async pdf2image(
     instance: WebViewerInstance,
-    data: ArrayBuffer,
-    file: UploadFile,
-  ) {
-    const fileName = nth(split(file.name, '.'), 0);
-    const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(data);
-    const pdfdraw = await instance?.Core.PDFNet.PDFDraw.create(92);
-    const itr = await doc?.getPageIterator(1);
-    let allBlob = [];
+    files: UploadFile[],
+  ): Promise<ConvertFile[]> {
+    let allBlob: ConvertFile[] = [];
 
-    while (await itr?.hasNext()) {
-      const currPage = await itr?.current();
-      const pageIndex = await currPage.getIndex();
-      const pngBuffer = await pdfdraw?.exportBuffer(currPage!, 'PNG');
-      const blob = await PDF.buf2Blob(pngBuffer, 'image/png');
-      // allBlob.push({ file: blob, fileName: `${file.name}-${pageIndex}.png` });
-      allBlob.push({ file: blob, fileName: `${fileName}-${pageIndex}.png` });
-      itr?.next();
-    }
+    const convert = async (file: UploadFile) => {
+      const fileName = nth(split(file.name, '.'), 0);
+      const buf = await PDF.file2Buf(file as any as File);
+      const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const pdfdraw = await instance?.Core.PDFNet.PDFDraw.create(92);
+      const itr = await doc?.getPageIterator(1);
+
+      while (await itr?.hasNext()) {
+        const currPage = await itr?.current();
+        const pageIndex = await currPage.getIndex();
+        const pngBuffer = await pdfdraw?.exportBuffer(currPage!, 'PNG');
+        const blob = await PDF.buf2Blob(pngBuffer, 'image/png');
+        allBlob.push({
+          file: file,
+          newfile: blob,
+          fileName: `${fileName}-${pageIndex}.png`,
+        });
+        itr?.next();
+      }
+    };
+    forEach(files, convert);
     return allBlob;
   }
 
@@ -76,7 +139,46 @@ export default class PDF {
         const blob = new Blob([buf], { type: 'application/pdf' });
         resolve(blob);
       }
-      instance?.Core.PDFNet.runWithCleanup(main, LICENSE_KEY);
+      instance?.Core.PDFNet.runWithCleanup(main, this.licenseKey);
+    });
+  }
+
+  static genThumbnail(
+    instance: WebViewerInstance,
+    file: UploadFile,
+  ): Promise<string> {
+    return new Promise((resolve) => {
+      instance?.Core.createDocument(file as any as File).then((doc) => {
+        doc.loadThumbnail(
+          1,
+          (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
+            // thumbnail is a HTMLCanvasElement or HTMLImageElement
+            if (/image\/\w+/.test((file as any as File).type)) {
+              (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
+              (thumbnail as HTMLImageElement).onload = function () {
+                const base64 = PDF.getBase64Image(
+                  thumbnail as HTMLImageElement,
+                );
+                console.log(base64);
+                // console.log(thumb)
+                // const reader = new FileReader();
+                // reader.readAsDataURL(file as any as File);
+                // reader.addEventListener(
+                //   'load',
+                //   () => {
+                //     console.log(reader.result);
+                //   },
+                //   false,
+                // );
+                resolve(base64);
+              };
+            } else {
+              const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+              resolve(base64);
+            }
+          },
+        );
+      });
     });
   }
 
@@ -114,6 +216,17 @@ export default class PDF {
     });
   }
 
+  static getBase64Image(img: HTMLImageElement) {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx!.drawImage(img, 0, 0, img.width, img.height);
+    const dataURL = canvas.toDataURL();
+    // console.log(dataURL);
+    return dataURL;
+  }
+
   static async openInNewTab(blob: Blob) {
     const url = URL.createObjectURL(blob);
     window.open(url);
@@ -125,10 +238,10 @@ export default class PDF {
   }
 
   // 下载zip
-  static async downloadZip(list: ConvertImageFile[]) {
+  static async downloadZip(list: ConvertFile[]) {
     const zip = new JSZip();
     forEach(list, (data) => {
-      zip.file(data.fileName, data.file);
+      zip.file(data.fileName, data.newfile);
     });
     const pack = await zip.generateAsync({
       type: 'blob',

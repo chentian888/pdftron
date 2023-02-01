@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Checkbox, Tooltip, Upload } from 'antd';
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
+import PDF from '@/utils/pdf';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 
@@ -21,58 +22,19 @@ const DragedFile: React.FC<Props> = (props) => {
 
   const style = { fontSize: '19px', color: '#6478B3' };
 
-  // image转base64
-  const getBase64Image = (img: HTMLImageElement) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx!.drawImage(img, 0, 0, img.width, img.height);
-    const dataURL = canvas.toDataURL();
-    // console.log(dataURL);
-    return dataURL;
-    // return dataURL.replace("data:image/png;base64,", "");
-  };
-
   // const getDocument = async (file: File) => {
   //   const newDoc = await instance!.Core.createDocument(file);
   //   return await newDoc.getPDFDoc();
   // };
 
+  const computedThumb = async () => {
+    const base64 = await PDF.genThumbnail(instance!, file);
+    console.log(base64);
+    setThumb(base64);
+  };
+
   useEffect(() => {
-    // @pdftron/webviewer api
-    console.log(thumb);
-    // const fileName = file.name.split('.')[0];
-    instance?.Core.createDocument(file as any as File).then((doc) => {
-      doc.loadThumbnail(
-        1,
-        (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
-          // thumbnail is a HTMLCanvasElement or HTMLImageElement
-          if (/image\/\w+/.test((file as any as File).type)) {
-            (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
-            (thumbnail as HTMLImageElement).onload = function () {
-              const base64 = getBase64Image(thumbnail as HTMLImageElement);
-              // console.log(thumb)
-              // const reader = new FileReader();
-              // reader.readAsDataURL(file as any as File);
-              // reader.addEventListener(
-              //   'load',
-              //   () => {
-              //     console.log(reader.result);
-              //   },
-              //   false,
-              // );
-
-              setThumb(base64);
-            };
-          } else {
-            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-            setThumb(base64);
-          }
-        },
-      );
-    });
-
+    computedThumb();
     // getDocument(file as any as File).then((doc) => console.log(doc));
   }, [file]);
 

@@ -8,11 +8,11 @@ import {
 import { useModel } from '@umijs/max';
 // import { split, nth } from 'lodash-es';
 import PDF from '@/utils/pdf';
-import { ConvertImageFile } from '@/types/convert';
+import { ConvertFile } from '@/types/typings.d';
 // import type { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
-  img: ConvertImageFile;
+  img: ConvertFile;
   index: number;
 }
 
@@ -25,7 +25,7 @@ const ImageFile: React.FC<Props> = (props) => {
   const style = { fontSize: '19px', color: '#6478B3' };
 
   const computedThumb = async () => {
-    const base64 = await PDF.blob2Base64(img.file);
+    const base64 = await PDF.blob2Base64(img.newfile);
     setThumb(base64);
   };
 
@@ -41,7 +41,9 @@ const ImageFile: React.FC<Props> = (props) => {
   // 预览
   const handlePreview = () => {
     setShowWebviewer(true);
-    instance?.UI.loadDocument(img.file, { filename: img.fileName });
+    instance?.UI.loadDocument(img.file as any as File, {
+      filename: img.fileName,
+    });
     const { documentViewer } = instance!.Core;
     documentViewer!.addEventListener('documentLoaded', () => {
       // perform document operations
@@ -50,7 +52,7 @@ const ImageFile: React.FC<Props> = (props) => {
 
   // 下载图片
   const downloadImage = () => {
-    PDF.download(img.file, img.fileName);
+    PDF.download(img.newfile, img.fileName);
   };
 
   return (

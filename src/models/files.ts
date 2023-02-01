@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UploadFile } from 'antd/es/upload/interface';
-import type { ConvertImageFile } from '@/types/convert';
+import type { ConvertFile } from '@/types/typings.d';
 
 export default () => {
   // 选择的文件列表
@@ -10,7 +10,10 @@ export default () => {
   const [checkFileList, setCheckFileList] = useState<UploadFile[]>([]);
 
   // 转换后的图片列表
-  const [imageList, setImageList] = useState<ConvertImageFile[]>([]);
+  const [imageList, setImageList] = useState<ConvertFile[]>([]);
+
+  // 转换后的文件列表
+  const [convertList, setConvertList] = useState<ConvertFile[]>([]);
 
   // 移除文件
   function onRemove(file: UploadFile) {
@@ -35,6 +38,11 @@ export default () => {
     return false;
   }
 
+  // 清除文件列联表
+  function clearFileList() {
+    setFileList([]);
+  }
+
   // 勾选文件
   async function checkFile(file: UploadFile) {
     setCheckFileList([...checkFileList, file]);
@@ -57,18 +65,41 @@ export default () => {
     setImageList(newImageList);
   }
 
+  // 清除勾选列表
+  function clearCheckFileList() {
+    setCheckFileList([]);
+  }
+
+  // 移除转换后的文件
+  function removeConvertFile(index: number) {
+    const newConvertList = imageList.slice();
+    newConvertList.splice(index, 1);
+    setConvertList(newConvertList);
+  }
+
+  // 清除转换后的文件列表
+  function clearConvertFile() {
+    setConvertList([]);
+  }
+
   return {
     fileList,
     setFileList,
     onRemove,
     onReplace,
     beforeUpload,
+    clearFileList,
     checkFileList,
     checkFile,
     unCheckFile,
     setCheckFileList,
+    clearCheckFileList,
     imageList,
     setImageList,
     onRemoveImage,
+    convertList,
+    setConvertList,
+    removeConvertFile,
+    clearConvertFile,
   };
 };

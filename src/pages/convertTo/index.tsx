@@ -121,16 +121,17 @@ const ConvertFrom: React.FC = () => {
     // 转blob
     let blob = null;
     if (to === 'image') {
-      const buf = await PDF.file2Buf(lastFile as any as File);
-      const res = await PDF.pdf2image(instance!, buf, lastFile!);
+      // const buf = await PDF.file2Buf(lastFile as any as File);
+      const res = await PDF.pdf2image(instance!, fileList);
       setImageList(res);
     } else if (to === 'pdfa') {
       blob = await PDF.pdf2pdfa(instance!, lastFile!);
       await PDF.download(blob, `${fileName}.pdf`);
     } else {
-      blob = await PDF.office2pdf(instance!, lastFile!);
+      const arr = await PDF.office2pdf(instance!, fileList);
+      setImageList(arr);
       // 下载
-      await PDF.download(blob, `${fileName}.pdf`);
+      await PDF.downloadZip(arr);
     }
 
     setLoading(false);
