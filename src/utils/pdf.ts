@@ -177,6 +177,25 @@ export default class PDF {
     });
   }
 
+  static async mergeDocuments(
+    instance: WebViewerInstance,
+    files: UploadFile[],
+  ) {
+    const docsPromise = map(files, async (file) => {
+      return await instance.Core.createDocument(file as any as File);
+    });
+
+    // 插入内容到第一个文档完成合并操作
+    const docs = await Promise.all(docsPromise);
+    const firstDoc = docs[0];
+    const otherDoc = slice(docs, 1);
+    forEach(otherDoc, (doc) => firstDoc.insertPages(doc));
+    // const mergeEnd = await runMerge(files);
+    const buf = await firstDoc.getFileData();
+    const blob = await Tools.buf2Blob(buf);
+    return [{ file: files[0], newfile: blob, fileName: `all.pdf` }];
+  }
+
   // 下载文件
   static async download(blob: Blob, fileName: string) {
     saveAs(blob, fileName);

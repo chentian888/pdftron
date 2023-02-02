@@ -112,12 +112,19 @@ const PageManipulation: React.FC = () => {
     }
   };
 
+  // PDF合并
+  const startMergeDocument = async () => {
+    const res = await PDF.mergeDocuments(instance!, fileList);
+    setConvertList(res);
+    await PDF.downloadZip(res);
+    return res;
+  };
+
   // 转换
   const convert = async () => {
     setLoading(true);
     if (type === 'merge') {
-      const res = await PDF.pdf2image(instance!, fileList);
-      setConvertList(res);
+      await startMergeDocument();
     }
 
     setLoading(false);
