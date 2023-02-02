@@ -20,11 +20,7 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      redirect: '/home',
-    },
-    {
       title: 'PDF万能编辑器',
-      path: '/home',
       component: './home',
     },
     {
@@ -48,6 +44,18 @@ export default defineConfig({
           title: '转换为pdf',
           path: ':to',
           component: './convertTo',
+        },
+      ],
+    },
+    {
+      title: 'pdf页面编辑',
+      path: '/page',
+      component: '@/layouts/ConvertLayout',
+      routes: [
+        {
+          title: 'pdf页面编辑',
+          path: ':type',
+          component: './page',
         },
       ],
     },
