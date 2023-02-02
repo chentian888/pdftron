@@ -8,6 +8,7 @@ import {
 import { useModel } from '@umijs/max';
 // import { split, nth } from 'lodash-es';
 import PDF from '@/utils/pdf';
+import Tools from '@/utils/tools';
 import { ConvertFile } from '@/types/typings.d';
 // import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -28,7 +29,7 @@ const ImageFile: React.FC<Props> = (props) => {
   const computedThumb = async () => {
     let base64 = '';
     if (toFileType === 'image') {
-      base64 = await PDF.blob2Base64(img.newfile);
+      base64 = await Tools.blob2Base64(img.newfile);
     } else {
       base64 = await PDF.genThumbnail(instance!, img.newfile);
     }
@@ -49,7 +50,7 @@ const ImageFile: React.FC<Props> = (props) => {
   // 预览
   const handlePreview = () => {
     setShowWebviewer(true);
-    instance?.UI.loadDocument(img.file as any as File, {
+    instance?.UI.loadDocument(img.newfile as any as File, {
       filename: img.file.name,
     });
     const { documentViewer } = instance!.Core;
