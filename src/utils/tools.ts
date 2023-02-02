@@ -1,5 +1,5 @@
 import type { UploadFile } from 'antd/es/upload/interface';
-import { ConvertFile } from '@/types/typings.d';
+import { ConvertFile } from '@/types/typings';
 
 export default class Tools {
   static *sequence(

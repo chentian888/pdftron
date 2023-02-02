@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UploadFile } from 'antd/es/upload/interface';
-import type { ConvertFile } from '@/types/typings.d';
+import type { ConvertFile } from '@/types/typings';
 
 export default () => {
   // 选择的文件列表

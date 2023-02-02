@@ -2,21 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
-// import { last, split, nth } from 'lodash-es';
-// import Title from '@/components/Title';
-import DragedFile from '@/components/DragedFile';
-import ConvertedFile from '@/components/ConvertedFile';
-// import PdfDeEncrypt from '@/components/PdfDeEncrypt';
-// import PdfReplaceText from '@/components/PdfReplaceText';
-// import PdfCrop from '@/components/PdfCrop';
-import type { UploadProps } from 'antd/es/upload/interface';
+// import { nth, split, times } from 'lodash-es';
 import PDF from '@/utils/pdf';
+// import Tools from '@/utils/tools';
+import ExtraThumbnail from '@/components/ExtraThumbnail';
+import ConvertedFile from '@/components/ConvertedFile';
+import type { UploadProps } from 'antd/es/upload/interface';
+import type { ExtraThumbnailType } from '@/types/typings';
 
 const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
+
   const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
     useModel('files');
   const { instance, setInstance, showWebviewer, setShowWebviewer } =
@@ -38,6 +38,32 @@ const PageManipulation: React.FC = () => {
     accept: baseData.accept,
     showUploadList: false,
     multiple: baseData.multiple || false,
+    onChange: async ({ file }) => {
+      console.log(file);
+      const doc = await instance?.Core.createDocument(file as any as File, {
+        extension: 'pdf',
+        l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+      });
+      const arr: Promise<ExtraThumbnailType>[] = [];
+      const count = doc?.getPageCount() as number;
+
+      const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
+        return new Promise((resolve) => {
+          doc?.loadThumbnail(
+            index,
+            (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
+              const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+              resolve({ img: base64, total: count, current: index });
+            },
+          );
+        });
+      };
+      for (let i = 0; i < count; i++) {
+        arr.push(loadThumbnail(i + 1));
+      }
+      const res = await Promise.all(arr);
+      setThumbnailList(res);
+    },
   };
 
   useEffect(() => {
@@ -49,32 +75,15 @@ const PageManipulation: React.FC = () => {
     );
   }, []);
 
-  const renderMoreFileButton = () => {
-    return (
-      baseData.multiple && (
-        <Col span={4}>
-          <Upload className="w-full h-full block" {...props}>
-            <div className="draged-action">添加更多文件</div>
-          </Upload>
-        </Col>
-      )
-    );
-  };
-
   // 文件列表
   const renderInitFile = () => {
-    const list = fileList.map((file, index) => (
+    const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
-        <DragedFile file={file} accept={baseData.accept} />
+        <ExtraThumbnail file={file} />
       </Col>
     ));
-    if (!success && fileList.length) {
-      return (
-        <Row gutter={[16, 16]}>
-          {list}
-          {renderMoreFileButton()}
-        </Row>
-      );
+    if (thumbnailList?.length) {
+      return <Row gutter={[16, 16]}>{list}</Row>;
     }
   };
 

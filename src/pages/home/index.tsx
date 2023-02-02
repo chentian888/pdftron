@@ -138,14 +138,14 @@ const Home: React.FC = () => {
         desc: '选择PDF中的页面拆分成新的文档',
         icon: 'icon-split1',
         className: 'justify-self-center',
-        to: '/page/split1',
+        to: '/page/extra',
       },
       {
         title: 'PDF拆分2',
         desc: '选择PDF中的页面拆分成多个单独PDF',
         icon: 'icon-split2',
         className: 'justify-self-end',
-        to: '/page/split2',
+        to: '/page/split',
       },
       {
         title: 'PDF裁剪',
@@ -166,14 +166,14 @@ const Home: React.FC = () => {
         desc: 'PDF替换文字',
         icon: 'icon-text',
         className: 'justify-self-end',
-        to: '/content/text',
+        to: '/content/textreplace',
       },
       {
         title: 'PDF替换图片',
         desc: 'PDF替换图片',
         icon: 'icon-txt',
         className: '',
-        to: '/content/image',
+        to: '/content/imagereplace',
       },
       {
         title: 'PDF提取文字',
