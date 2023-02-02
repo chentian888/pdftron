@@ -113,7 +113,7 @@ export default class PDF {
 
   static genThumbnail(
     instance: WebViewerInstance,
-    file: UploadFile,
+    file: UploadFile | Blob,
   ): Promise<string> {
     return new Promise((resolve) => {
       instance?.Core.createDocument(file as any as File).then((doc) => {

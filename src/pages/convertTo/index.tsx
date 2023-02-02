@@ -99,7 +99,7 @@ const ConvertFrom: React.FC = () => {
     ));
     if (!success && fileList.length) {
       return (
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           {list}
           {renderMoreFileButton()}
         </Row>
@@ -111,11 +111,11 @@ const ConvertFrom: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ImageFile img={file} index={index} />
+        <ImageFile img={file} index={index} toFileType={to} />
       </Col>
     ));
     if (success) {
-      return <Row gutter={16}>{list}</Row>;
+      return <Row gutter={[16, 16]}>{list}</Row>;
     }
   };
 
@@ -157,7 +157,7 @@ const ConvertFrom: React.FC = () => {
   const renderInitContent = () => {
     if (!fileList.length) {
       return (
-        <div className="w-1/3 m-auto h-full flex justify-center items-center flex-col relative z-10">
+        <div className="w-1/3 m-auto min-h-full flex justify-center items-center flex-col relative z-10">
           <div className="flex justify-center text-xl font-bold mb-6">
             {baseData.title}
           </div>
@@ -209,7 +209,7 @@ const ConvertFrom: React.FC = () => {
     <>
       {/* <Title title="转为PDF" /> */}
       <Dragger
-        className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
+        className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
       ></Dragger>

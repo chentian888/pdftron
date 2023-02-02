@@ -14,10 +14,11 @@ import { ConvertFile } from '@/types/typings.d';
 interface Props {
   img: ConvertFile;
   index: number;
+  toFileType?: string; // PDF转换后的文件类型默认
 }
 
 const ImageFile: React.FC<Props> = (props) => {
-  const { img, index } = props;
+  const { img, index, toFileType = 'pdf' } = props;
   const { onRemoveImage } = useModel('files');
   const { instance, setShowWebviewer } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
@@ -25,7 +26,14 @@ const ImageFile: React.FC<Props> = (props) => {
   const style = { fontSize: '19px', color: '#6478B3' };
 
   const computedThumb = async () => {
-    const base64 = await PDF.blob2Base64(img.newfile);
+    let base64 = '';
+    if (toFileType === 'image') {
+      base64 = await PDF.blob2Base64(img.newfile);
+    } else {
+      base64 = await PDF.genThumbnail(instance!, img.newfile);
+    }
+
+    console.log(base64);
     setThumb(base64);
   };
 
@@ -42,7 +50,7 @@ const ImageFile: React.FC<Props> = (props) => {
   const handlePreview = () => {
     setShowWebviewer(true);
     instance?.UI.loadDocument(img.file as any as File, {
-      filename: img.fileName,
+      filename: img.file.name,
     });
     const { documentViewer } = instance!.Core;
     documentViewer!.addEventListener('documentLoaded', () => {

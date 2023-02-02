@@ -36,4 +36,16 @@ export default class Tools {
       next();
     });
   }
+
+  static isImg(): boolean {
+    return false;
+  }
+
+  static isPdf(): boolean {
+    return false;
+  }
+
+  static isOffice(): boolean {
+    return false;
+  }
 }
