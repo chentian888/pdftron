@@ -3,6 +3,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
 import { map, slice, forEach, nth, split, flatten } from 'lodash-es';
+import Tools from '@/utils/tools';
 import { ConvertFile } from '@/types/typings.d';
 
 export default class PDF {
@@ -30,39 +31,7 @@ export default class PDF {
       return { file: file, newfile: blob, fileName: `${fileName}.pdf` };
     };
 
-    // const aa = map(files, convert);
-    const mergePromise = function* () {
-      for (let i = 0; i < files.length; i++) {
-        yield convert(files[i]);
-      }
-    };
-
-    function run(fn: Generator<Promise<ConvertFile>>): Promise<ConvertFile[]> {
-      return new Promise((resolve) => {
-        const g = fn;
-        const arr: ConvertFile[] = [];
-        function next(preData?: ConvertFile) {
-          if (preData) {
-            //如果有数据则push进数组
-            arr.push(preData);
-          }
-          let result = g.next(preData); //获取每一步执行结果，其中value为promise对象，done表示是否执行完成
-          if (result.done) {
-            //函数执行完毕则resolve数组
-            resolve(arr);
-          } else {
-            //函数没有执行完毕则递归执行
-            result.value.then((nowData: ConvertFile) => {
-              next(nowData);
-            });
-          }
-        }
-        next();
-      });
-    }
-    const blobArray = await run(mergePromise());
-    // const blobArray = await Promise.all(aa);
-    // console.log(blobArray);
+    const blobArray = await Tools.runSequence(Tools.sequence(files, convert));
     return blobArray;
   }
 
@@ -173,6 +142,7 @@ export default class PDF {
               };
             } else {
               const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+              console.log(base64);
               resolve(base64);
             }
           },
