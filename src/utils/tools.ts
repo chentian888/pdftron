@@ -37,6 +37,56 @@ export default class Tools {
     });
   }
 
+  // ArrayBuffer转为Blob
+  static async buf2Blob(buf: ArrayBuffer, type: string = 'application/pdf') {
+    const arrBuf = new Uint8Array(buf);
+    const blob = new Blob([arrBuf], { type });
+    return blob;
+  }
+
+  // Blob类型转Base64
+  static blob2Base64(data: Blob) {
+    return new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(data);
+      reader.addEventListener(
+        'loadend',
+        () => {
+          console.log(reader.result);
+          resolve(reader.result as string);
+        },
+        false,
+      );
+    });
+  }
+
+  // File转为ArrayBuffer
+  static file2Buf(file: File) {
+    return new Promise<ArrayBuffer>((resolve) => {
+      const fr = new FileReader();
+      fr.readAsArrayBuffer(file);
+      fr.addEventListener('loadend', () => {
+        resolve(fr.result as ArrayBuffer);
+      });
+    });
+  }
+
+  static getBase64Image(img: HTMLImageElement) {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx!.drawImage(img, 0, 0, img.width, img.height);
+    const dataURL = canvas.toDataURL();
+    // console.log(dataURL);
+    return dataURL;
+  }
+
+  static async openInNewTab(blob: Blob) {
+    const url = URL.createObjectURL(blob);
+    window.open(url);
+  }
+
   static isImg(): boolean {
     return false;
   }

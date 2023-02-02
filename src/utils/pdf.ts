@@ -26,7 +26,7 @@ export default class PDF {
       });
 
       const data = await doc.getFileData();
-      const blob = await this.buf2Blob(data);
+      const blob = await Tools.buf2Blob(data);
       console.log(blob);
       return { file: file, newfile: blob, fileName: `${fileName}.pdf` };
     };
@@ -55,7 +55,7 @@ export default class PDF {
 
     // 获取文件数据流
     const data = await firstDoc.getFileData();
-    const blob = await PDF.buf2Blob(data);
+    const blob = await Tools.buf2Blob(data);
     return [{ file: files[0], newfile: blob, fileName: 'all.pdf' }];
   }
 
@@ -67,7 +67,7 @@ export default class PDF {
     const convert = async (file: UploadFile) => {
       let allBlob: ConvertFile[] = [];
       const fileName = nth(split(file.name, '.'), 0);
-      const buf = await PDF.file2Buf(file as any as File);
+      const buf = await Tools.file2Buf(file as any as File);
       const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
       const pdfdraw = await instance?.Core.PDFNet.PDFDraw.create(92);
       const itr = await doc?.getPageIterator(1);
@@ -76,7 +76,7 @@ export default class PDF {
         const currPage = await itr?.current();
         const pageIndex = await currPage.getIndex();
         const pngBuffer = await pdfdraw?.exportBuffer(currPage!, 'PNG');
-        const blob = await PDF.buf2Blob(pngBuffer, 'image/png');
+        const blob = await Tools.buf2Blob(pngBuffer, 'image/png');
         allBlob.push({
           file: file,
           newfile: blob,
@@ -97,7 +97,7 @@ export default class PDF {
   static async pdf2pdfa(instance: WebViewerInstance, file: UploadFile) {
     return new Promise<Blob>((resolve) => {
       async function main() {
-        const source = await PDF.file2Buf(file as any as File);
+        const source = await Tools.file2Buf(file as any as File);
         const pdfa =
           await instance?.Core.PDFNet.PDFACompliance.createFromBuffer(
             true,
@@ -124,7 +124,7 @@ export default class PDF {
             if (/image\/\w+/.test((file as any as File).type)) {
               (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
               (thumbnail as HTMLImageElement).onload = function () {
-                const base64 = PDF.getBase64Image(
+                const base64 = Tools.getBase64Image(
                   thumbnail as HTMLImageElement,
                 );
                 console.log(base64);
@@ -149,56 +149,6 @@ export default class PDF {
         );
       });
     });
-  }
-
-  // ArrayBuffer转为Blob
-  static async buf2Blob(buf: ArrayBuffer, type: string = 'application/pdf') {
-    const arrBuf = new Uint8Array(buf);
-    const blob = new Blob([arrBuf], { type });
-    return blob;
-  }
-
-  // Blob类型转Base64
-  static blob2Base64(data: Blob) {
-    return new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(data);
-      reader.addEventListener(
-        'loadend',
-        () => {
-          console.log(reader.result);
-          resolve(reader.result as string);
-        },
-        false,
-      );
-    });
-  }
-
-  // File转为ArrayBuffer
-  static file2Buf(file: File) {
-    return new Promise<ArrayBuffer>((resolve) => {
-      const fr = new FileReader();
-      fr.readAsArrayBuffer(file);
-      fr.addEventListener('loadend', () => {
-        resolve(fr.result as ArrayBuffer);
-      });
-    });
-  }
-
-  static getBase64Image(img: HTMLImageElement) {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx!.drawImage(img, 0, 0, img.width, img.height);
-    const dataURL = canvas.toDataURL();
-    // console.log(dataURL);
-    return dataURL;
-  }
-
-  static async openInNewTab(blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    window.open(url);
   }
 
   // 下载文件
