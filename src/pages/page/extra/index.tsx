@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
-import { useModel, useParams } from '@umijs/max';
+import { useModel } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
 // import Title from '@/components/Title';
@@ -21,38 +21,16 @@ const PageManipulation: React.FC = () => {
     useModel('files');
   const { instance, setInstance, showWebviewer, setShowWebviewer } =
     useModel('pdf');
-  const { type = 'merge' } = useParams();
 
-  const fileType: Record<string, any> = {
-    merge: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF合并',
-      desc: 'PDF合并',
-    },
-    split1: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF拆分1',
-      desc: '选择PDF中的页面拆分成新的文档',
-    },
-    split2: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF拆分2',
-      desc: '选择PDF中的页面拆分成多个单独PDF',
-    },
-    crop: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF裁剪',
-      desc: '将PDF拆分成两半再按正确顺序合并',
-    },
+  const baseData = {
+    accept: '.pdf',
+    multiple: true,
+    title: 'PDF提取',
+    desc: '选择PDF中的页面拆分成新的文档',
   };
 
-  const baseData = fileType[type];
-
   const viewer = useRef<HTMLDivElement>(null);
+
   const props: UploadProps = {
     onRemove,
     beforeUpload,
@@ -112,21 +90,21 @@ const PageManipulation: React.FC = () => {
     }
   };
 
-  // PDF合并
-  const startMergeDocument = async () => {
+  // 提取页面
+  const extractPage = async () => {
     const res = await PDF.mergeDocuments(instance!, fileList);
     setConvertList(res);
     await PDF.downloadZip(res);
-    return res;
   };
+
+  // useEffect(() => {
+  //   extractPage();
+  // }, [fileList]);
 
   // 转换
   const convert = async () => {
     setLoading(true);
-    if (type === 'merge') {
-      await startMergeDocument();
-    }
-
+    await extractPage();
     setLoading(false);
     setSuccess(true);
   };

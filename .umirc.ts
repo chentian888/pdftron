@@ -53,9 +53,19 @@ export default defineConfig({
       component: '@/layouts/ConvertLayout',
       routes: [
         {
-          title: 'pdf页面编辑',
-          path: ':type',
-          component: './page',
+          title: 'PDF合并',
+          path: 'merge',
+          component: './page/merge',
+        },
+        {
+          title: '页面提取',
+          path: 'extra',
+          component: './page/extra',
+        },
+        {
+          title: '页面分割',
+          path: 'split',
+          component: './page/split',
         },
       ],
     },

@@ -142,7 +142,10 @@ export default class PDF {
     file: UploadFile | Blob,
   ): Promise<string> {
     return new Promise((resolve) => {
-      instance?.Core.createDocument(file as any as File).then((doc) => {
+      instance?.Core.createDocument(file as any as File, {
+        extension: 'pdf',
+        l: this.licenseKey,
+      }).then((doc) => {
         doc.loadThumbnail(
           1,
           (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
@@ -182,7 +185,10 @@ export default class PDF {
     files: UploadFile[],
   ) {
     const docsPromise = map(files, async (file) => {
-      return await instance.Core.createDocument(file as any as File);
+      return await instance.Core.createDocument(file as any as File, {
+        extension: 'pdf',
+        l: this.licenseKey,
+      });
     });
 
     // 插入内容到第一个文档完成合并操作
