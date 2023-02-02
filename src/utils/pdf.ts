@@ -10,6 +10,12 @@ export default class PDF {
   private static licenseKey =
     'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0';
 
+  /**
+   * office转PDF
+   * @param instance
+   * @param files
+   * @returns
+   */
   static async office2pdf(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -35,6 +41,12 @@ export default class PDF {
     return blobArray;
   }
 
+  /**
+   * image转PDF
+   * @param instance
+   * @param files
+   * @returns
+   */
   static async image2pdf(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -59,7 +71,12 @@ export default class PDF {
     return [{ file: files[0], newfile: blob, fileName: 'all.pdf' }];
   }
 
-  // PDF转Image
+  /**
+   * PDF转Image
+   * @param instance
+   * @param files
+   * @returns
+   */
   static async pdf2image(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -86,14 +103,17 @@ export default class PDF {
       }
       return allBlob;
     };
-    const a = map(files, convert);
-    console.log(a);
-    const aal = await Promise.all(a);
-    console.log(aal);
-    return flatten(aal);
+    const allFile = map(files, convert);
+    const processing = await Promise.all(allFile);
+    return flatten(processing);
   }
 
-  // PDF转PDF/A
+  /**
+   * PDF转PDF/A
+   * @param instance
+   * @param file
+   * @returns
+   */
   static async pdf2pdfa(instance: WebViewerInstance, file: UploadFile) {
     return new Promise<Blob>((resolve) => {
       async function main() {
@@ -111,6 +131,12 @@ export default class PDF {
     });
   }
 
+  /**
+   * 生成稳当缩略图
+   * @param instance
+   * @param file
+   * @returns
+   */
   static genThumbnail(
     instance: WebViewerInstance,
     file: UploadFile | Blob,
