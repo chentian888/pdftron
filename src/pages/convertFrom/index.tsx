@@ -5,7 +5,7 @@ import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
 // import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
-import ImageFile from '@/components/ImageFile';
+import ConvertedFile from '@/components/ConvertedFile';
 // import PdfDeEncrypt from '@/components/PdfDeEncrypt';
 // import PdfReplaceText from '@/components/PdfReplaceText';
 // import PdfCrop from '@/components/PdfCrop';
@@ -115,7 +115,7 @@ const ConvertFrom: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ImageFile img={file} index={index} />
+        <ConvertedFile img={file} index={index} />
       </Col>
     ));
     if (success) {
