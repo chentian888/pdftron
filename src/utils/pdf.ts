@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
-import type { WebViewerInstance } from '@pdftron/webviewer';
+import type { Core, WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
 import { map, slice, forEach, nth, split, flatten } from 'lodash-es';
 import Tools from '@/utils/tools';
@@ -200,6 +200,24 @@ export default class PDF {
     const buf = await firstDoc.getFileData();
     const blob = await Tools.buf2Blob(buf);
     return [{ file: files[0], newfile: blob, fileName: `all.pdf` }];
+  }
+
+  static async exrtaPage(
+    instance: WebViewerInstance,
+    doc: Core.Document,
+    file: UploadFile,
+    pages: number[],
+  ): Promise<ConvertFile[]> {
+    const { annotationManager } = instance.Core;
+    const fileName = nth(split(file.name, '.'), 0);
+    // only include annotations on the pages to extract
+    const annotList = annotationManager
+      .getAnnotationsList()
+      .filter((annot) => pages.indexOf(annot.PageNumber) > -1);
+    const xfdfString = await annotationManager.exportAnnotations({ annotList });
+    const data = await doc.extractPages(pages, xfdfString);
+    const blob = await Tools.buf2Blob(data);
+    return [{ file: file, newfile: blob, fileName: `${fileName}.pdf` }];
   }
 
   // 下载文件

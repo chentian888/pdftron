@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
-// import { nth, split, times } from 'lodash-es';
+import WebViewer, { Core } from '@pdftron/webviewer';
+import { pullAllBy, sortBy } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
 import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
-import type { UploadProps } from 'antd/es/upload/interface';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 // import type { ExtraThumbnailType } from '@/types/typings';
 
 const { Dragger } = Upload;
@@ -16,9 +16,18 @@ const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
+  const [extractNumber, setExtractNumber] = useState<number[]>([]);
+  const [doc, setDoc] = useState<unknown>();
+  const [currentFile, setCurrentFile] = useState<UploadFile>();
 
-  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
-    useModel('files');
+  const {
+    fileList,
+    onRemove,
+    beforeUpload,
+    setFileList,
+    convertList,
+    setConvertList,
+  } = useModel('files');
   const { instance, setInstance, showWebviewer, setShowWebviewer } =
     useModel('pdf');
 
@@ -39,12 +48,15 @@ const PageManipulation: React.FC = () => {
     showUploadList: false,
     multiple: baseData.multiple || false,
     onChange: async ({ file }) => {
+      setCurrentFile(file);
       console.log(file);
       const doc = await instance?.Core.createDocument(file as any as File, {
         extension: 'pdf',
         l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
       });
+      setDoc(doc);
       const arr: Promise<ExtraThumbnailType>[] = [];
+      const pageNo: number[] = []; // 需要提取页面编号
       const count = doc?.getPageCount() as number;
 
       const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
@@ -59,11 +71,26 @@ const PageManipulation: React.FC = () => {
         });
       };
       for (let i = 0; i < count; i++) {
-        arr.push(loadThumbnail(i + 1));
+        const current = i + 1;
+        arr.push(loadThumbnail(current));
+        pageNo.push(current);
       }
       const res = await Promise.all(arr);
       setThumbnailList(res);
+      setExtractNumber(pageNo);
     },
+  };
+
+  // 勾选文件
+  const checkFile = (index: number) => {
+    extractNumber.push(index);
+    const sort = sortBy(extractNumber, (o) => o);
+    setExtractNumber(sort);
+  };
+
+  // 反选文件
+  const unCheckFile = (index: number) => {
+    pullAllBy(extractNumber, [index]);
   };
 
   useEffect(() => {
@@ -79,7 +106,11 @@ const PageManipulation: React.FC = () => {
   const renderInitFile = () => {
     const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
-        <ExtraThumbnail file={file} />
+        <ExtraThumbnail
+          file={file}
+          checkFile={checkFile}
+          unCheckFile={unCheckFile}
+        />
       </Col>
     ));
     if (thumbnailList?.length) {
@@ -100,22 +131,29 @@ const PageManipulation: React.FC = () => {
   };
 
   // 提取页面
-  const extractPage = async () => {
-    const res = await PDF.mergeDocuments(instance!, fileList);
-    setConvertList(res);
-    await PDF.downloadZip(res);
-  };
-
-  // useEffect(() => {
-  //   extractPage();
-  // }, [fileList]);
-
-  // 转换
   const convert = async () => {
     setLoading(true);
-    await extractPage();
+    const res = await PDF.exrtaPage(
+      instance!,
+      doc! as Core.Document,
+      currentFile!,
+      extractNumber,
+    );
+    console.log(res);
+    setThumbnailList([]);
+    setConvertList(res);
+    await PDF.downloadZip(res);
     setLoading(false);
     setSuccess(true);
+  };
+
+  const reset = () => {
+    setConvertList([]);
+    setFileList([]);
+    setDoc(null as unknown);
+    setExtractNumber([]);
+    setThumbnailList([]);
+    setSuccess(false);
   };
 
   const downloadAll = async () => {
@@ -151,9 +189,14 @@ const PageManipulation: React.FC = () => {
 
     if (success) {
       action = (
-        <Button type="primary" size="large" block onClick={downloadAll}>
-          全部下载
-        </Button>
+        <>
+          <Button type="primary" size="large" block onClick={downloadAll}>
+            全部下载
+          </Button>
+          <div className="text-center mt-4 cursor-pointer" onClick={reset}>
+            继续
+          </div>
+        </>
       );
     } else if (fileList.length) {
       action = (
@@ -164,7 +207,7 @@ const PageManipulation: React.FC = () => {
           loading={loading}
           onClick={() => convert()}
         >
-          转换
+          提取
         </Button>
       );
     }

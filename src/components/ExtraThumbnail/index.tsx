@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Checkbox, Tooltip } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
@@ -9,11 +9,14 @@ import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 
 interface Props {
   file: ExtraThumbnailType;
+  checkFile: (index: number) => void;
+  unCheckFile: (index: number) => void;
 }
 
 const DragedFile: React.FC<Props> = (props) => {
-  const { file } = props;
+  const { file, checkFile, unCheckFile } = props;
   const { instance, setShowWebviewer } = useModel('pdf');
+  const [checked, setChecked] = useState(true);
 
   const style = { fontSize: '19px', color: '#6478B3' };
 
@@ -29,10 +32,11 @@ const DragedFile: React.FC<Props> = (props) => {
 
   const checkBoxChange = (e: CheckboxChangeEvent) => {
     const val = e.target.checked;
+    setChecked(e.target.checked);
     if (val) {
-      // checkFile(file.current);
+      checkFile(file.current);
     } else {
-      // unCheckFile(file.current);
+      unCheckFile(file.current);
     }
     console.log(val);
   };
@@ -56,6 +60,7 @@ const DragedFile: React.FC<Props> = (props) => {
 
         <Checkbox
           style={style}
+          checked={checked}
           className="cursor-pointer absolute right-[15px] top-[5px]"
           onChange={checkBoxChange}
         />
