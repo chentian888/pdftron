@@ -3,12 +3,8 @@ import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
-// import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
-// import PdfDeEncrypt from '@/components/PdfDeEncrypt';
-// import PdfReplaceText from '@/components/PdfReplaceText';
-// import PdfCrop from '@/components/PdfCrop';
 import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
 

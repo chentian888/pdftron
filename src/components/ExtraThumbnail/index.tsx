@@ -5,7 +5,7 @@ import { useModel } from '@umijs/max';
 // import PDF from '@/utils/pdf';
 // import type { UploadFile } from 'antd/es/upload/interface';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
-import type { ExtraThumbnailType } from '@/types/typings';
+// import type { ExtraThumbnailType } from '@/types/typings';
 
 interface Props {
   file: ExtraThumbnailType;

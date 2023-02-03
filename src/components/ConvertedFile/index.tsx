@@ -9,7 +9,7 @@ import { useModel } from '@umijs/max';
 // import { split, nth } from 'lodash-es';
 import PDF from '@/utils/pdf';
 import Tools from '@/utils/tools';
-import { ConvertFile } from '@/types/typings';
+// import { ConvertFile } from '@/types/typings';
 // import type { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {

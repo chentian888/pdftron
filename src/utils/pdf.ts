@@ -4,7 +4,7 @@ import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
 import { map, slice, forEach, nth, split, flatten } from 'lodash-es';
 import Tools from '@/utils/tools';
-import { ConvertFile } from '@/types/typings';
+// import { ConvertFile } from '@/types/typings';
 
 export default class PDF {
   private static licenseKey =

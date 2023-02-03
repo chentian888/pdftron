@@ -8,7 +8,7 @@ import PDF from '@/utils/pdf';
 import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
 import type { UploadProps } from 'antd/es/upload/interface';
-import type { ExtraThumbnailType } from '@/types/typings';
+// import type { ExtraThumbnailType } from '@/types/typings';
 
 const { Dragger } = Upload;
 
