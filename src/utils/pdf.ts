@@ -264,7 +264,7 @@ export default class PDF {
     doc: Core.Document,
     file: UploadFile,
     deicetion?: CropType,
-    exclude?: number[] = [],
+    exclude?: number[],
   ): Promise<ConvertFile[]> {
     const fileName = nth(split(file.name, '.'), 0);
     const count = doc.getPageCount();
