@@ -220,6 +220,8 @@ export default class PDF {
     return [{ file: file, newfile: blob, fileName: `${fileName}.pdf` }];
   }
 
+  static async splitPage() {}
+
   // 下载文件
   static async download(blob: Blob, fileName: string) {
     saveAs(blob, fileName);

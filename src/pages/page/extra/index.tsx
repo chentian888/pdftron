@@ -55,19 +55,26 @@ const PageManipulation: React.FC = () => {
         l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
       });
       setDoc(doc);
+
       const arr: Promise<ExtraThumbnailType>[] = [];
       const pageNo: number[] = []; // 需要提取页面编号
       const count = doc?.getPageCount() as number;
-
       const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
         return new Promise((resolve) => {
-          doc?.loadThumbnail(
-            index,
-            (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
-              const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-              resolve({ img: base64, total: count, current: index });
-            },
-          );
+          doc?.loadThumbnail(index, (thumbnail: HTMLCanvasElement) => {
+            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+            (thumbnail as HTMLCanvasElement).toBlob((blob) => {
+              console.log(doc);
+              resolve({
+                blob: blob!,
+                img: base64,
+                total: count,
+                current: index,
+                sourceFile: file,
+                currentDoc: doc,
+              });
+            });
+          });
         });
       };
       for (let i = 0; i < count; i++) {
@@ -165,7 +172,7 @@ const PageManipulation: React.FC = () => {
   const renderInitContent = () => {
     if (!fileList.length) {
       return (
-        <div className="w-1/3 m-auto min-h-full flex justify-center items-center flex-col relative z-10">
+        <div className="w-1/3 m-auto h-full flex justify-center items-center flex-col relative z-10">
           <div className="flex justify-center text-xl font-bold mb-6">
             {baseData.title}
           </div>
