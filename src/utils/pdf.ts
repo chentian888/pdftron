@@ -2,7 +2,16 @@ import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { Core, WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
-import { map, slice, forEach, nth, split, flatten } from 'lodash-es';
+import {
+  map,
+  slice,
+  forEach,
+  nth,
+  split,
+  flatten,
+  times,
+  includes,
+} from 'lodash-es';
 import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
 
@@ -249,6 +258,37 @@ export default class PDF {
 
     const res = await Promise.all(map(pages, (index) => startSplit(index)));
     return res;
+  }
+
+  static async cropPage(
+    doc: Core.Document,
+    file: UploadFile,
+    deicetion?: CropType,
+    exclude?: number[] = [],
+  ): Promise<ConvertFile[]> {
+    const fileName = nth(split(file.name, '.'), 0);
+    const count = doc.getPageCount();
+
+    const cut = async (page: number) => {
+      const { width, height } = doc.getPageInfo(page);
+      let cropTop = 0,
+        cropLeft = 0,
+        cropRight = 0,
+        cropBottom = 0;
+      if (deicetion === 'horizontal') {
+        cropTop = height / 2;
+      } else {
+        cropLeft = width / 2;
+      }
+      console.log(exclude, page, includes(exclude, page));
+      if (exclude && exclude.length && includes(exclude, page)) return;
+      await doc.cropPages([page], cropTop, cropBottom, cropLeft, cropRight);
+    };
+    const allCutPaage = map(times(count, Number), (index) => cut(index + 1));
+    await Promise.all(allCutPaage);
+    const buf = await doc.getFileData();
+    const blob = await Tools.buf2Blob(buf);
+    return [{ file: file, newfile: blob, fileName: `${fileName}-crop.pdf` }];
   }
 
   // 下载文件

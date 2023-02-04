@@ -8,6 +8,7 @@ declare global {
     newfile: Blob;
     fileName: string;
   };
+
   type ExtraThumbnailType = {
     img: string;
     total: number;
@@ -16,4 +17,6 @@ declare global {
     sourceFile: UploadFile;
     currentDoc: Core.Document;
   };
+
+  type CropType = 'vertical' | 'horizontal' | null;
 }

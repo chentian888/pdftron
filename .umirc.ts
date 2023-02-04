@@ -67,6 +67,11 @@ export default defineConfig({
           path: 'split',
           component: './page/split',
         },
+        {
+          title: '页面裁剪',
+          path: 'crop',
+          component: './page/crop',
+        },
       ],
     },
     {
