@@ -11,8 +11,8 @@ import Tools from '@/utils/tools';
 interface Props {
   file: ExtraThumbnailType;
   showCheckBox?: boolean;
-  checkFile: (index: number) => void;
-  unCheckFile: (index: number) => void;
+  checkFile?: (index: number) => void;
+  unCheckFile?: (index: number) => void;
 }
 
 const DragedFile: React.FC<Props> = (props) => {
@@ -45,9 +45,9 @@ const DragedFile: React.FC<Props> = (props) => {
   const checkBoxChange = (e: CheckboxChangeEvent) => {
     const val = e.target.checked;
     setChecked(e.target.checked);
-    if (val) {
+    if (val && checkFile) {
       checkFile(file.current);
-    } else {
+    } else if (unCheckFile) {
       unCheckFile(file.current);
     }
   };

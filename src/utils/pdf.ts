@@ -220,7 +220,36 @@ export default class PDF {
     return [{ file: file, newfile: blob, fileName: `${fileName}.pdf` }];
   }
 
-  static async splitPage() {}
+  static async splitPage(
+    instance: WebViewerInstance,
+    doc: Core.Document,
+    file: UploadFile,
+    pages: number[],
+  ): Promise<ConvertFile[]> {
+    const fileName = nth(split(file.name, '.'), 0);
+
+    const startSplit = async (index: number) => {
+      const p = [index];
+      const { annotationManager } = instance.Core;
+      // only include annotations on the pages to extract
+      const annotList = annotationManager
+        .getAnnotationsList()
+        .filter((annot) => p.indexOf(annot.PageNumber) > -1);
+      const xfdfString = await annotationManager.exportAnnotations({
+        annotList,
+      });
+      const data = await doc.extractPages(p, xfdfString);
+      const blob = await Tools.buf2Blob(data);
+      return {
+        file: file,
+        newfile: blob,
+        fileName: `${fileName}-${index}.pdf`,
+      };
+    };
+
+    const res = await Promise.all(map(pages, (index) => startSplit(index)));
+    return res;
+  }
 
   // 下载文件
   static async download(blob: Blob, fileName: string) {

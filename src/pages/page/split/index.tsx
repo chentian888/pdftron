@@ -1,52 +1,41 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
-import { useModel, useParams } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
-// import { last, split, nth } from 'lodash-es';
-import DragedFile from '@/components/DragedFile';
-import ConvertedFile from '@/components/ConvertedFile';
-import type { UploadProps } from 'antd/es/upload/interface';
+import { useModel } from '@umijs/max';
+import WebViewer, { Core } from '@pdftron/webviewer';
 import PDF from '@/utils/pdf';
+// import Tools from '@/utils/tools';
+import ExtraThumbnail from '@/components/ExtraThumbnail';
+import ConvertedFile from '@/components/ConvertedFile';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
+// import type { ExtraThumbnailType } from '@/types/typings';
 
 const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
-    useModel('files');
+  const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
+  const [extractNumber, setExtractNumber] = useState<number[]>([]);
+  const [doc, setDoc] = useState<unknown>();
+  const [currentFile, setCurrentFile] = useState<UploadFile>();
+
+  const {
+    fileList,
+    onRemove,
+    beforeUpload,
+    setFileList,
+    convertList,
+    setConvertList,
+  } = useModel('files');
   const { instance, setInstance, showWebviewer, setShowWebviewer } =
     useModel('pdf');
-  const { type = 'merge' } = useParams();
 
-  const fileType: Record<string, any> = {
-    merge: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF合并',
-      desc: 'PDF合并',
-    },
-    split1: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF拆分1',
-      desc: '选择PDF中的页面拆分成新的文档',
-    },
-    split2: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF拆分2',
-      desc: '选择PDF中的页面拆分成多个单独PDF',
-    },
-    crop: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF裁剪',
-      desc: '将PDF拆分成两半再按正确顺序合并',
-    },
+  const baseData = {
+    accept: '.pdf',
+    multiple: true,
+    title: 'PDF分割',
+    desc: '选择PDF中的页面拆分成多个单独PDF',
   };
-
-  const baseData = fileType[type];
 
   const viewer = useRef<HTMLDivElement>(null);
 
@@ -57,6 +46,45 @@ const PageManipulation: React.FC = () => {
     accept: baseData.accept,
     showUploadList: false,
     multiple: baseData.multiple || false,
+    onChange: async ({ file }) => {
+      setCurrentFile(file);
+      console.log(file);
+      const doc = await instance?.Core.createDocument(file as any as File, {
+        extension: 'pdf',
+        l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+      });
+      setDoc(doc);
+
+      const arr: Promise<ExtraThumbnailType>[] = [];
+      const pageNo: number[] = []; // 需要提取页面编号
+      const count = doc?.getPageCount() as number;
+      const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
+        return new Promise((resolve) => {
+          doc?.loadThumbnail(index, (thumbnail: HTMLCanvasElement) => {
+            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+            (thumbnail as HTMLCanvasElement).toBlob((blob) => {
+              console.log(doc);
+              resolve({
+                blob: blob!,
+                img: base64,
+                total: count,
+                current: index,
+                sourceFile: file,
+                currentDoc: doc,
+              });
+            });
+          });
+        });
+      };
+      for (let i = 0; i < count; i++) {
+        const current = i + 1;
+        arr.push(loadThumbnail(current));
+        pageNo.push(current);
+      }
+      const res = await Promise.all(arr);
+      setThumbnailList(res);
+      setExtractNumber(pageNo);
+    },
   };
 
   useEffect(() => {
@@ -68,32 +96,15 @@ const PageManipulation: React.FC = () => {
     );
   }, []);
 
-  const renderMoreFileButton = () => {
-    return (
-      baseData.multiple && (
-        <Col span={4}>
-          <Upload className="w-full h-full block" {...props}>
-            <div className="draged-action">添加更多文件</div>
-          </Upload>
-        </Col>
-      )
-    );
-  };
-
   // 文件列表
   const renderInitFile = () => {
-    const list = fileList.map((file, index) => (
+    const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
-        <DragedFile file={file} accept={baseData.accept} />
+        <ExtraThumbnail showCheckBox={false} file={file} />
       </Col>
     ));
-    if (!success && fileList.length) {
-      return (
-        <Row gutter={[16, 16]}>
-          {list}
-          {renderMoreFileButton()}
-        </Row>
-      );
+    if (thumbnailList?.length) {
+      return <Row gutter={[16, 16]}>{list}</Row>;
     }
   };
 
@@ -109,35 +120,30 @@ const PageManipulation: React.FC = () => {
     }
   };
 
-  // PDF合并
-  const startMergeDocument = async () => {
-    const res = await PDF.mergeDocuments(instance!, fileList);
-    setConvertList(res);
-    await PDF.downloadZip(res);
-    return res;
-  };
-
-  const extractPage = async () => {
-    // const res = await PDF.test(instance!, fileList);
-    // console.log(res);
-    // setFileList(res);
-  };
-
-  // useEffect(() => {
-  //   extractPage();
-  // }, [fileList]);
-
-  // 转换
+  // 提取页面
   const convert = async () => {
     setLoading(true);
-    if (type === 'merge') {
-      await startMergeDocument();
-    } else if (type === 'split1') {
-      await extractPage();
-    }
-
+    const res = await PDF.splitPage(
+      instance!,
+      doc! as Core.Document,
+      currentFile!,
+      extractNumber,
+    );
+    console.log(res);
+    setThumbnailList([]);
+    setConvertList(res);
+    await PDF.downloadZip(res);
     setLoading(false);
     setSuccess(true);
+  };
+
+  const reset = () => {
+    setConvertList([]);
+    setFileList([]);
+    setDoc(null as unknown);
+    setExtractNumber([]);
+    setThumbnailList([]);
+    setSuccess(false);
   };
 
   const downloadAll = async () => {
@@ -149,7 +155,7 @@ const PageManipulation: React.FC = () => {
   const renderInitContent = () => {
     if (!fileList.length) {
       return (
-        <div className="w-1/3 m-auto min-h-full flex justify-center items-center flex-col relative z-10">
+        <div className="w-1/3 m-auto h-full flex justify-center items-center flex-col relative z-10">
           <div className="flex justify-center text-xl font-bold mb-6">
             {baseData.title}
           </div>
@@ -173,9 +179,14 @@ const PageManipulation: React.FC = () => {
 
     if (success) {
       action = (
-        <Button type="primary" size="large" block onClick={downloadAll}>
-          全部下载
-        </Button>
+        <>
+          <Button type="primary" size="large" block onClick={downloadAll}>
+            全部下载
+          </Button>
+          <div className="text-center mt-4 cursor-pointer" onClick={reset}>
+            继续
+          </div>
+        </>
       );
     } else if (fileList.length) {
       action = (
@@ -186,7 +197,7 @@ const PageManipulation: React.FC = () => {
           loading={loading}
           onClick={() => convert()}
         >
-          转换
+          分割
         </Button>
       );
     }
