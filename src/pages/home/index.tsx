@@ -180,14 +180,14 @@ const Home: React.FC = () => {
         desc: 'PDF提取文字',
         icon: 'icon-extra-text',
         className: 'justify-self-center',
-        to: '/extract/text',
+        to: '/extraction/text',
       },
       {
         title: 'PDF提取小图片',
         desc: '提取PDF中的所有小图片',
         icon: 'icon-extra-image',
         className: 'justify-self-end',
-        to: '/extract/image',
+        to: '/extraction/image',
       },
       {
         title: 'PDF删除文字数据',

@@ -48,7 +48,7 @@ export default defineConfig({
       ],
     },
     {
-      title: 'pdf页面编辑',
+      title: '页面编辑',
       path: '/page',
       component: '@/layouts/ConvertLayout',
       routes: [
@@ -59,8 +59,8 @@ export default defineConfig({
         },
         {
           title: '页面提取',
-          path: 'extra',
-          component: './page/extra',
+          path: 'extract',
+          component: './page/extract',
         },
         {
           title: '页面分割',
@@ -71,6 +71,23 @@ export default defineConfig({
           title: '页面裁剪',
           path: 'crop',
           component: './page/crop',
+        },
+      ],
+    },
+    {
+      title: '页面提取',
+      path: '/extraction',
+      component: '@/layouts/ConvertLayout',
+      routes: [
+        {
+          title: 'PDF提取文字',
+          path: 'text',
+          component: './extraction/text',
+        },
+        {
+          title: 'PDF提取图片',
+          path: 'image',
+          component: './extraction/image',
         },
       ],
     },

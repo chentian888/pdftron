@@ -211,6 +211,14 @@ export default class PDF {
     return [{ file: files[0], newfile: blob, fileName: `all.pdf` }];
   }
 
+  /**
+   * 提取文档页面
+   * @param instance 文档实例
+   * @param doc 目标文档
+   * @param file 原始File文件
+   * @param pages 目标页面
+   * @returns 提取后文件拼装数据
+   */
   static async exrtaPage(
     instance: WebViewerInstance,
     doc: Core.Document,
@@ -229,6 +237,14 @@ export default class PDF {
     return [{ file: file, newfile: blob, fileName: `${fileName}.pdf` }];
   }
 
+  /**
+   * 分割文档
+   * @param instance 文档实例
+   * @param doc 目标文档
+   * @param file 原始File文件
+   * @param pages 目标页面
+   * @returns 分割后文件拼装数据
+   */
   static async splitPage(
     instance: WebViewerInstance,
     doc: Core.Document,
@@ -237,6 +253,7 @@ export default class PDF {
   ): Promise<ConvertFile[]> {
     const fileName = nth(split(file.name, '.'), 0);
 
+    // 分割文件单个页面
     const startSplit = async (index: number) => {
       const p = [index];
       const { annotationManager } = instance.Core;
@@ -260,27 +277,35 @@ export default class PDF {
     return res;
   }
 
+  /**
+   * 裁剪PDF
+   * @param doc 裁剪目标文档
+   * @param file 原始File文件
+   * @param deirection 裁剪方向水平竖直
+   * @param exclude 不需要裁剪的页面
+   * @returns 裁剪后文件拼装数据
+   */
   static async cropPage(
     doc: Core.Document,
     file: UploadFile,
-    deicetion?: CropType,
+    deirection?: CropType,
     exclude?: number[],
   ): Promise<ConvertFile[]> {
     const fileName = nth(split(file.name, '.'), 0);
     const count = doc.getPageCount();
 
+    // 裁剪单个页面
     const cut = async (page: number) => {
       const { width, height } = doc.getPageInfo(page);
       let cropTop = 0,
         cropLeft = 0,
         cropRight = 0,
         cropBottom = 0;
-      if (deicetion === 'horizontal') {
+      if (deirection === 'horizontal') {
         cropTop = height / 2;
       } else {
         cropLeft = width / 2;
       }
-      console.log(exclude, page, includes(exclude, page));
       if (exclude && exclude.length && includes(exclude, page)) return;
       await doc.cropPages([page], cropTop, cropBottom, cropLeft, cropRight);
     };
@@ -290,6 +315,19 @@ export default class PDF {
     const blob = await Tools.buf2Blob(buf);
     return [{ file: file, newfile: blob, fileName: `${fileName}-crop.pdf` }];
   }
+
+  // static async extraText(
+  //   instance: WebViewerInstance,
+  //   files: UploadFile[],
+  // ): Promise<ConvertFile[]> {
+  //   const docsPromise = map(files, async (file) => {
+  //     return await instance.Core.createDocument(file as any as File, {
+  //       filename: file.name,
+  //     });
+  //   });
+  //   const text = await doc?.loadPageText(1);
+  //   console.log(text);
+  // }
 
   // 下载文件
   static async download(blob: Blob, fileName: string) {
