@@ -15,11 +15,12 @@ import Tools from '@/utils/tools';
 interface Props {
   img: ConvertFile;
   index: number;
+  nonsupport?: boolean;
   toFileType?: string; // PDF转换后的文件类型默认
 }
 
 const ImageFile: React.FC<Props> = (props) => {
-  const { img, index, toFileType = 'pdf' } = props;
+  const { img, index, toFileType = 'pdf', nonsupport = false } = props;
   const { onRemoveImage } = useModel('files');
   const { instance, setShowWebviewer } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
@@ -27,6 +28,7 @@ const ImageFile: React.FC<Props> = (props) => {
   const style = { fontSize: '19px', color: '#6478B3' };
 
   const computedThumb = async () => {
+    if (nonsupport) return;
     let base64 = '';
     if (toFileType === 'image') {
       base64 = await Tools.blob2Base64(img.newfile);
@@ -49,6 +51,7 @@ const ImageFile: React.FC<Props> = (props) => {
 
   // 预览
   const handlePreview = () => {
+    if (nonsupport) return;
     setShowWebviewer(true);
     instance?.UI.loadDocument(img.newfile as any as File, {
       filename: img.file.name,
@@ -82,13 +85,15 @@ const ImageFile: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <Tooltip title="预览文件">
-          <EyeOutlined
-            style={style}
-            className="cursor-pointer absolute left-[15px] top-[8px]"
-            onClick={handlePreview}
-          />
-        </Tooltip>
+        {!nonsupport && (
+          <Tooltip title="预览文件">
+            <EyeOutlined
+              style={style}
+              className="cursor-pointer absolute left-[15px] top-[8px]"
+              onClick={handlePreview}
+            />
+          </Tooltip>
+        )}
 
         <Tooltip title="删除文件">
           <DeleteOutlined

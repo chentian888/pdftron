@@ -1,3 +1,4 @@
+import { nth, split } from 'lodash-es';
 import type { UploadFile } from 'antd/es/upload/interface';
 // import { ConvertFile } from '@/types/typings';
 
@@ -11,13 +12,11 @@ export default class Tools {
     }
   }
 
-  static runSequence(
-    fn: Generator<Promise<ConvertFile>>,
-  ): Promise<ConvertFile[]> {
+  static runSequence<T = ConvertFile>(fn: Generator<Promise<T>>): Promise<T[]> {
     return new Promise((resolve) => {
       const g = fn;
-      const arr: ConvertFile[] = [];
-      function next(preData?: ConvertFile) {
+      const arr: T[] = [];
+      function next(preData?: T) {
         if (preData) {
           //如果有数据则push进数组
           arr.push(preData);
@@ -28,7 +27,7 @@ export default class Tools {
           resolve(arr);
         } else {
           //函数没有执行完毕则递归执行
-          result.value.then((nowData: ConvertFile) => {
+          result.value.then((nowData: T) => {
             next(nowData);
           });
         }
@@ -80,6 +79,13 @@ export default class Tools {
     const dataURL = canvas.toDataURL();
     // console.log(dataURL);
     return dataURL;
+  }
+
+  static fileMsg(file: UploadFile) {
+    const splitFile = split(file.name, '.');
+    const prefix = nth(splitFile, 0);
+    const suffix = nth(splitFile, 1);
+    return { prefix, suffix };
   }
 
   static async openInNewTab(blob: Blob) {

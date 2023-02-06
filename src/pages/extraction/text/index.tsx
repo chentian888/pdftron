@@ -17,8 +17,10 @@ const { Dragger } = Upload;
 const ExtractText: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload, convertList } = useModel('files');
-  const { setInstance, showWebviewer, setShowWebviewer } = useModel('pdf');
+  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
+    useModel('files');
+  const { instance, setInstance, showWebviewer, setShowWebviewer } =
+    useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
@@ -75,11 +77,11 @@ const ExtractText: React.FC = () => {
     }
   };
 
-  // 转换为image列表
+  // 提取文本列表
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile img={file} index={index} nonsupport={true} />
       </Col>
     ));
     if (success) {
@@ -90,7 +92,9 @@ const ExtractText: React.FC = () => {
   // 提取文字
   const extraText = async () => {
     setLoading(true);
-    // await PDF.extraText(instance, fileList);
+    const list = await PDF.extraText(instance!, fileList);
+    setConvertList(list);
+    await PDF.downloadZip(list);
     setLoading(false);
     setSuccess(true);
   };

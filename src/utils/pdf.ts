@@ -6,11 +6,11 @@ import {
   map,
   slice,
   forEach,
-  nth,
-  split,
   flatten,
   times,
   includes,
+  fill,
+  join,
 } from 'lodash-es';
 import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
@@ -30,7 +30,7 @@ export default class PDF {
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
     const convert = async (file: UploadFile): Promise<ConvertFile> => {
-      const fileName = nth(split(file?.name, '.'), 0);
+      const { prefix } = Tools.fileMsg(file);
       // const buf = await (instance.Core as any).officeToPDFBuffer(file, {
       //   l: this.licenseKey,
       // });
@@ -43,10 +43,16 @@ export default class PDF {
       const data = await doc.getFileData();
       const blob = await Tools.buf2Blob(data);
       console.log(blob);
-      return { file: file, newfile: blob, fileName: `${fileName}.pdf` };
+      return { file: file, newfile: blob, fileName: `${prefix}.pdf` };
     };
 
-    const blobArray = await Tools.runSequence(Tools.sequence(files, convert));
+    const convertSequence = function* () {
+      for (let i = 0; i < files.length; i++) {
+        yield convert(files[i]);
+      }
+    };
+
+    const blobArray = await Tools.runSequence(convertSequence());
     return blobArray;
   }
 
@@ -92,7 +98,7 @@ export default class PDF {
   ): Promise<ConvertFile[]> {
     const convert = async (file: UploadFile) => {
       let allBlob: ConvertFile[] = [];
-      const fileName = nth(split(file.name, '.'), 0);
+      const { prefix } = Tools.fileMsg(file);
       const buf = await Tools.file2Buf(file as any as File);
       const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
       const pdfdraw = await instance?.Core.PDFNet.PDFDraw.create(92);
@@ -106,7 +112,7 @@ export default class PDF {
         allBlob.push({
           file: file,
           newfile: blob,
-          fileName: `${fileName}-${pageIndex}.png`,
+          fileName: `${prefix}-${pageIndex}.png`,
         });
         itr?.next();
       }
@@ -226,7 +232,7 @@ export default class PDF {
     pages: number[],
   ): Promise<ConvertFile[]> {
     const { annotationManager } = instance.Core;
-    const fileName = nth(split(file.name, '.'), 0);
+    const { prefix } = Tools.fileMsg(file);
     // only include annotations on the pages to extract
     const annotList = annotationManager
       .getAnnotationsList()
@@ -234,7 +240,7 @@ export default class PDF {
     const xfdfString = await annotationManager.exportAnnotations({ annotList });
     const data = await doc.extractPages(pages, xfdfString);
     const blob = await Tools.buf2Blob(data);
-    return [{ file: file, newfile: blob, fileName: `${fileName}.pdf` }];
+    return [{ file: file, newfile: blob, fileName: `${prefix}.pdf` }];
   }
 
   /**
@@ -251,8 +257,7 @@ export default class PDF {
     file: UploadFile,
     pages: number[],
   ): Promise<ConvertFile[]> {
-    const fileName = nth(split(file.name, '.'), 0);
-
+    const { prefix } = Tools.fileMsg(file);
     // 分割文件单个页面
     const startSplit = async (index: number) => {
       const p = [index];
@@ -269,7 +274,7 @@ export default class PDF {
       return {
         file: file,
         newfile: blob,
-        fileName: `${fileName}-${index}.pdf`,
+        fileName: `${prefix}-${index}.pdf`,
       };
     };
 
@@ -291,7 +296,7 @@ export default class PDF {
     deirection?: CropType,
     exclude?: number[],
   ): Promise<ConvertFile[]> {
-    const fileName = nth(split(file.name, '.'), 0);
+    const { prefix } = Tools.fileMsg(file);
     const count = doc.getPageCount();
 
     // 裁剪单个页面
@@ -313,21 +318,44 @@ export default class PDF {
     await Promise.all(allCutPaage);
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
-    return [{ file: file, newfile: blob, fileName: `${fileName}-crop.pdf` }];
+    return [{ file: file, newfile: blob, fileName: `${prefix}-crop.pdf` }];
   }
 
-  // static async extraText(
-  //   instance: WebViewerInstance,
-  //   files: UploadFile[],
-  // ): Promise<ConvertFile[]> {
-  //   const docsPromise = map(files, async (file) => {
-  //     return await instance.Core.createDocument(file as any as File, {
-  //       filename: file.name,
-  //     });
-  //   });
-  //   const text = await doc?.loadPageText(1);
-  //   console.log(text);
-  // }
+  static async extraText(
+    instance: WebViewerInstance,
+    files: UploadFile[],
+  ): Promise<ConvertFile[]> {
+    // 提取单个文件文字
+    const extraDocText = async (file: UploadFile) => {
+      const { prefix } = Tools.fileMsg(file);
+      const doc = await instance.Core.createDocument(file as any as File, {
+        filename: file.name,
+      });
+      const count = doc.getPageCount();
+      const arr = fill(Array(count), '');
+
+      const loadTextSequence = function* () {
+        for (let i = 0; i < arr.length; i++) {
+          yield doc.loadPageText(i + 1);
+        }
+      };
+
+      const textArr = await Tools.runSequence<string>(loadTextSequence());
+      const textStr = join(textArr, '');
+      const blob = new Blob([textStr], {
+        type: 'text/plain;charset=utf-8',
+      });
+      return { file, newfile: blob, fileName: `${prefix}.txt` };
+    };
+
+    // 处理多文件清空
+    const multipleFileText = map(files, extraDocText);
+
+    // 多个
+    const textList = await Promise.all(multipleFileText);
+    console.log(textList);
+    return textList;
+  }
 
   // 下载文件
   static async download(blob: Blob, fileName: string) {
