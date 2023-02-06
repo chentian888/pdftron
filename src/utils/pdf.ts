@@ -357,6 +357,68 @@ export default class PDF {
     return textList;
   }
 
+  // static async extraImage(
+  //   instance: WebViewerInstance,
+  //   files: UploadFile[],
+  // ): Promise<ConvertFile[]> {
+  //   const file = files[0];
+  //   const buf = await Tools.file2Buf(file as any as File);
+  //   const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
+  //   const reader = await instance.Core.PDFNet.ElementReader.create();
+
+  //   const ProcessElements = async (reader) => {
+  //     // Traverse the page display list
+  //     for (
+  //       let element = await reader.next();
+  //       element !== null;
+  //       element = await reader.next()
+  //     ) {
+  //       const elementType = await element.getType();
+  //       // console.log(
+  //       //   element !== null,
+  //       //   elementType,
+  //       //   instance.Core.PDFNet.Element.Type.e_image,
+  //       // );
+
+  //       if (elementType === instance.Core.PDFNet.Element.Type.e_image) {
+  //         console.log(element);
+  //         const xObj = await element.getXObject();
+  //         // const bbb = await xObj.getBuffer();
+  //         console.log(xObj);
+  //         const image = await instance.Core.PDFNet.Image.createFromObj(xObj);
+  //         console.log(image);
+  //         const tt = await element.getImageData();
+  //         // const filter = await instance.Core.PDFNet.Filter.createFlateEncode(
+  //         //   new instance.Core.PDFNet.Filter('0'),
+  //         // );
+  //         // console.log(tt);
+  //         const filterWriter = await instance.Core.PDFNet.FilterWriter.create(
+  //           tt,
+  //         );
+  //         // filterWriter.writeBuffer(bbb);
+  //         console.log(filterWriter);
+  //         // await filterWriter.writeString('23232323');
+
+  //         const bb = await image.exportAsPngFromStream(filterWriter); // or exportAsTiffFromStream or exportAsPngFromStream
+  //         // console.log(await image.getImageData());
+
+  //         console.log(bb);
+
+  //         // console.log(await element.getImageData());
+  //       }
+  //     }
+  //   };
+  //   // Read page content on every page in the document
+  //   const itr = await doc.getPageIterator(1);
+  //   for (itr; await itr.hasNext(); await itr.next()) {
+  //     // // Read the page
+  //     const page = await itr.current();
+  //     await reader.beginOnPage(page);
+  //     await ProcessElements(reader);
+  //     await reader.end();
+  //   }
+  // }
+
   // 下载文件
   static async download(blob: Blob, fileName: string) {
     saveAs(blob, fileName);

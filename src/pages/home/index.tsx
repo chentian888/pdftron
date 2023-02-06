@@ -138,7 +138,7 @@ const Home: React.FC = () => {
         desc: '选择PDF中的页面拆分成新的文档',
         icon: 'icon-split1',
         className: 'justify-self-center',
-        to: '/page/extra',
+        to: '/page/extract',
       },
       {
         title: 'PDF拆分2',
@@ -183,7 +183,7 @@ const Home: React.FC = () => {
         to: '/extraction/text',
       },
       {
-        title: 'PDF提取小图片',
+        title: 'PDF提取图片',
         desc: '提取PDF中的所有小图片',
         icon: 'icon-extra-image',
         className: 'justify-self-end',
