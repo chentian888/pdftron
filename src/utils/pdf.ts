@@ -16,8 +16,7 @@ import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
 
 export default class PDF {
-  private static licenseKey =
-    'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0';
+  private static licenseKey = LICENSE_KEY;
 
   /**
    * office转PDF

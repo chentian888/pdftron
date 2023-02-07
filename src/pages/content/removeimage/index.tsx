@@ -57,7 +57,7 @@ const ContentRemoveImage: React.FC = () => {
     console.log(file);
     const doc = await instance?.Core.createDocument(file as any as File, {
       filename: file.name,
-      l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+      l: LICENSE_KEY,
     });
     setDoc(doc);
 

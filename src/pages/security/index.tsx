@@ -53,6 +53,7 @@ const Security: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log('========', LICENSE_KEY);
     WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
       async (instance) => {
         setInstance(instance);
@@ -65,11 +66,12 @@ const Security: React.FC = () => {
     console.log('Beginning Test');
     const { Core } = instance!;
     let ret = 0;
-    const buf = await Tools.file2Buf(currentFile as any as File);
+    console.log(fileList[0]);
+    const buf = await Tools.file2Buf(fileList[0] as any as File);
     try {
       console.log('Running Sample 1');
       const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-
+      setDoc(doc);
       const success = await doc.initSecurityHandler();
       if (!success) {
         setHasPassword(true);
@@ -84,7 +86,7 @@ const Security: React.FC = () => {
   };
 
   // 设置密码
-  const settingPasswrod = async (doc: Core.PDFNet.PDFDoc) => {
+  const encrypt = async (doc: Core.PDFNet.PDFDoc) => {
     const { Core } = instance!;
     const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
 
@@ -101,17 +103,58 @@ const Security: React.FC = () => {
     const docbuf = await doc.saveMemoryBuffer(
       Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
     );
+    console.log(docbuf);
     const b = await Tools.buf2Blob(docbuf);
+
     PDF.download(b, 'aa.pdf');
+  };
+
+  // 修改或者解除密码
+  const decrypt = async (doc: Core.PDFNet.PDFDoc) => {
+    const { Core } = instance!;
+    const success = await doc.initStdSecurityHandlerUString('test');
+    if (success) {
+      await doc.lock();
+      // await doc.removeSecurity();
+      const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
+
+      // Set a new password required to open a document
+      newHandler.changeUserPasswordUString('123456');
+      console.log("Setting password to 'test'");
+
+      // Set Permissions
+      newHandler.setPermission(
+        Core.PDFNet.SecurityHandler.Permission.e_print,
+        false,
+      );
+      newHandler.setPermission(
+        Core.PDFNet.SecurityHandler.Permission.e_extract_content,
+        true,
+      );
+
+      // Note: document takes the ownership of newHandler.
+      doc.setSecurityHandler(newHandler);
+
+      const docbuf = await doc.saveMemoryBuffer(
+        Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
+      );
+      console.log(docbuf);
+      const b = await Tools.buf2Blob(docbuf);
+
+      PDF.download(b, 'aa.pdf');
+    }
   };
 
   const initDoc = async () => {
     const file = fileList[0];
+    console.log(fileList);
     setCurrentFile(file);
-    instance?.Core.PDFNet.runWithCleanup(
-      main,
-      'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
-    );
+
+    // await instance?.Core.PDFNet.runWithCleanup(
+    //   main,
+    //   'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+    // );
+    main();
   };
 
   useEffect(() => {
@@ -120,13 +163,15 @@ const Security: React.FC = () => {
     }
   }, [fileList]);
 
-  // 裁剪页面
-  const handleSetting = async (pagesNum: number[] = []) => {
-    const file = fileList[0];
+  // 设置
+  const handleSetting = async () => {
+    // const file = fileList[0];
     setLoading(true);
-    const res = await PDF.cropPage(doc! as Core.Document, file);
-    setConvertList(res);
-    await PDF.downloadZip(res);
+    // const res = await PDF.cropPage(doc! as Core.Document, file);
+    console.log(doc);
+    await decrypt(doc as Core.PDFNet.PDFDoc);
+    // setConvertList(res);
+    // await PDF.downloadZip(res);
     setLoading(false);
     setSuccess(true);
   };
@@ -134,7 +179,13 @@ const Security: React.FC = () => {
   // 文件列表
   const renderInitFile = () => {
     if (fileList?.length && !success) {
-      return <PdfSecurity hasPassword={hasPassword} file={currentFile!} />;
+      return (
+        <PdfSecurity
+          hasPassword={hasPassword}
+          file={currentFile!}
+          setting={handleSetting}
+        />
+      );
     }
   };
 
