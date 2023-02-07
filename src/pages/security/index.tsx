@@ -1,23 +1,25 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer, { Core } from '@pdftron/webviewer';
-import { pullAllBy, sortBy } from 'lodash-es';
+import WebViewer from '@pdftron/webviewer';
+// import { times } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
-import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
+// import PdfCrop from '@/components/PdfCrop';
+import PdfSecurity from '@/components/PdfSecurity';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
+import Tools from '@/utils/tools';
 // import type { ExtraThumbnailType } from '@/types/typings';
+import type { Core } from '@pdftron/webviewer';
 
 const { Dragger } = Upload;
 
-const ContentRemoveImage: React.FC = () => {
-  const [actionDisabled, setActionDisabled] = useState<boolean>(false);
+const Security: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [hasPassword, setHasPassword] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
-  const [extractNumber, setExtractNumber] = useState<number[]>([]);
   const [doc, setDoc] = useState<unknown>();
   const [currentFile, setCurrentFile] = useState<UploadFile>();
 
@@ -35,8 +37,8 @@ const ContentRemoveImage: React.FC = () => {
   const baseData = {
     accept: '.pdf',
     multiple: true,
-    title: 'PDF删除图片数据',
-    desc: '删除PDF中已选择的图片',
+    title: 'PDF加解密',
+    desc: 'PDF加密解密',
   };
 
   const viewer = useRef<HTMLDivElement>(null);
@@ -50,68 +52,6 @@ const ContentRemoveImage: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
-  // 初始化缩图图
-  const initloadThumbnail = async () => {
-    const file = fileList[0];
-    setCurrentFile(file);
-    console.log(file);
-    const doc = await instance?.Core.createDocument(file as any as File, {
-      filename: file.name,
-      l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
-    });
-    setDoc(doc);
-
-    const arr: Promise<ExtraThumbnailType>[] = [];
-    const pageNo: number[] = []; // 需要提取页面编号
-    const count = doc?.getPageCount() as number;
-    const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
-      return new Promise((resolve) => {
-        doc?.loadThumbnail(index, (thumbnail: HTMLCanvasElement) => {
-          const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-          (thumbnail as HTMLCanvasElement).toBlob((blob) => {
-            console.log(doc);
-            resolve({
-              blob: blob!,
-              img: base64,
-              total: count,
-              current: index,
-              sourceFile: file,
-              currentDoc: doc,
-            });
-          });
-        });
-      });
-    };
-    for (let i = 0; i < count; i++) {
-      const current = i + 1;
-      arr.push(loadThumbnail(current));
-      pageNo.push(current);
-    }
-    const res = await Promise.all(arr);
-    setActionDisabled(false);
-    setThumbnailList(res);
-    setExtractNumber(pageNo);
-  };
-
-  useEffect(() => {
-    setActionDisabled(true);
-    if (fileList.length) {
-      initloadThumbnail();
-    }
-  }, [fileList]);
-
-  // 勾选文件
-  const checkFile = (index: number) => {
-    extractNumber.push(index);
-    const sort = sortBy(extractNumber, (o) => o);
-    setExtractNumber(sort);
-  };
-
-  // 反选文件
-  const unCheckFile = (index: number) => {
-    pullAllBy(extractNumber, [index]);
-  };
-
   useEffect(() => {
     WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
       async (instance) => {
@@ -121,19 +61,80 @@ const ContentRemoveImage: React.FC = () => {
     );
   }, []);
 
+  const main = async () => {
+    console.log('Beginning Test');
+    const { Core } = instance!;
+    let ret = 0;
+    const buf = await Tools.file2Buf(currentFile as any as File);
+    try {
+      console.log('Running Sample 1');
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+
+      const success = await doc.initSecurityHandler();
+      if (!success) {
+        setHasPassword(true);
+      }
+
+      doc.lock();
+      console.log('PDFNet and PDF document initialized and locked');
+    } catch (err) {
+      ret = 1;
+    }
+    return ret;
+  };
+
+  // 设置密码
+  const settingPasswrod = async (doc: Core.PDFNet.PDFDoc) => {
+    const { Core } = instance!;
+    const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
+
+    // Set a new password required to open a document
+    newHandler.changeUserPasswordUString('test');
+    console.log("Setting password to 'test'");
+
+    // Note: document takes the ownership of newHandler.
+    doc.setSecurityHandler(newHandler);
+
+    // Save the changes
+    console.log('Saving modified file...');
+
+    const docbuf = await doc.saveMemoryBuffer(
+      Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
+    );
+    const b = await Tools.buf2Blob(docbuf);
+    PDF.download(b, 'aa.pdf');
+  };
+
+  const initDoc = async () => {
+    const file = fileList[0];
+    setCurrentFile(file);
+    instance?.Core.PDFNet.runWithCleanup(
+      main,
+      'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+    );
+  };
+
+  useEffect(() => {
+    if (fileList.length) {
+      initDoc();
+    }
+  }, [fileList]);
+
+  // 裁剪页面
+  const handleSetting = async (pagesNum: number[] = []) => {
+    const file = fileList[0];
+    setLoading(true);
+    const res = await PDF.cropPage(doc! as Core.Document, file);
+    setConvertList(res);
+    await PDF.downloadZip(res);
+    setLoading(false);
+    setSuccess(true);
+  };
+
   // 文件列表
   const renderInitFile = () => {
-    const list = thumbnailList?.map((file, index) => (
-      <Col span={4} key={index}>
-        <ExtraThumbnail
-          file={file}
-          checkFile={checkFile}
-          unCheckFile={unCheckFile}
-        />
-      </Col>
-    ));
-    if (thumbnailList?.length) {
-      return <Row gutter={[16, 16]}>{list}</Row>;
+    if (fileList?.length && !success) {
+      return <PdfSecurity hasPassword={hasPassword} file={currentFile!} />;
     }
   };
 
@@ -149,29 +150,11 @@ const ContentRemoveImage: React.FC = () => {
     }
   };
 
-  // 提取页面
-  const convert = async () => {
-    setLoading(true);
-    console.log(extractNumber);
-    const res = await PDF.removeImage(
-      instance!,
-      doc as Core.Document,
-      currentFile!,
-      extractNumber,
-    );
-    setThumbnailList([]);
-    setConvertList(res);
-    setLoading(false);
-    setSuccess(true);
-    await PDF.downloadZip(res);
-  };
-
   const reset = () => {
     setConvertList([]);
     setFileList([]);
     setDoc(null as unknown);
-    setExtractNumber([]);
-    setThumbnailList([]);
+    // setCropNumber([]);
     setSuccess(false);
   };
 
@@ -204,38 +187,18 @@ const ContentRemoveImage: React.FC = () => {
 
   // 操作按钮
   const renderAction = () => {
-    let action;
-
     if (success) {
-      action = (
-        <>
+      return (
+        <div className="w-1/3 absolute bottom-20 left-1/2 -translate-x-1/2">
           <Button type="primary" size="large" block onClick={downloadAll}>
             全部下载
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={reset}>
             继续
           </div>
-        </>
-      );
-    } else if (fileList.length) {
-      action = (
-        <Button
-          type="primary"
-          size="large"
-          block
-          disabled={actionDisabled}
-          loading={loading}
-          onClick={() => convert()}
-        >
-          删除图片
-        </Button>
+        </div>
       );
     }
-    return (
-      <div className="w-1/3 absolute bottom-20 left-1/2 -translate-x-1/2">
-        {action}
-      </div>
-    );
   };
 
   return (
@@ -268,4 +231,4 @@ const ContentRemoveImage: React.FC = () => {
   );
 };
 
-export default ContentRemoveImage;
+export default Security;

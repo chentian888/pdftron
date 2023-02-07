@@ -121,6 +121,18 @@ export default defineConfig({
       ],
     },
     {
+      title: 'PDF加解密',
+      path: '/security',
+      component: '@/layouts/ConvertLayout',
+      routes: [
+        {
+          title: 'PDF加解密',
+          path: '',
+          component: './security',
+        },
+      ],
+    },
+    {
       title: '登录',
       path: '/login',
       component: './login',
