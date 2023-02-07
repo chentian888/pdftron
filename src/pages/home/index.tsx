@@ -208,14 +208,14 @@ const Home: React.FC = () => {
         desc: 'PDF压缩',
         icon: 'icon-compress',
         className: 'justify-self-end',
-        to: '',
+        to: '/compress',
       },
       {
         title: 'PDF加密解密',
         desc: 'PDF加密解密',
         icon: 'icon-lock',
         className: '',
-        to: '',
+        to: '/security',
       },
     ];
 

@@ -515,6 +515,20 @@ export default class PDF {
     return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
   }
 
+  static async compress(
+    instance: WebViewerInstance,
+    doc: Core.Document,
+    file: UploadFile,
+  ) {
+    const { Core } = instance;
+    const { prefix } = Tools.fileMsg(file);
+    const pdfDoc = await doc.getPDFDoc();
+    await Core.PDFNet.Optimizer.optimize(pdfDoc);
+    const buf = await doc.getFileData();
+    const blob = await Tools.buf2Blob(buf);
+    return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
+  }
+
   // 下载文件
   static async download(blob: Blob, fileName: string) {
     saveAs(blob, fileName);

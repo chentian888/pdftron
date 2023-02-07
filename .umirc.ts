@@ -109,6 +109,18 @@ export default defineConfig({
       ],
     },
     {
+      title: 'PDF压缩',
+      path: '/compress',
+      component: '@/layouts/ConvertLayout',
+      routes: [
+        {
+          title: 'PDF压缩',
+          path: '',
+          component: './compress',
+        },
+      ],
+    },
+    {
       title: '登录',
       path: '/login',
       component: './login',
