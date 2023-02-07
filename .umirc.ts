@@ -92,6 +92,23 @@ export default defineConfig({
       ],
     },
     {
+      title: '页面编辑',
+      path: '/content',
+      component: '@/layouts/ConvertLayout',
+      routes: [
+        {
+          title: 'PDF删除文字数据',
+          path: 'removetext',
+          component: './content/removetext',
+        },
+        {
+          title: 'PDF删除图片数据',
+          path: 'removeimage',
+          component: './content/removeimage',
+        },
+      ],
+    },
+    {
       title: '登录',
       path: '/login',
       component: './login',

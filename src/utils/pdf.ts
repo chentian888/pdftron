@@ -419,6 +419,102 @@ export default class PDF {
   //   }
   // }
 
+  static async removeText(
+    instance: WebViewerInstance,
+    doc: Core.Document,
+    file: UploadFile,
+    pageNo: number[],
+  ) {
+    if (!pageNo || !pageNo.length) return [];
+    const { Core } = instance;
+    const pdfDoc = await doc.getPDFDoc();
+    const { prefix } = Tools.fileMsg(file);
+    // 删除某个页面数据
+    const removeOnePageText = async (index: number) => {
+      const page = await pdfDoc.getPage(index);
+      const writer = await Core.PDFNet.ElementWriter.create();
+      const reader = await Core.PDFNet.ElementReader.create();
+      reader.beginOnPage(page);
+      writer.beginOnPage(
+        page,
+        Core.PDFNet.ElementWriter.WriteMode.e_replacement,
+        false,
+      );
+
+      for (
+        let element = await reader.next();
+        element !== null;
+        element = await reader.next()
+      ) {
+        const elementType = await element.getType();
+        switch (elementType) {
+          // case Core.PDFNet.Element.Type.e_image:
+          // case Core.PDFNet.Element.Type.e_inline_image:
+          //   // remove all images by skipping them
+          //   break;
+          case Core.PDFNet.Element.Type.e_text:
+            break;
+          default:
+            writer.writeElement(element);
+            break;
+        }
+      }
+      writer.end();
+      reader.end();
+    };
+    await Promise.all(map(pageNo, removeOnePageText));
+    const buf = await doc.getFileData();
+    const blob = await Tools.buf2Blob(buf);
+    return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
+  }
+
+  static async removeImage(
+    instance: WebViewerInstance,
+    doc: Core.Document,
+    file: UploadFile,
+    pageNo: number[],
+  ) {
+    if (!pageNo || !pageNo.length) return [];
+    const { Core } = instance;
+    const pdfDoc = await doc.getPDFDoc();
+    const { prefix } = Tools.fileMsg(file);
+    // 删除某个页面图片
+    const removeOnePageImage = async (index: number) => {
+      const page = await pdfDoc.getPage(index);
+      const writer = await Core.PDFNet.ElementWriter.create();
+      const reader = await Core.PDFNet.ElementReader.create();
+      reader.beginOnPage(page);
+      writer.beginOnPage(
+        page,
+        Core.PDFNet.ElementWriter.WriteMode.e_replacement,
+        false,
+      );
+
+      for (
+        let element = await reader.next();
+        element !== null;
+        element = await reader.next()
+      ) {
+        const elementType = await element.getType();
+        switch (elementType) {
+          case Core.PDFNet.Element.Type.e_image:
+          case Core.PDFNet.Element.Type.e_inline_image:
+            // remove all images by skipping them
+            break;
+          default:
+            writer.writeElement(element);
+            break;
+        }
+      }
+      writer.end();
+      reader.end();
+    };
+    await Promise.all(map(pageNo, removeOnePageImage));
+    const buf = await doc.getFileData();
+    const blob = await Tools.buf2Blob(buf);
+    return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
+  }
+
   // 下载文件
   static async download(blob: Blob, fileName: string) {
     saveAs(blob, fileName);
