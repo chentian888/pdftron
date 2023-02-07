@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
 import WebViewer, { Core } from '@pdftron/webviewer';
-import { pullAllBy, sortBy } from 'lodash-es';
+// import { pullAllBy, sortBy } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
-import ExtraThumbnail from '@/components/ExtraThumbnail';
+import DragedFile from '@/components/DragedFile';
+// import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 // import type { ExtraThumbnailType } from '@/types/typings';
@@ -15,8 +16,8 @@ const { Dragger } = Upload;
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
-  const [extractNumber, setExtractNumber] = useState<number[]>([]);
+  // const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
+  // const [extractNumber, setExtractNumber] = useState<number[]>([]);
   const [doc, setDoc] = useState<unknown>();
   const [currentFile, setCurrentFile] = useState<UploadFile>();
 
@@ -51,53 +52,10 @@ const PageManipulation: React.FC = () => {
       setCurrentFile(file);
       console.log(file);
       const doc = await instance?.Core.createDocument(file as any as File, {
-        extension: 'pdf',
-        l: 'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
+        filename: file.name,
       });
       setDoc(doc);
-
-      const arr: Promise<ExtraThumbnailType>[] = [];
-      const pageNo: number[] = []; // 需要提取页面编号
-      const count = doc?.getPageCount() as number;
-      const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
-        return new Promise((resolve) => {
-          doc?.loadThumbnail(index, (thumbnail: HTMLCanvasElement) => {
-            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-            (thumbnail as HTMLCanvasElement).toBlob((blob) => {
-              console.log(doc);
-              resolve({
-                blob: blob!,
-                img: base64,
-                total: count,
-                current: index,
-                sourceFile: file,
-                currentDoc: doc,
-              });
-            });
-          });
-        });
-      };
-      for (let i = 0; i < count; i++) {
-        const current = i + 1;
-        arr.push(loadThumbnail(current));
-        pageNo.push(current);
-      }
-      const res = await Promise.all(arr);
-      setThumbnailList(res);
-      setExtractNumber(pageNo);
     },
-  };
-
-  // 勾选文件
-  const checkFile = (index: number) => {
-    extractNumber.push(index);
-    const sort = sortBy(extractNumber, (o) => o);
-    setExtractNumber(sort);
-  };
-
-  // 反选文件
-  const unCheckFile = (index: number) => {
-    pullAllBy(extractNumber, [index]);
   };
 
   useEffect(() => {
@@ -109,19 +67,32 @@ const PageManipulation: React.FC = () => {
     );
   }, []);
 
-  // 文件列表
+  const renderMoreFileButton = () => {
+    return (
+      baseData.multiple && (
+        <Col span={4}>
+          <Upload className="w-full h-full block" {...props}>
+            <div className="draged-action">添加更多文件</div>
+          </Upload>
+        </Col>
+      )
+    );
+  };
+
+  // 渲染需要转换的文件
   const renderInitFile = () => {
-    const list = thumbnailList?.map((file, index) => (
+    const list = fileList.map((file, index) => (
       <Col span={4} key={index}>
-        <ExtraThumbnail
-          file={file}
-          checkFile={checkFile}
-          unCheckFile={unCheckFile}
-        />
+        <DragedFile file={file} accept={baseData.accept} />
       </Col>
     ));
-    if (thumbnailList?.length) {
-      return <Row gutter={[16, 16]}>{list}</Row>;
+    if (!success && fileList.length) {
+      return (
+        <Row gutter={16}>
+          {list}
+          {renderMoreFileButton()}
+        </Row>
+      );
     }
   };
 
@@ -146,7 +117,6 @@ const PageManipulation: React.FC = () => {
       currentFile!,
     );
     console.log(res);
-    setThumbnailList([]);
     setConvertList(res);
     await PDF.downloadZip(res);
     setLoading(false);
@@ -157,8 +127,6 @@ const PageManipulation: React.FC = () => {
     setConvertList([]);
     setFileList([]);
     setDoc(null as unknown);
-    setExtractNumber([]);
-    setThumbnailList([]);
     setSuccess(false);
   };
 
@@ -213,7 +181,7 @@ const PageManipulation: React.FC = () => {
           loading={loading}
           onClick={() => convert()}
         >
-          提取
+          压缩
         </Button>
       );
     }
