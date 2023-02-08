@@ -33,6 +33,7 @@ const ConvertFrom: React.FC = () => {
     showWebviewer,
     setShowWebviewer,
     ready,
+    setReady,
     initWebViewer,
     webviewerTtile,
   } = useModel('pdf');
@@ -79,10 +80,22 @@ const ConvertFrom: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
+  // 继续
+  const going = () => {
+    resetList();
+  };
+
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
+  };
+
   useEffect(() => {
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }
+    return pageUmount;
   }, []);
 
   const downloadAll = async () => {
@@ -150,10 +163,6 @@ const ConvertFrom: React.FC = () => {
     setConvertList(arr);
     setLoading(false);
     setSuccess(true);
-  };
-
-  const going = () => {
-    resetList();
   };
 
   // 内容区域

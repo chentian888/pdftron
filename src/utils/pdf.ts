@@ -32,7 +32,7 @@ export default class PDF {
 
     const convert = async (file: UploadFile): Promise<ConvertFile> => {
       const { prefix, suffix } = Tools.fileMsg(file);
-      // const buf = await (instance.Core as any).officeToPDFBuffer(file, {
+      // const data = await (instance.Core as any).officeToPDFBuffer(file, {
       //   l: this.licenseKey,
       // });
       const doc = await Core.createDocument(file as any as File, {
@@ -173,14 +173,15 @@ export default class PDF {
    */
   static async genThumbnail(
     instance: WebViewerInstance,
-    file: UploadFile | Blob,
+    file: UploadFile,
     pageNo: number = 1,
   ): Promise<string> {
     const { Core } = instance;
     return new Promise((resolve) => {
+      const { prefix, suffix } = Tools.fileMsg(file);
       Core.createDocument(file as any as File, {
-        filename: file.name,
-        loadAsPDF: true,
+        filename: prefix,
+        extension: suffix,
       }).then((doc) => {
         const loadThumbnail = (
           thumbnail: HTMLCanvasElement | HTMLImageElement,

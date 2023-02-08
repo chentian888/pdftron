@@ -32,9 +32,13 @@ const ImageFile: React.FC<Props> = (props) => {
     try {
       let base64 = '';
       if (toFileType === 'image') {
+        // PDF转图片
         base64 = await Tools.blob2Base64(img.newfile);
       } else {
-        base64 = await PDF.genThumbnail(instance!, img.newfile);
+        base64 = await PDF.genThumbnail(
+          instance!,
+          img.newfile as any as UploadFile,
+        );
       }
       setThumb(base64);
     } catch (e) {

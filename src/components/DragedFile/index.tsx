@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Checkbox, Tooltip, Upload } from 'antd';
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
-import { useModel } from '@umijs/max';
+import { useModel, useParams } from '@umijs/max';
 import PDF from '@/utils/pdf';
 import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -20,6 +20,7 @@ const DragedFile: React.FC<Props> = (props) => {
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
   const [totalPage] = useState<number>(0);
+  const { from = '' } = useParams();
 
   const style = { fontSize: '19px', color: '#6478B3' };
 
@@ -42,6 +43,10 @@ const DragedFile: React.FC<Props> = (props) => {
   const handleRemove = (e: React.MouseEvent, file: UploadFile) => {
     e.stopPropagation();
     onRemove(file);
+    if (from && from === 'image') {
+      // image转pdf移除文件的同时需要取消选中文件
+      unCheckFile(file);
+    }
   };
 
   // 替换
