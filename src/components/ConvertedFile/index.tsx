@@ -5,7 +5,7 @@ import {
   EyeOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
-import { useModel } from '@umijs/max';
+import { useModel, useParams } from '@umijs/max';
 // import { split } from 'lodash-es';
 import PDF from '@/utils/pdf';
 import Tools from '@/utils/tools';
@@ -13,17 +13,18 @@ import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
-  img: ConvertFile;
+  convert: ConvertFile;
   index: number;
   nonsupport?: boolean;
-  toFileType?: string; // PDF转换后的文件类型默认
 }
 
 const ImageFile: React.FC<Props> = (props) => {
-  const { img, index, toFileType = 'pdf', nonsupport = false } = props;
+  // txt格式文件不支持
+  const { convert, nonsupport = false } = props;
   const { removeConvertFile } = useModel('files');
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
+  const { to = '' } = useParams();
 
   const style = { fontSize: '19px', color: '#6478B3' };
 
@@ -31,13 +32,13 @@ const ImageFile: React.FC<Props> = (props) => {
     if (nonsupport) return;
     try {
       let base64 = '';
-      if (toFileType === 'image') {
+      if (to && to === 'image') {
         // PDF转图片
-        base64 = await Tools.blob2Base64(img.newfile);
+        base64 = await Tools.blob2Base64(convert.newfile);
       } else {
         base64 = await PDF.genThumbnail(
           instance!,
-          img.newfile as any as UploadFile,
+          convert.newfile as any as UploadFile,
         );
       }
       setThumb(base64);
@@ -47,24 +48,26 @@ const ImageFile: React.FC<Props> = (props) => {
   };
 
   useEffect(() => {
-    if (img.newfile) {
+    if (convert.newfile) {
       computedThumb();
     }
   }, []);
 
   // 移除
   const handleRemove = () => {
-    removeConvertFile(index - 1);
+    removeConvertFile(convert);
   };
 
   // 预览
   const handlePreview = () => {
     if (nonsupport) return;
     const { UI } = instance!;
-    const { prefix, suffix } = Tools.fileMsg(img.newfile as any as UploadFile);
+    const { prefix, suffix } = Tools.fileMsg(
+      convert.newfile as any as UploadFile,
+    );
     setShowWebviewer(true);
-    setWebviewerTtile(img.newFileName);
-    UI.loadDocument(img.newfile as any as File, {
+    setWebviewerTtile(convert.newFileName);
+    UI.loadDocument(convert.newfile as any as File, {
       filename: prefix,
       extension: suffix,
     });
@@ -72,7 +75,7 @@ const ImageFile: React.FC<Props> = (props) => {
 
   // 下载图片
   const downloadImage = () => {
-    PDF.download(img.newfile, img.newFileName);
+    PDF.download(convert.newfile, convert.newFileName);
   };
 
   return (
@@ -89,7 +92,7 @@ const ImageFile: React.FC<Props> = (props) => {
         </div>
         <div className="h-[86px]">
           <div className="text-gray-400 p-1 text-center overflow-hidden text-ellipsis whitespace-normal">
-            {img.newFileName}
+            {convert.newFileName}
           </div>
         </div>
 

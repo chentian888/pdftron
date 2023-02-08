@@ -139,7 +139,7 @@ const ConvertFrom: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -174,10 +174,17 @@ const ConvertFrom: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
-          <Upload className="w-full" {...props}>
+          <Upload className="w-full" disabled={!ready} {...props}>
             <Button
               className="w-full"
               type="primary"
@@ -235,6 +242,7 @@ const ConvertFrom: React.FC = () => {
     <>
       {/* <Title title="转为PDF" /> */}
       <Dragger
+        disabled={!ready}
         className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}

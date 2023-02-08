@@ -114,9 +114,9 @@ export default class PDF {
       let allBlob: ConvertFile[] = [];
       const { prefix } = Tools.fileMsg(file);
       const buf = await Tools.file2Buf(file as any as File);
-      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const pdfDoc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
       const pdfdraw = await Core.PDFNet.PDFDraw.create(92);
-      const itr = await doc?.getPageIterator(1);
+      const itr = await pdfDoc?.getPageIterator(1);
 
       while (await itr?.hasNext()) {
         const currPage = await itr?.current();
@@ -147,22 +147,31 @@ export default class PDF {
    * @param file
    * @returns
    */
-  static async pdf2pdfa(instance: WebViewerInstance, file: UploadFile) {
+  static async pdf2pdfa(
+    instance: WebViewerInstance,
+    files: UploadFile[],
+  ): Promise<ConvertFile[]> {
     const { Core } = instance;
-
-    return new Promise<Blob>((resolve) => {
-      async function main() {
-        const source = await Tools.file2Buf(file as any as File);
-        const pdfa = await Core.PDFNet.PDFACompliance.createFromBuffer(
-          true,
-          source,
-        );
-        const buf = await pdfa!.saveAsFromBuffer(false);
-        const blob = new Blob([buf], { type: 'application/pdf' });
-        resolve(blob);
-      }
-      Core.PDFNet.runWithCleanup(main, this.licenseKey);
-    });
+    const pdfa = (file: UploadFile) => {
+      return new Promise<ConvertFile>((resolve) => {
+        async function main() {
+          const { prefix } = Tools.fileMsg(file);
+          const source = await Tools.file2Buf(file as any as File);
+          const pdfa = await Core.PDFNet.PDFACompliance.createFromBuffer(
+            true,
+            source,
+          );
+          const buf = await pdfa!.saveAsFromBuffer(false);
+          const blob = new Blob([buf], { type: 'application/pdf' });
+          const newFileName = `${prefix}.pdf`;
+          const newfile = Tools.blob2File(buf, newFileName);
+          resolve({ file, newfile, newFileName, newFileBlob: blob });
+        }
+        Core.PDFNet.runWithCleanup(main, this.licenseKey);
+      });
+    };
+    const arr = await Promise.all(map(files, pdfa));
+    return arr;
   }
 
   /**

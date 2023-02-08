@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
-import { last, split, nth } from 'lodash-es';
+// import { last, split, nth } from 'lodash-es';
 // import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -16,11 +15,25 @@ const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
-    useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    fileList,
+    success,
+    setSuccess,
+    onRemove,
+    beforeUpload,
+    convertList,
+    setConvertList,
+    resetList,
+  } = useModel('files');
+  const {
+    instance,
+    showWebviewer,
+    ready,
+    setReady,
+    setShowWebviewer,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
   const { to = 'word' } = useParams();
 
   const fileType: Record<string, any> = {
@@ -50,7 +63,12 @@ const ConvertFrom: React.FC = () => {
       title: 'PDF转图片',
       desc: 'PDF转图片（jpeg,png）',
     },
-    pdfa: { accept: '.pdf', title: 'PDF转PDF/A', desc: 'PDF转PDF/A' },
+    pdfa: {
+      accept: '.pdf',
+      multiple: true,
+      title: 'PDF转PDF/A',
+      desc: 'PDF转PDF/A',
+    },
   };
 
   const baseData = fileType[to];
@@ -65,13 +83,22 @@ const ConvertFrom: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
+  // 继续
+  const going = () => {
+    resetList();
+  };
+
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
+  };
+
   useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
+    return pageUmount;
   }, []);
 
   const renderMoreFileButton = () => {
@@ -90,11 +117,7 @@ const ConvertFrom: React.FC = () => {
   const renderInitFile = () => {
     const list = fileList.map((file, index) => (
       <Col span={4} key={index}>
-        <DragedFile
-          file={file}
-          accept={baseData.accept}
-          showCheckBox={to === 'image'}
-        />
+        <DragedFile file={file} accept={baseData.accept} />
       </Col>
     ));
     if (!success && fileList.length) {
@@ -111,7 +134,7 @@ const ConvertFrom: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} toFileType={to} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -122,28 +145,18 @@ const ConvertFrom: React.FC = () => {
   // 转换
   const convert = async () => {
     setLoading(true);
-    // 始终取最后一个文件做为下载显示的文件名
-    const lastFile = last(fileList);
-    const fileName = nth(split(lastFile?.name, '.'), 0);
-    console.log(lastFile);
-
     // 转blob
-    let blob = null;
+    let arr: ConvertFile[] = [];
     if (to === 'image') {
       // const buf = await PDF.file2Buf(lastFile as any as File);
-      const res = await PDF.pdf2image(instance!, fileList);
-      console.log(res);
-      setConvertList(res);
+      arr = await PDF.pdf2image(instance!, fileList);
     } else if (to === 'pdfa') {
-      blob = await PDF.pdf2pdfa(instance!, lastFile!);
-      await PDF.download(blob, `${fileName}.pdf`);
-    } else {
-      const arr = await PDF.office2pdf(instance!, fileList);
-      setConvertList(arr);
-      // 下载
-      await PDF.downloadZip(arr);
+      arr = await PDF.pdf2pdfa(instance!, fileList);
     }
 
+    // 下载
+    await PDF.downloadZip(arr);
+    setConvertList(arr);
     setLoading(false);
     setSuccess(true);
   };
@@ -162,11 +175,24 @@ const ConvertFrom: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
-          <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+          <Upload className="w-full" disabled={!ready} {...props}>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -181,9 +207,14 @@ const ConvertFrom: React.FC = () => {
 
     if (success) {
       action = (
-        <Button type="primary" size="large" block onClick={downloadAll}>
-          全部下载
-        </Button>
+        <>
+          <Button type="primary" size="large" block onClick={downloadAll}>
+            全部下载
+          </Button>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
+            继续
+          </div>
+        </>
       );
     } else if (fileList.length) {
       action = (
@@ -209,6 +240,7 @@ const ConvertFrom: React.FC = () => {
     <>
       {/* <Title title="转为PDF" /> */}
       <Dragger
+        disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
@@ -220,7 +252,7 @@ const ConvertFrom: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}

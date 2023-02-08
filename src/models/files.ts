@@ -68,7 +68,8 @@ export default () => {
   }
 
   // 移除转换后的文件
-  function removeConvertFile(index: number) {
+  function removeConvertFile(file: ConvertFile) {
+    const index = convertList.findIndex((f) => f.newfile === file.newfile);
     const newConvertList = convertList.slice();
     newConvertList.splice(index, 1);
     if (newConvertList.length) {
