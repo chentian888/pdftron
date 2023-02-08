@@ -59,6 +59,15 @@ export default class Tools {
     });
   }
 
+  // Blob转File
+  static blob2File(
+    blob: BlobPart,
+    filename: string,
+    filetype = 'application/pdf',
+  ): File {
+    return new File([blob], filename, { type: filetype });
+  }
+
   // File转为ArrayBuffer
   static file2Buf(file: File) {
     return new Promise<ArrayBuffer>((resolve) => {

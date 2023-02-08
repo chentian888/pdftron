@@ -9,11 +9,10 @@ export default () => {
   // 勾选文件列表
   const [checkFileList, setCheckFileList] = useState<UploadFile[]>([]);
 
-  // 转换后的图片列表
-  const [imageList, setImageList] = useState<ConvertFile[]>([]);
-
   // 转换后的文件列表
   const [convertList, setConvertList] = useState<ConvertFile[]>([]);
+
+  const [success, setSuccess] = useState<boolean>(false);
 
   // 移除文件
   function onRemove(file: UploadFile) {
@@ -56,25 +55,27 @@ export default () => {
     setCheckFileList(newFileList);
   }
 
-  // 移除转换后的图片文件
-  function onRemoveImage(index: number) {
-    console.log(index);
-    const newImageList = imageList.slice();
-    newImageList.splice(index, 1);
-    console.log(newImageList);
-    setImageList(newImageList);
-  }
-
   // 清除勾选列表
   function clearCheckFileList() {
     setCheckFileList([]);
   }
 
+  function resetList() {
+    setSuccess(false);
+    setFileList([]);
+    setConvertList([]);
+    setCheckFileList([]);
+  }
+
   // 移除转换后的文件
   function removeConvertFile(index: number) {
-    const newConvertList = imageList.slice();
+    const newConvertList = convertList.slice();
     newConvertList.splice(index, 1);
-    setConvertList(newConvertList);
+    if (newConvertList.length) {
+      setConvertList(newConvertList);
+    } else {
+      resetList();
+    }
   }
 
   // 清除转换后的文件列表
@@ -94,12 +95,12 @@ export default () => {
     unCheckFile,
     setCheckFileList,
     clearCheckFileList,
-    imageList,
-    setImageList,
-    onRemoveImage,
     convertList,
     setConvertList,
     removeConvertFile,
     clearConvertFile,
+    resetList,
+    success,
+    setSuccess,
   };
 };

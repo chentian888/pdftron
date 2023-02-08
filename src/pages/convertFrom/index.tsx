@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel, useParams } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
+// import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
 // import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
@@ -16,17 +16,26 @@ const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
+  // const [success, setSuccess] = useState<boolean>(false);
   const {
     fileList,
+    success,
+    setSuccess,
     onRemove,
     beforeUpload,
     checkFileList,
     convertList,
     setConvertList,
+    resetList,
   } = useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    instance,
+    showWebviewer,
+    setShowWebviewer,
+    ready,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
   const { from = 'word' } = useParams();
 
   const fileType: Record<string, any> = {
@@ -60,6 +69,7 @@ const ConvertFrom: React.FC = () => {
   const baseData = fileType[from];
 
   const viewer = useRef<HTMLDivElement>(null);
+
   const props: UploadProps = {
     onRemove,
     beforeUpload,
@@ -70,13 +80,14 @@ const ConvertFrom: React.FC = () => {
   };
 
   useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
   }, []);
+
+  const downloadAll = async () => {
+    await PDF.downloadZip(convertList);
+  };
 
   const renderMoreFileButton = () => {
     return (
@@ -126,23 +137,23 @@ const ConvertFrom: React.FC = () => {
   // 转换
   const convert = async () => {
     setLoading(true);
-
+    let arr = [];
     // 转blob
-    // let blob = null;
     if (from === 'image') {
-      const arr = await PDF.image2pdf(instance!, checkFileList);
-      setConvertList(arr);
-      await PDF.downloadZip(arr);
+      arr = await PDF.image2pdf(instance!, checkFileList);
     } else {
-      console.log(fileList);
-      const arr = await PDF.office2pdf(instance!, fileList);
-      setConvertList(arr);
-      // 下载
-      await PDF.downloadZip(arr);
+      arr = await PDF.office2pdf(instance!, fileList);
     }
 
+    // 下载
+    await PDF.downloadZip(arr);
+    setConvertList(arr);
     setLoading(false);
     setSuccess(true);
+  };
+
+  const going = () => {
+    resetList();
   };
 
   // 内容区域
@@ -158,7 +169,13 @@ const ConvertFrom: React.FC = () => {
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -175,9 +192,14 @@ const ConvertFrom: React.FC = () => {
 
     if (success) {
       action = (
-        <Button type="primary" size="large" block>
-          全部下载
-        </Button>
+        <>
+          <Button type="primary" size="large" block onClick={downloadAll}>
+            全部下载
+          </Button>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
+            继续
+          </div>
+        </>
       );
     } else if (fileList.length) {
       action = (
@@ -187,7 +209,7 @@ const ConvertFrom: React.FC = () => {
           block
           disabled={convertBtnDisabled}
           loading={loading}
-          onClick={() => convert()}
+          onClick={convert}
         >
           转换
         </Button>
@@ -220,7 +242,7 @@ const ConvertFrom: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}

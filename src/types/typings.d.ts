@@ -5,8 +5,9 @@ declare global {
   const LICENSE_KEY: string;
   type ConvertFile = {
     file: UploadFile;
-    newfile: Blob;
-    fileName: string;
+    newfile: File;
+    newFileName: string;
+    newFileBlob: Blob;
   };
 
   type ExtraThumbnailType = {

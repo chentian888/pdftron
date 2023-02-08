@@ -31,20 +31,22 @@ export default class PDF {
     const { Core } = instance;
 
     const convert = async (file: UploadFile): Promise<ConvertFile> => {
-      const { prefix } = Tools.fileMsg(file);
+      const { prefix, suffix } = Tools.fileMsg(file);
       // const buf = await (instance.Core as any).officeToPDFBuffer(file, {
       //   l: this.licenseKey,
       // });
-
       const doc = await Core.createDocument(file as any as File, {
-        filename: file.name,
+        filename: prefix,
+        extension: suffix,
         loadAsPDF: true,
       });
-
+      console.log(doc.getFilename());
       const data = await doc.getFileData();
       const blob = await Tools.buf2Blob(data);
-      console.log(blob);
-      return { file: file, newfile: blob, fileName: `${prefix}.pdf` };
+      const newFileName = `${prefix}.pdf`;
+      const newfile = Tools.blob2File(data, newFileName);
+      doc.unloadResources();
+      return { file: file, newfile, newFileName, newFileBlob: blob };
     };
 
     const convertSequence = function* () {
@@ -52,8 +54,9 @@ export default class PDF {
         yield convert(files[i]);
       }
     };
-
     const blobArray = await Tools.runSequence(convertSequence());
+    // const blobArray = await Promise.all(map(files, convert));
+
     return blobArray;
   }
 
@@ -71,8 +74,10 @@ export default class PDF {
 
     // 通过文件创建pdf类型文档
     const docsPromise = map(files, async (file) => {
+      const { prefix, suffix } = Tools.fileMsg(file);
       return await Core.createDocument(file as any as File, {
-        filename: file.name,
+        filename: prefix,
+        extension: suffix,
         loadAsPDF: true,
       });
     });
@@ -86,7 +91,11 @@ export default class PDF {
     // 获取文件数据流
     const data = await firstDoc.getFileData();
     const blob = await Tools.buf2Blob(data);
-    return [{ file: files[0], newfile: blob, fileName: 'all.pdf' }];
+    const newFileName = `all.pdf`;
+    const newfile = Tools.blob2File(data, newFileName);
+    return [
+      { file: files[0], newfile, newFileName: 'all.pdf', newFileBlob: blob },
+    ];
   }
 
   /**
@@ -114,10 +123,14 @@ export default class PDF {
         const pageIndex = await currPage.getIndex();
         const pngBuffer = await pdfdraw?.exportBuffer(currPage!, 'PNG');
         const blob = await Tools.buf2Blob(pngBuffer, 'image/png');
+        const newFileName = `${prefix}-${pageIndex}.png`;
+        const newfile = Tools.blob2File(pngBuffer, newFileName, 'image/png');
+
         allBlob.push({
           file: file,
-          newfile: blob,
-          fileName: `${prefix}-${pageIndex}.png`,
+          newfile,
+          newFileBlob: blob,
+          newFileName,
         });
         itr?.next();
       }
@@ -158,47 +171,36 @@ export default class PDF {
    * @param file
    * @returns
    */
-  static genThumbnail(
+  static async genThumbnail(
     instance: WebViewerInstance,
     file: UploadFile | Blob,
+    pageNo: number = 1,
   ): Promise<string> {
     const { Core } = instance;
-
     return new Promise((resolve) => {
       Core.createDocument(file as any as File, {
-        extension: 'pdf',
-        l: this.licenseKey,
+        filename: file.name,
+        loadAsPDF: true,
       }).then((doc) => {
-        doc.loadThumbnail(
-          1,
-          (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
-            // thumbnail is a HTMLCanvasElement or HTMLImageElement
-            if (/image\/\w+/.test((file as any as File).type)) {
-              (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
-              (thumbnail as HTMLImageElement).onload = function () {
-                const base64 = Tools.getBase64Image(
-                  thumbnail as HTMLImageElement,
-                );
-                console.log(base64);
-                // console.log(thumb)
-                // const reader = new FileReader();
-                // reader.readAsDataURL(file as any as File);
-                // reader.addEventListener(
-                //   'load',
-                //   () => {
-                //     console.log(reader.result);
-                //   },
-                //   false,
-                // );
-                resolve(base64);
-              };
-            } else {
-              const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-              console.log(base64);
+        const loadThumbnail = (
+          thumbnail: HTMLCanvasElement | HTMLImageElement,
+        ) => {
+          if (/image\/\w+/.test((file as any as File).type)) {
+            (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
+            (thumbnail as HTMLImageElement).onload = function () {
+              const base64 = Tools.getBase64Image(
+                thumbnail as HTMLImageElement,
+              );
+              doc.unloadResources();
               resolve(base64);
-            }
-          },
-        );
+            };
+          } else {
+            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+            doc.unloadResources();
+            resolve(base64);
+          }
+        };
+        doc.loadThumbnail(pageNo, loadThumbnail);
       });
     });
   }
@@ -210,9 +212,10 @@ export default class PDF {
     const { Core } = instance;
 
     const docsPromise = map(files, async (file) => {
+      const { prefix, suffix } = Tools.fileMsg(file);
       return await Core.createDocument(file as any as File, {
-        extension: 'pdf',
-        l: this.licenseKey,
+        filename: prefix,
+        extension: suffix,
       });
     });
 
@@ -224,7 +227,10 @@ export default class PDF {
     // const mergeEnd = await runMerge(files);
     const buf = await firstDoc.getFileData();
     const blob = await Tools.buf2Blob(buf);
-    return [{ file: files[0], newfile: blob, fileName: `all.pdf` }];
+    const newFileName = `all.pdf`;
+    const newfile = Tools.blob2File(buf, newFileName);
+
+    return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
   }
 
   /**
@@ -250,7 +256,10 @@ export default class PDF {
     const xfdfString = await annotationManager.exportAnnotations({ annotList });
     const data = await doc.extractPages(pages, xfdfString);
     const blob = await Tools.buf2Blob(data);
-    return [{ file: file, newfile: blob, fileName: `${prefix}.pdf` }];
+    const newFileName = `${prefix}.pdf`;
+    const newfile = Tools.blob2File(data, newFileName);
+
+    return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 
   /**
@@ -281,10 +290,14 @@ export default class PDF {
       });
       const data = await doc.extractPages(p, xfdfString);
       const blob = await Tools.buf2Blob(data);
+      const newFileName = `${prefix}-${index}.pdf`;
+      const newfile = Tools.blob2File(data, newFileName);
+
       return {
         file: file,
-        newfile: blob,
-        fileName: `${prefix}-${index}.pdf`,
+        newfile,
+        newFileName,
+        newFileBlob: blob,
       };
     };
 
@@ -328,7 +341,10 @@ export default class PDF {
     await Promise.all(allCutPaage);
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
-    return [{ file: file, newfile: blob, fileName: `${prefix}-crop.pdf` }];
+    const newFileName = `${prefix}-crop.pdf`;
+    const newfile = Tools.blob2File(buf, newFileName);
+
+    return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 
   static async extraText(
@@ -339,9 +355,10 @@ export default class PDF {
 
     // 提取单个文件文字
     const extraDocText = async (file: UploadFile) => {
-      const { prefix } = Tools.fileMsg(file);
+      const { prefix, suffix } = Tools.fileMsg(file);
       const doc = await Core.createDocument(file as any as File, {
-        filename: file.name,
+        filename: prefix,
+        extension: suffix,
       });
       const count = doc.getPageCount();
       const arr = fill(Array(count), '');
@@ -357,7 +374,10 @@ export default class PDF {
       const blob = new Blob([textStr], {
         type: 'text/plain;charset=utf-8',
       });
-      return { file, newfile: blob, fileName: `${prefix}.txt` };
+      const newFileName = `${prefix}.txt`;
+      const newfile = Tools.blob2File(blob, newFileName, 'text/plain;');
+
+      return { file, newfile, newFileName, newFileBlob: blob };
     };
 
     // 处理多文件清空
@@ -477,7 +497,9 @@ export default class PDF {
     await Promise.all(map(pageNo, removeOnePageText));
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
-    return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
+    const newFileName = `${prefix}.pdf`;
+    const newfile = Tools.blob2File(buf, newFileName);
+    return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
   static async removeImage(
@@ -524,7 +546,10 @@ export default class PDF {
     await Promise.all(map(pageNo, removeOnePageImage));
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
-    return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
+    const newFileName = `${prefix}.pdf`;
+    const newfile = Tools.blob2File(buf, newFileName);
+
+    return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
   static async compress(
@@ -538,7 +563,9 @@ export default class PDF {
     await Core.PDFNet.Optimizer.optimize(pdfDoc);
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
-    return [{ file, newfile: blob, fileName: `${prefix}.pdf` }];
+    const newFileName = `${prefix}.pdf`;
+    const newfile = Tools.blob2File(buf, newFileName);
+    return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
   // 下载文件
@@ -550,7 +577,7 @@ export default class PDF {
   static async downloadZip(list: ConvertFile[]) {
     const zip = new JSZip();
     forEach(list, (data) => {
-      zip.file(data.fileName, data.newfile);
+      zip.file(data.newFileName, data.newfile);
     });
     const pack = await zip.generateAsync({
       type: 'blob',

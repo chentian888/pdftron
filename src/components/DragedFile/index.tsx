@@ -3,6 +3,7 @@ import { Checkbox, Tooltip, Upload } from 'antd';
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
 import PDF from '@/utils/pdf';
+import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 
@@ -16,26 +17,25 @@ interface Props {
 const DragedFile: React.FC<Props> = (props) => {
   const { file, showCheckBox = false, showReplaceBtn = true, accept } = props;
   const { onRemove, onReplace, unCheckFile, checkFile } = useModel('files');
-  const { instance, setShowWebviewer } = useModel('pdf');
+  const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
   const [totalPage] = useState<number>(0);
 
   const style = { fontSize: '19px', color: '#6478B3' };
 
-  // const getDocument = async (file: File) => {
-  //   const newDoc = await instance!.Core.createDocument(file);
-  //   return await newDoc.getPDFDoc();
-  // };
-
   const computedThumb = async () => {
-    const base64 = await PDF.genThumbnail(instance!, file);
-    console.log(base64);
-    setThumb(base64);
+    try {
+      const base64 = await PDF.genThumbnail(instance!, file);
+      setThumb(base64);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
-    computedThumb();
-    // getDocument(file as any as File).then((doc) => console.log(doc));
+    if (file) {
+      computedThumb();
+    }
   }, [file]);
 
   // 移除
@@ -52,11 +52,13 @@ const DragedFile: React.FC<Props> = (props) => {
 
   // 预览
   const handlePreview = () => {
+    const { UI } = instance!;
+    const { prefix, suffix } = Tools.fileMsg(file);
     setShowWebviewer(true);
-    instance?.UI.loadDocument(file as any as File, { filename: file.name });
-    const { documentViewer } = instance!.Core;
-    documentViewer!.addEventListener('documentLoaded', () => {
-      // perform document operations
+    setWebviewerTtile(file.name);
+    UI.loadDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
     });
   };
 
@@ -67,7 +69,6 @@ const DragedFile: React.FC<Props> = (props) => {
     } else {
       unCheckFile(file);
     }
-    console.log(val);
   };
 
   return (
@@ -105,7 +106,7 @@ const DragedFile: React.FC<Props> = (props) => {
           <EyeOutlined
             style={style}
             className="cursor-pointer absolute left-[15px] top-[8px]"
-            onClick={() => handlePreview()}
+            onClick={handlePreview}
           />
         </Tooltip>
 
