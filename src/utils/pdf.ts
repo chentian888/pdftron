@@ -28,13 +28,15 @@ export default class PDF {
     instance: WebViewerInstance,
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
+    const { Core } = instance;
+
     const convert = async (file: UploadFile): Promise<ConvertFile> => {
       const { prefix } = Tools.fileMsg(file);
       // const buf = await (instance.Core as any).officeToPDFBuffer(file, {
       //   l: this.licenseKey,
       // });
 
-      const doc = await instance.Core.createDocument(file as any as File, {
+      const doc = await Core.createDocument(file as any as File, {
         filename: file.name,
         loadAsPDF: true,
       });
@@ -65,9 +67,11 @@ export default class PDF {
     instance: WebViewerInstance,
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
+    const { Core } = instance;
+
     // 通过文件创建pdf类型文档
     const docsPromise = map(files, async (file) => {
-      return await instance.Core.createDocument(file as any as File, {
+      return await Core.createDocument(file as any as File, {
         filename: file.name,
         loadAsPDF: true,
       });
@@ -95,12 +99,14 @@ export default class PDF {
     instance: WebViewerInstance,
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
+    const { Core } = instance;
+
     const convert = async (file: UploadFile) => {
       let allBlob: ConvertFile[] = [];
       const { prefix } = Tools.fileMsg(file);
       const buf = await Tools.file2Buf(file as any as File);
-      const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
-      const pdfdraw = await instance?.Core.PDFNet.PDFDraw.create(92);
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const pdfdraw = await Core.PDFNet.PDFDraw.create(92);
       const itr = await doc?.getPageIterator(1);
 
       while (await itr?.hasNext()) {
@@ -129,19 +135,20 @@ export default class PDF {
    * @returns
    */
   static async pdf2pdfa(instance: WebViewerInstance, file: UploadFile) {
+    const { Core } = instance;
+
     return new Promise<Blob>((resolve) => {
       async function main() {
         const source = await Tools.file2Buf(file as any as File);
-        const pdfa =
-          await instance?.Core.PDFNet.PDFACompliance.createFromBuffer(
-            true,
-            source,
-          );
+        const pdfa = await Core.PDFNet.PDFACompliance.createFromBuffer(
+          true,
+          source,
+        );
         const buf = await pdfa!.saveAsFromBuffer(false);
         const blob = new Blob([buf], { type: 'application/pdf' });
         resolve(blob);
       }
-      instance?.Core.PDFNet.runWithCleanup(main, this.licenseKey);
+      Core.PDFNet.runWithCleanup(main, this.licenseKey);
     });
   }
 
@@ -155,8 +162,10 @@ export default class PDF {
     instance: WebViewerInstance,
     file: UploadFile | Blob,
   ): Promise<string> {
+    const { Core } = instance;
+
     return new Promise((resolve) => {
-      instance?.Core.createDocument(file as any as File, {
+      Core.createDocument(file as any as File, {
         extension: 'pdf',
         l: this.licenseKey,
       }).then((doc) => {
@@ -198,8 +207,10 @@ export default class PDF {
     instance: WebViewerInstance,
     files: UploadFile[],
   ) {
+    const { Core } = instance;
+
     const docsPromise = map(files, async (file) => {
-      return await instance.Core.createDocument(file as any as File, {
+      return await Core.createDocument(file as any as File, {
         extension: 'pdf',
         l: this.licenseKey,
       });
@@ -324,10 +335,12 @@ export default class PDF {
     instance: WebViewerInstance,
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
+    const { Core } = instance;
+
     // 提取单个文件文字
     const extraDocText = async (file: UploadFile) => {
       const { prefix } = Tools.fileMsg(file);
-      const doc = await instance.Core.createDocument(file as any as File, {
+      const doc = await Core.createDocument(file as any as File, {
         filename: file.name,
       });
       const count = doc.getPageCount();

@@ -3,14 +3,14 @@ import type { UploadFile } from 'antd/es/upload/interface';
 // import { ConvertFile } from '@/types/typings';
 
 export default class Tools {
-  static *sequence(
-    arr: UploadFile[],
-    task: (f: UploadFile) => Promise<ConvertFile>,
-  ) {
-    for (let i = 0; i < arr.length; i++) {
-      yield task(arr[i]);
-    }
-  }
+  // static *sequence(
+  //   arr: UploadFile[],
+  //   task: (f: UploadFile) => Promise<ConvertFile>,
+  // ) {
+  //   for (let i = 0; i < arr.length; i++) {
+  //     yield task(arr[i]);
+  //   }
+  // }
 
   static runSequence<T = ConvertFile>(fn: Generator<Promise<T>>): Promise<T[]> {
     return new Promise((resolve) => {
