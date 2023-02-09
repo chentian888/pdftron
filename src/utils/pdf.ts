@@ -185,36 +185,51 @@ export default class PDF {
   static async genThumbnail(
     instance: WebViewerInstance,
     file: UploadFile,
-    pageNo: number = 1,
-  ): Promise<string> {
+    full: boolean = false,
+  ): Promise<ExtraThumbnailType[]> {
     const { Core } = instance;
-    return new Promise((resolve) => {
-      const { prefix, suffix } = Tools.fileMsg(file);
-      Core.createDocument(file as any as File, {
-        filename: prefix,
-        extension: suffix,
-      }).then((doc) => {
+    const { prefix, suffix } = Tools.fileMsg(file);
+    const doc = await Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
+    const pageCount = doc.getPageCount();
+    const count = full ? pageCount : 1;
+    const loadThumbnail = (pageNo: number): Promise<ExtraThumbnailType> => {
+      return new Promise((resolve) => {
         const loadThumbnail = (
           thumbnail: HTMLCanvasElement | HTMLImageElement,
         ) => {
+          let base64 = '';
           if (/image\/\w+/.test((file as any as File).type)) {
             (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
             (thumbnail as HTMLImageElement).onload = function () {
-              const base64 = Tools.getBase64Image(
-                thumbnail as HTMLImageElement,
-              );
-              doc.unloadResources();
-              resolve(base64);
+              base64 = Tools.getBase64Image(thumbnail as HTMLImageElement);
+              resolve({
+                img: base64,
+                file,
+                totalPage: pageCount,
+                currentPage: pageNo,
+              });
             };
           } else {
-            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-            doc.unloadResources();
-            resolve(base64);
+            base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+            resolve({
+              img: base64,
+              file,
+              totalPage: pageCount,
+              currentPage: pageNo,
+            });
           }
         };
         doc.loadThumbnail(pageNo, loadThumbnail);
       });
-    });
+    };
+
+    const thumbnailList = await Promise.all(
+      map(times(count, Number), (index) => loadThumbnail(index + 1)),
+    );
+    return thumbnailList;
   }
 
   /**
@@ -261,23 +276,31 @@ export default class PDF {
    */
   static async exrtaPage(
     instance: WebViewerInstance,
-    doc: Core.Document,
-    file: UploadFile,
+    files: UploadFile[],
     pages: number[],
   ): Promise<ConvertFile[]> {
-    const { annotationManager } = instance.Core;
-    const { prefix } = Tools.fileMsg(file);
-    // only include annotations on the pages to extract
-    const annotList = annotationManager
-      .getAnnotationsList()
-      .filter((annot) => pages.indexOf(annot.PageNumber) > -1);
-    const xfdfString = await annotationManager.exportAnnotations({ annotList });
-    const data = await doc.extractPages(pages, xfdfString);
-    const blob = await Tools.buf2Blob(data);
-    const newFileName = `${prefix}.pdf`;
-    const newfile = Tools.blob2File(data, newFileName);
+    const { Core } = instance;
 
-    return [{ file: file, newfile, newFileName, newFileBlob: blob }];
+    const extra = async (file: UploadFile) => {
+      const { prefix, suffix } = Tools.fileMsg(file);
+      // only include annotations on the pages to extract
+      const annotList = Core.annotationManager
+        .getAnnotationsList()
+        .filter((annot) => pages.indexOf(annot.PageNumber) > -1);
+      const xfdfString = await Core.annotationManager.exportAnnotations({
+        annotList,
+      });
+      const doc = await Core.createDocument(file as any as File, {
+        filename: prefix,
+        extension: suffix,
+      });
+      const data = await doc.extractPages(pages, xfdfString);
+      const blob = await Tools.buf2Blob(data);
+      const newFileName = `${prefix}.pdf`;
+      const newfile = Tools.blob2File(data, newFileName);
+      return { file, newfile, newFileName, newFileBlob: blob };
+    };
+    return await Promise.all(map(files, extra));
   }
 
   /**

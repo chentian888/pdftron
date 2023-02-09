@@ -26,8 +26,8 @@ const DragedFile: React.FC<Props> = (props) => {
 
   const computedThumb = async () => {
     try {
-      const base64 = await PDF.genThumbnail(instance!, file);
-      setThumb(base64);
+      const thumbnail = await PDF.genThumbnail(instance!, file);
+      setThumb(thumbnail[0].img);
     } catch (e) {
       console.log(e);
     }

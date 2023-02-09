@@ -1,24 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import { Core } from '@pdftron/webviewer';
-import { pullAllBy, sortBy } from 'lodash-es';
+import { pullAllBy, sortBy, map } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
 import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
-import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
+import type { UploadProps } from 'antd/es/upload/interface';
 // import type { ExtraThumbnailType } from '@/types/typings';
 
 const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  // const [success, setSuccess] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
-  const [extractNumber, setExtractNumber] = useState<number[]>([]);
-  const [doc, setDoc] = useState<unknown>();
-  const [currentFile, setCurrentFile] = useState<UploadFile>();
+  const [extractNo, setExtractNo] = useState<number[]>([]);
 
   const {
     fileList,
@@ -56,50 +52,13 @@ const PageManipulation: React.FC = () => {
     accept: baseData.accept,
     showUploadList: false,
     multiple: baseData.multiple || false,
-    onChange: async ({ file }) => {
-      setCurrentFile(file);
-      console.log(file);
-      const doc = await instance?.Core.createDocument(file as any as File, {
-        extension: 'pdf',
-        l: LICENSE_KEY,
-      });
-      setDoc(doc);
-
-      const arr: Promise<ExtraThumbnailType>[] = [];
-      const pageNo: number[] = []; // 需要提取页面编号
-      const count = doc?.getPageCount() as number;
-      const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
-        return new Promise((resolve) => {
-          doc?.loadThumbnail(index, (thumbnail: HTMLCanvasElement) => {
-            const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-            (thumbnail as HTMLCanvasElement).toBlob((blob) => {
-              console.log(doc);
-              resolve({
-                blob: blob!,
-                img: base64,
-                total: count,
-                current: index,
-                sourceFile: file,
-                currentDoc: doc,
-              });
-            });
-          });
-        });
-      };
-      for (let i = 0; i < count; i++) {
-        const current = i + 1;
-        arr.push(loadThumbnail(current));
-        pageNo.push(current);
-      }
-      const res = await Promise.all(arr);
-      setThumbnailList(res);
-      setExtractNumber(pageNo);
-    },
   };
 
   // 继续
   const going = () => {
     resetList();
+    setExtractNo([]);
+    setThumbnailList([]);
   };
 
   // 页面卸载
@@ -110,14 +69,14 @@ const PageManipulation: React.FC = () => {
 
   // 勾选文件
   const checkFile = (index: number) => {
-    extractNumber.push(index);
-    const sort = sortBy(extractNumber, (o) => o);
-    setExtractNumber(sort);
+    extractNo.push(index);
+    const sort = sortBy(extractNo, (o) => o);
+    setExtractNo(sort);
   };
 
   // 反选文件
   const unCheckFile = (index: number) => {
-    pullAllBy(extractNumber, [index]);
+    pullAllBy(extractNo, [index]);
   };
 
   useEffect(() => {
@@ -127,12 +86,25 @@ const PageManipulation: React.FC = () => {
     return pageUmount;
   }, []);
 
+  const initThumb = async () => {
+    const res = await PDF.genThumbnail(instance!, fileList[0], true);
+    const pageNo = map(res, (ele) => ele.currentPage);
+    setExtractNo(pageNo);
+    setThumbnailList(res);
+  };
+
+  useEffect(() => {
+    if (fileList.length) {
+      initThumb();
+    }
+  }, [fileList]);
+
   // 文件列表
   const renderInitFile = () => {
     const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
         <ExtraThumbnail
-          file={file}
+          thumb={file}
           checkFile={checkFile}
           unCheckFile={unCheckFile}
         />
@@ -158,31 +130,15 @@ const PageManipulation: React.FC = () => {
   // 提取页面
   const convert = async () => {
     setLoading(true);
-    const res = await PDF.exrtaPage(
-      instance!,
-      doc! as Core.Document,
-      currentFile!,
-      extractNumber,
-    );
-    console.log(res);
+    const res = await PDF.exrtaPage(instance!, fileList, extractNo);
+    await PDF.downloadZip(res);
     setThumbnailList([]);
     setConvertList(res);
-    await PDF.downloadZip(res);
     setLoading(false);
     setSuccess(true);
   };
 
-  // const reset = () => {
-  //   setConvertList([]);
-  //   setFileList([]);
-  //   setDoc(null as unknown);
-  //   setExtractNumber([]);
-  //   setThumbnailList([]);
-  //   setSuccess(false);
-  // };
-
   const downloadAll = async () => {
-    console.log(convertList);
     await PDF.downloadZip(convertList);
   };
 
@@ -242,10 +198,10 @@ const PageManipulation: React.FC = () => {
           type="primary"
           size="large"
           block
-          loading={loading}
+          loading={loading || !thumbnailList?.length}
           onClick={() => convert()}
         >
-          提取
+          {thumbnailList?.length ? '提取' : '页面加载中请稍等'}
         </Button>
       );
     }
