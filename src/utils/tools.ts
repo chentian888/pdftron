@@ -51,7 +51,6 @@ export default class Tools {
       reader.addEventListener(
         'loadend',
         () => {
-          console.log(reader.result);
           resolve(reader.result as string);
         },
         false,

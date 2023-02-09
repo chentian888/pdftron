@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer, { Core } from '@pdftron/webviewer';
+import { Core } from '@pdftron/webviewer';
 import { pullAllBy, sortBy } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
@@ -14,7 +14,7 @@ const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
+  // const [success, setSuccess] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
   const [extractNumber, setExtractNumber] = useState<number[]>([]);
   const [doc, setDoc] = useState<unknown>();
@@ -22,14 +22,23 @@ const PageManipulation: React.FC = () => {
 
   const {
     fileList,
+    success,
+    setSuccess,
     onRemove,
     beforeUpload,
-    setFileList,
     convertList,
     setConvertList,
+    resetList,
   } = useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    instance,
+    showWebviewer,
+    setShowWebviewer,
+    ready,
+    setReady,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
@@ -88,6 +97,17 @@ const PageManipulation: React.FC = () => {
     },
   };
 
+  // 继续
+  const going = () => {
+    resetList();
+  };
+
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
+  };
+
   // 勾选文件
   const checkFile = (index: number) => {
     extractNumber.push(index);
@@ -101,12 +121,10 @@ const PageManipulation: React.FC = () => {
   };
 
   useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
+    return pageUmount;
   }, []);
 
   // 文件列表
@@ -129,7 +147,7 @@ const PageManipulation: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -154,14 +172,14 @@ const PageManipulation: React.FC = () => {
     setSuccess(true);
   };
 
-  const reset = () => {
-    setConvertList([]);
-    setFileList([]);
-    setDoc(null as unknown);
-    setExtractNumber([]);
-    setThumbnailList([]);
-    setSuccess(false);
-  };
+  // const reset = () => {
+  //   setConvertList([]);
+  //   setFileList([]);
+  //   setDoc(null as unknown);
+  //   setExtractNumber([]);
+  //   setThumbnailList([]);
+  //   setSuccess(false);
+  // };
 
   const downloadAll = async () => {
     console.log(convertList);
@@ -177,11 +195,24 @@ const PageManipulation: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -200,7 +231,7 @@ const PageManipulation: React.FC = () => {
           <Button type="primary" size="large" block onClick={downloadAll}>
             全部下载
           </Button>
-          <div className="text-center mt-4 cursor-pointer" onClick={reset}>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
             继续
           </div>
         </>
@@ -240,7 +271,7 @@ const PageManipulation: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}

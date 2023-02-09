@@ -93,6 +93,8 @@ export default class PDF {
     const blob = await Tools.buf2Blob(data);
     const newFileName = `all.pdf`;
     const newfile = Tools.blob2File(data, newFileName);
+    // 释放资源
+    forEach(docs, (doc) => doc.unloadResources());
     return [
       { file: files[0], newfile, newFileName: 'all.pdf', newFileBlob: blob },
     ];
@@ -215,6 +217,12 @@ export default class PDF {
     });
   }
 
+  /**
+   * 合并文档
+   * @param instance 文档实例
+   * @param files 原始File文件
+   * @returns
+   */
   static async mergeDocuments(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -234,12 +242,12 @@ export default class PDF {
     const firstDoc = docs[0];
     const otherDoc = slice(docs, 1);
     forEach(otherDoc, (doc) => firstDoc.insertPages(doc));
-    // const mergeEnd = await runMerge(files);
     const buf = await firstDoc.getFileData();
     const blob = await Tools.buf2Blob(buf);
     const newFileName = `all.pdf`;
     const newfile = Tools.blob2File(buf, newFileName);
-
+    // 释放资源
+    forEach(docs, (doc) => doc.unloadResources());
     return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
   }
 

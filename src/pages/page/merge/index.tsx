@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
+// import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -12,11 +12,25 @@ const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
-    useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    fileList,
+    success,
+    setSuccess,
+    onRemove,
+    beforeUpload,
+    convertList,
+    setConvertList,
+    resetList,
+  } = useModel('files');
+  const {
+    instance,
+    showWebviewer,
+    setShowWebviewer,
+    ready,
+    setReady,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
@@ -36,13 +50,22 @@ const PageManipulation: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
+  // 继续
+  const going = () => {
+    resetList();
+  };
+
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
+  };
+
   useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
+    return pageUmount;
   }, []);
 
   const renderMoreFileButton = () => {
@@ -78,7 +101,7 @@ const PageManipulation: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -116,11 +139,24 @@ const PageManipulation: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -135,9 +171,14 @@ const PageManipulation: React.FC = () => {
 
     if (success) {
       action = (
-        <Button type="primary" size="large" block onClick={downloadAll}>
-          全部下载
-        </Button>
+        <>
+          <Button type="primary" size="large" block onClick={downloadAll}>
+            全部下载
+          </Button>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
+            继续
+          </div>
+        </>
       );
     } else if (fileList.length) {
       action = (
@@ -146,9 +187,9 @@ const PageManipulation: React.FC = () => {
           size="large"
           block
           loading={loading}
-          onClick={() => convert()}
+          onClick={convert}
         >
-          转换
+          合并
         </Button>
       );
     }
@@ -163,6 +204,7 @@ const PageManipulation: React.FC = () => {
     <>
       {/* <Title title="转为PDF" /> */}
       <Dragger
+        disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
@@ -174,7 +216,7 @@ const PageManipulation: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}
