@@ -298,6 +298,7 @@ export default class PDF {
       const blob = await Tools.buf2Blob(data);
       const newFileName = `${prefix}.pdf`;
       const newfile = Tools.blob2File(data, newFileName);
+      doc.unloadResources();
       return { file, newfile, newFileName, newFileBlob: blob };
     };
     return await Promise.all(map(files, extra));
@@ -313,37 +314,49 @@ export default class PDF {
    */
   static async splitPage(
     instance: WebViewerInstance,
-    doc: Core.Document,
-    file: UploadFile,
-    pages: number[],
+    files: UploadFile[],
   ): Promise<ConvertFile[]> {
-    const { prefix } = Tools.fileMsg(file);
-    // 分割文件单个页面
-    const startSplit = async (index: number) => {
-      const p = [index];
-      const { annotationManager } = instance.Core;
-      // only include annotations on the pages to extract
-      const annotList = annotationManager
-        .getAnnotationsList()
-        .filter((annot) => p.indexOf(annot.PageNumber) > -1);
-      const xfdfString = await annotationManager.exportAnnotations({
-        annotList,
-      });
-      const data = await doc.extractPages(p, xfdfString);
-      const blob = await Tools.buf2Blob(data);
-      const newFileName = `${prefix}-${index}.pdf`;
-      const newfile = Tools.blob2File(data, newFileName);
+    const { Core } = instance;
 
-      return {
-        file: file,
-        newfile,
-        newFileName,
-        newFileBlob: blob,
+    // 分割文件单个文件
+    const startSplit = async (file: UploadFile) => {
+      const { prefix, suffix } = Tools.fileMsg(file);
+      const doc = await Core.createDocument(file as any as File, {
+        filename: prefix,
+        extension: suffix,
+      });
+      const count = doc.getPageCount();
+
+      // 提取某一页
+      const onPage = async (index: number): Promise<ConvertFile> => {
+        // only include annotations on the pages to extract
+        const annotList = Core.annotationManager
+          .getAnnotationsList()
+          .filter((annot) => [index].indexOf(annot.PageNumber) > -1);
+        const xfdfString = await Core.annotationManager.exportAnnotations({
+          annotList,
+        });
+        const data = await doc.extractPages([index], xfdfString);
+        const blob = await Tools.buf2Blob(data);
+        const newFileName = `${prefix}-${index}.pdf`;
+        const newfile = Tools.blob2File(data, newFileName);
+
+        return {
+          file,
+          newfile,
+          newFileName,
+          newFileBlob: blob,
+        };
       };
+      const pages = await Promise.all(
+        map(times(count, Number), (index) => onPage(index + 1)),
+      );
+      doc.unloadResources();
+      return pages;
     };
 
-    const res = await Promise.all(map(pages, (index) => startSplit(index)));
-    return res;
+    const allFilePages = await Promise.all(map(files, startSplit));
+    return flatten(allFilePages);
   }
 
   /**

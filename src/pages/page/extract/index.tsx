@@ -214,8 +214,8 @@ const PageManipulation: React.FC = () => {
 
   return (
     <>
-      {/* <Title title="转为PDF" /> */}
       <Dragger
+        disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
