@@ -1,42 +1,42 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, message } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
-// import { times } from 'lodash-es';
 import PDF from '@/utils/pdf';
-// import Tools from '@/utils/tools';
 import ConvertedFile from '@/components/ConvertedFile';
-// import PdfCrop from '@/components/PdfCrop';
 import PdfSecurity from '@/components/PdfSecurity';
-import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
-import Tools from '@/utils/tools';
-// import type { ExtraThumbnailType } from '@/types/typings';
-import type { Core } from '@pdftron/webviewer';
+import type { UploadProps } from 'antd/es/upload/interface';
 
 const { Dragger } = Upload;
 
 const Security: React.FC = () => {
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [loading, setLoading] = useState<boolean>(false);
   const [hasPassword, setHasPassword] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const [doc, setDoc] = useState<unknown>();
-  const [currentFile, setCurrentFile] = useState<UploadFile>();
 
   const {
     fileList,
+    success,
+    setSuccess,
     onRemove,
     beforeUpload,
-    setFileList,
     convertList,
     setConvertList,
+    resetList,
   } = useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    instance,
+    showWebviewer,
+    setShowWebviewer,
+    ready,
+    setReady,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
-    multiple: true,
+    multiple: false,
     title: 'PDF加解密',
     desc: 'PDF加密解密',
   };
@@ -52,128 +52,61 @@ const Security: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
+  // 继续
+  const going = () => {
+    resetList();
+  };
+
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
+  };
+
   useEffect(() => {
-    console.log('========', LICENSE_KEY);
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
+    return pageUmount;
   }, []);
 
-  const main = async () => {
-    console.log('Beginning Test');
-    const { Core } = instance!;
-    let ret = 0;
-    console.log(fileList[0]);
-    const buf = await Tools.file2Buf(fileList[0] as any as File);
-    try {
-      console.log('Running Sample 1');
-      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-      setDoc(doc);
-      const success = await doc.initSecurityHandler();
-      if (!success) {
-        setHasPassword(true);
-      }
-
-      doc.lock();
-      console.log('PDFNet and PDF document initialized and locked');
-    } catch (err) {
-      ret = 1;
-    }
-    return ret;
-  };
-
-  // 设置密码
-  const encrypt = async (doc: Core.PDFNet.PDFDoc) => {
-    const { Core } = instance!;
-    const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
-
-    // Set a new password required to open a document
-    newHandler.changeUserPasswordUString('test');
-    console.log("Setting password to 'test'");
-
-    // Note: document takes the ownership of newHandler.
-    doc.setSecurityHandler(newHandler);
-
-    // Save the changes
-    console.log('Saving modified file...');
-
-    const docbuf = await doc.saveMemoryBuffer(
-      Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
-    );
-    console.log(docbuf);
-    const b = await Tools.buf2Blob(docbuf);
-
-    PDF.download(b, 'aa.pdf');
-  };
-
-  // 修改或者解除密码
-  const decrypt = async (doc: Core.PDFNet.PDFDoc) => {
-    const { Core } = instance!;
-    const success = await doc.initStdSecurityHandlerUString('test');
-    if (success) {
-      await doc.lock();
-      // await doc.removeSecurity();
-      const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
-
-      // Set a new password required to open a document
-      newHandler.changeUserPasswordUString('123456');
-      console.log("Setting password to 'test'");
-
-      // Set Permissions
-      newHandler.setPermission(
-        Core.PDFNet.SecurityHandler.Permission.e_print,
-        false,
-      );
-      newHandler.setPermission(
-        Core.PDFNet.SecurityHandler.Permission.e_extract_content,
-        true,
-      );
-
-      // Note: document takes the ownership of newHandler.
-      doc.setSecurityHandler(newHandler);
-
-      const docbuf = await doc.saveMemoryBuffer(
-        Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
-      );
-      console.log(docbuf);
-      const b = await Tools.buf2Blob(docbuf);
-
-      PDF.download(b, 'aa.pdf');
-    }
-  };
-
-  const initDoc = async () => {
-    const file = fileList[0];
-    console.log(fileList);
-    setCurrentFile(file);
-
-    // await instance?.Core.PDFNet.runWithCleanup(
-    //   main,
-    //   'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
-    // );
-    main();
+  // 检测是否有密码
+  const checkHasPwd = async () => {
+    const haspwd = await PDF.hasPassword(instance!, fileList[0]);
+    setHasPassword(haspwd);
   };
 
   useEffect(() => {
     if (fileList.length) {
-      initDoc();
+      checkHasPwd();
     }
   }, [fileList]);
 
-  // 设置
-  const handleSetting = async () => {
-    // const file = fileList[0];
+  // 设置密码/接触密码
+  const handleSetting = async (pwd: string, newPwd: string) => {
+    const file = fileList[0];
     setLoading(true);
-    // const res = await PDF.cropPage(doc! as Core.Document, file);
-    console.log(doc);
-    await decrypt(doc as Core.PDFNet.PDFDoc);
-    // setConvertList(res);
-    // await PDF.downloadZip(res);
-    setLoading(false);
-    setSuccess(true);
+    try {
+      let res: ConvertFile[];
+      if (hasPassword) {
+        const success = await await PDF.correctPassword(instance!, file, pwd);
+        if (!success) throw '密码错误';
+        res = await await PDF.decrypt(instance!, file, pwd, newPwd);
+      } else {
+        res = await await PDF.encrypt(instance!, file, pwd);
+      }
+      await PDF.downloadZip(res);
+      setConvertList(res);
+      setSuccess(true);
+    } catch (e) {
+      const msg = e as string;
+      messageApi.open({
+        type: 'warning',
+        content: msg,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 文件列表
@@ -181,8 +114,9 @@ const Security: React.FC = () => {
     if (fileList?.length && !success) {
       return (
         <PdfSecurity
+          file={fileList[0]!}
           hasPassword={hasPassword}
-          file={currentFile!}
+          loading={loading}
           setting={handleSetting}
         />
       );
@@ -193,7 +127,7 @@ const Security: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -201,16 +135,7 @@ const Security: React.FC = () => {
     }
   };
 
-  const reset = () => {
-    setConvertList([]);
-    setFileList([]);
-    setDoc(null as unknown);
-    // setCropNumber([]);
-    setSuccess(false);
-  };
-
   const downloadAll = async () => {
-    console.log(convertList);
     await PDF.downloadZip(convertList);
   };
 
@@ -223,11 +148,24 @@ const Security: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -244,7 +182,7 @@ const Security: React.FC = () => {
           <Button type="primary" size="large" block onClick={downloadAll}>
             全部下载
           </Button>
-          <div className="text-center mt-4 cursor-pointer" onClick={reset}>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
             继续
           </div>
         </div>
@@ -254,8 +192,9 @@ const Security: React.FC = () => {
 
   return (
     <>
-      {/* <Title title="转为PDF" /> */}
+      {contextHolder}
       <Dragger
+        disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
@@ -267,7 +206,7 @@ const Security: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}

@@ -656,6 +656,124 @@ export default class PDF {
     return allCompressFile;
   }
 
+  // 设置密码
+  static async encrypt(
+    instance: WebViewerInstance,
+    file: UploadFile,
+    pwd: string,
+  ) {
+    const { Core } = instance!;
+    const { prefix } = Tools.fileMsg(file);
+    const setPwd = async () => {
+      const buf = await Tools.file2Buf(file as any as File);
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
+
+      // 设置打开文档所需的新密码
+      newHandler.changeUserPasswordUString(pwd);
+      // 获得newHandler的所有权。
+      doc.setSecurityHandler(newHandler);
+      const memoryBuffer = await doc.saveMemoryBuffer(
+        Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
+      );
+      return memoryBuffer;
+    };
+
+    const docbuf = await Core.PDFNet.runWithCleanup(await setPwd, LICENSE_KEY);
+
+    const newFileName = `${prefix}.pdf`;
+    const blob = await Tools.buf2Blob(docbuf);
+    const newfile = Tools.blob2File(blob, newFileName);
+    return [{ file, newfile, newFileName, newFileBlob: blob }];
+  }
+
+  // 修改或者解除密码
+  static async decrypt(
+    instance: WebViewerInstance,
+    file: UploadFile,
+    pwd: string,
+    newPwd: string = '',
+  ) {
+    const { Core } = instance!;
+    const { prefix } = Tools.fileMsg(file);
+
+    const resetPwd = async () => {
+      const buf = await Tools.file2Buf(file as any as File);
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const success = await doc.initStdSecurityHandlerUString(pwd);
+      if (success) {
+        await doc.lock();
+        const newHandler = await Core.PDFNet.SecurityHandler.createDefault();
+        if (newPwd) {
+          newHandler.changeUserPasswordUString(newPwd);
+          // Set Permissions
+          newHandler.setPermission(
+            Core.PDFNet.SecurityHandler.Permission.e_print,
+            false,
+          );
+          newHandler.setPermission(
+            Core.PDFNet.SecurityHandler.Permission.e_extract_content,
+            true,
+          );
+          // Note: document takes the ownership of newHandler.
+          doc.setSecurityHandler(newHandler);
+        } else {
+          await doc.removeSecurity();
+        }
+
+        const memoryBuffer = await doc.saveMemoryBuffer(
+          Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
+        );
+        return memoryBuffer;
+      }
+    };
+
+    const docbuf = await Core.PDFNet.runWithCleanup(
+      await resetPwd,
+      LICENSE_KEY,
+    );
+
+    const newFileName = `${prefix}.pdf`;
+    const blob = await Tools.buf2Blob(docbuf);
+    const newfile = Tools.blob2File(blob, newFileName);
+    return [{ file, newfile, newFileName, newFileBlob: blob }];
+  }
+
+  static async hasPassword(instance: WebViewerInstance, file: UploadFile) {
+    const { Core } = instance;
+    // return new Pormise()
+    const main = async (): Promise<boolean> => {
+      const buf = await Tools.file2Buf(file as any as File);
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const success = await doc.initSecurityHandler();
+      return success;
+    };
+    const pass: boolean = await Core.PDFNet.runWithCleanup(
+      await main,
+      LICENSE_KEY,
+    );
+    return !pass;
+  }
+  static async correctPassword(
+    instance: WebViewerInstance,
+    file: UploadFile,
+    pwd: string,
+  ) {
+    const { Core } = instance;
+    // return new Pormise()
+    const main = async (): Promise<boolean> => {
+      const buf = await Tools.file2Buf(file as any as File);
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const success = await doc.initStdSecurityHandlerUString(pwd);
+      return success;
+    };
+    const pass: boolean = await Core.PDFNet.runWithCleanup(
+      await main,
+      LICENSE_KEY,
+    );
+    return pass;
+  }
+
   // 下载文件
   static async download(blob: Blob, fileName: string) {
     saveAs(blob, fileName);
