@@ -1,6 +1,6 @@
 import { Button } from 'antd';
-import { Link } from '@umijs/max';
-import { useModel } from '@umijs/max';
+import { Link, useModel } from '@umijs/max';
+import Header from '@/components/Header';
 
 type TabType = { name: string; value: string };
 
@@ -250,6 +250,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="page" style={{ background: '#f1f3f8' }}>
+      <Header />
       <div className="flex justify-center">
         <img
           className="block max-w-full"
