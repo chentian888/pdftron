@@ -38,7 +38,7 @@ const PageManipulation: React.FC = () => {
 
   const baseData = {
     accept: '.pdf',
-    multiple: true,
+    multiple: false,
     title: 'PDF提取',
     desc: '选择PDF中的页面拆分成新的文档',
   };

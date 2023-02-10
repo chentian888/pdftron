@@ -261,7 +261,7 @@ export default class PDF {
    * 提取文档页面 1次1个文件
    * @param instance 文档实例
    * @param doc 目标文档
-   * @param file 原始File文件
+   * @param files 原始File文件
    * @param pages 目标页面
    * @returns 提取后文件拼装数据
    */
@@ -396,6 +396,12 @@ export default class PDF {
     return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 
+  /**
+   * 提取文字
+   * @param instance
+   * @param files
+   * @returns
+   */
   static async extraText(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -504,14 +510,18 @@ export default class PDF {
 
   static async removeText(
     instance: WebViewerInstance,
-    doc: Core.Document,
-    file: UploadFile,
-    pageNo: number[],
-  ) {
-    if (!pageNo || !pageNo.length) return [];
+    files: UploadFile[],
+    pages: number[],
+  ): Promise<ConvertFile[]> {
+    if (!pages || !pages.length) return [];
     const { Core } = instance;
+    const file = files[0];
+    const { prefix, suffix } = Tools.fileMsg(file);
+    const doc = await Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
     const pdfDoc = await doc.getPDFDoc();
-    const { prefix } = Tools.fileMsg(file);
     // 删除某个页面数据
     const removeOnePageText = async (index: number) => {
       const page = await pdfDoc.getPage(index);
@@ -545,11 +555,12 @@ export default class PDF {
       writer.end();
       reader.end();
     };
-    await Promise.all(map(pageNo, removeOnePageText));
+    await Promise.all(map(pages, removeOnePageText));
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
     const newFileName = `${prefix}.pdf`;
     const newfile = Tools.blob2File(buf, newFileName);
+    doc.unloadResources();
     return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
