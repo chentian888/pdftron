@@ -541,10 +541,6 @@ export default class PDF {
       ) {
         const elementType = await element.getType();
         switch (elementType) {
-          // case Core.PDFNet.Element.Type.e_image:
-          // case Core.PDFNet.Element.Type.e_inline_image:
-          //   // remove all images by skipping them
-          //   break;
           case Core.PDFNet.Element.Type.e_text:
             break;
           default:
@@ -566,14 +562,19 @@ export default class PDF {
 
   static async removeImage(
     instance: WebViewerInstance,
-    doc: Core.Document,
-    file: UploadFile,
-    pageNo: number[],
-  ) {
-    if (!pageNo || !pageNo.length) return [];
+    files: UploadFile[],
+    pages: number[],
+  ): Promise<ConvertFile[]> {
+    if (!pages || !pages.length) return [];
     const { Core } = instance;
+    const file = files[0];
+    const { prefix, suffix } = Tools.fileMsg(file);
+    const doc = await Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
+
     const pdfDoc = await doc.getPDFDoc();
-    const { prefix } = Tools.fileMsg(file);
     // 删除某个页面图片
     const removeOnePageImage = async (index: number) => {
       const page = await pdfDoc.getPage(index);
@@ -605,12 +606,12 @@ export default class PDF {
       writer.end();
       reader.end();
     };
-    await Promise.all(map(pageNo, removeOnePageImage));
+    await Promise.all(map(pages, removeOnePageImage));
     const buf = await doc.getFileData();
     const blob = await Tools.buf2Blob(buf);
     const newFileName = `${prefix}.pdf`;
     const newfile = Tools.blob2File(buf, newFileName);
-
+    doc.unloadResources();
     return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 

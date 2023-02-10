@@ -136,7 +136,6 @@ const ContentRemoveText: React.FC = () => {
   };
 
   const downloadAll = async () => {
-    console.log(convertList);
     await PDF.downloadZip(convertList);
   };
 
@@ -197,7 +196,7 @@ const ContentRemoveText: React.FC = () => {
           size="large"
           block
           loading={loading || !thumbnailList?.length}
-          onClick={() => convert()}
+          onClick={convert}
         >
           {thumbnailList?.length ? '删除文字' : '页面加载中请稍等'}
         </Button>
