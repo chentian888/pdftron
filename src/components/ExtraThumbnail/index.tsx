@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Checkbox, Tooltip } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
+import LoadingThumbnail from '@/components/LoadingThumbnail';
 // import PDF from '@/utils/pdf';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import Tools from '@/utils/tools';
-// import type { ExtraThumbnailType } from '@/types/typings';
 
 interface Props {
   thumb: ExtraThumbnailType;
@@ -58,11 +58,15 @@ const DragedFile: React.FC<Props> = (props) => {
       <div className="h-[240px] relative flex flex-col bg-white rounded-md border border-dashed border-purple-600 overflow-hidden">
         <div className="bg-[#f2f3f6] flex-1 p-2 pt-8">
           <div className="h-[127px] flex justify-center items-center">
-            <img
-              className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
-              src={thumb.img}
-              alt=""
-            />
+            {thumb.img ? (
+              <img
+                className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
+                src={thumb.img}
+                alt=""
+              />
+            ) : (
+              <LoadingThumbnail />
+            )}
           </div>
         </div>
 

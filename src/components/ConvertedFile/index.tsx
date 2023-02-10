@@ -6,10 +6,9 @@ import {
   DownloadOutlined,
 } from '@ant-design/icons';
 import { useModel, useParams } from '@umijs/max';
-// import { split } from 'lodash-es';
+import LoadingThumbnail from '@/components/LoadingThumbnail';
 import PDF from '@/utils/pdf';
 import Tools from '@/utils/tools';
-// import { ConvertFile } from '@/types/typings';
 import type { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
@@ -84,11 +83,15 @@ const ImageFile: React.FC<Props> = (props) => {
       <div className="h-[240px] relative flex flex-col bg-white rounded-md border border-dashed border-purple-600 overflow-hidden">
         <div className="bg-[#f2f3f6] flex-1 p-2 pt-8">
           <div className="h-[127px] flex justify-center items-center">
-            <img
-              className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
-              src={thumb}
-              alt=""
-            />
+            {thumb ? (
+              <img
+                className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
+                src={thumb}
+                alt=""
+              />
+            ) : (
+              <LoadingThumbnail />
+            )}
           </div>
         </div>
         <div className="h-[86px]">

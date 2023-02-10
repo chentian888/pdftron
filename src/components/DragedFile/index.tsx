@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Checkbox, Tooltip, Upload } from 'antd';
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { useModel, useParams } from '@umijs/max';
+import LoadingThumbnail from '@/components/LoadingThumbnail';
 import PDF from '@/utils/pdf';
 import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -28,6 +29,7 @@ const DragedFile: React.FC<Props> = (props) => {
     try {
       const thumbnail = await PDF.genThumbnail(instance!, file);
       setThumb(thumbnail[0].img);
+      console.log(thumb);
     } catch (e) {
       console.log(e);
     }
@@ -81,11 +83,15 @@ const DragedFile: React.FC<Props> = (props) => {
       <div className="h-[240px] relative flex flex-col bg-white rounded-md border border-dashed border-purple-600 overflow-hidden">
         <div className="bg-[#f2f3f6] flex-1 p-2 pt-8">
           <div className="h-[127px] flex justify-center items-center">
-            <img
-              className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
-              src={thumb}
-              alt=""
-            />
+            {thumb ? (
+              <img
+                className="block max-w-full max-h-full border border-[#dfe2ed] bg-white"
+                src={thumb}
+                alt=""
+              />
+            ) : (
+              <LoadingThumbnail />
+            )}
           </div>
         </div>
         <div className="h-[86px]">
