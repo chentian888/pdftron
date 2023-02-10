@@ -1,26 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
-// import { last, split, nth } from 'lodash-es';
-// import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
-// import PdfDeEncrypt from '@/components/PdfDeEncrypt';
-// import PdfReplaceText from '@/components/PdfReplaceText';
-// import PdfCrop from '@/components/PdfCrop';
-import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
+import type { UploadProps } from 'antd/es/upload/interface';
 
 const { Dragger } = Upload;
 
 const ExtractText: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const { fileList, onRemove, beforeUpload, convertList, setConvertList } =
-    useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    fileList,
+    success,
+    setSuccess,
+    onRemove,
+    beforeUpload,
+    convertList,
+    setConvertList,
+    resetList,
+  } = useModel('files');
+  const {
+    instance,
+    showWebviewer,
+    ready,
+    setReady,
+    setShowWebviewer,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
@@ -39,13 +47,22 @@ const ExtractText: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
+  // 继续
+  const going = () => {
+    resetList();
+  };
+
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
+  };
+
   useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
+    return pageUmount;
   }, []);
 
   const renderMoreFileButton = () => {
@@ -81,7 +98,7 @@ const ExtractText: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} nonsupport={true} />
+        <ConvertedFile convert={file} index={index} nonsupport={true} />
       </Col>
     ));
     if (success) {
@@ -93,14 +110,13 @@ const ExtractText: React.FC = () => {
   const extraText = async () => {
     setLoading(true);
     const list = await PDF.extraText(instance!, fileList);
-    setConvertList(list);
     await PDF.downloadZip(list);
+    setConvertList(list);
     setLoading(false);
     setSuccess(true);
   };
 
   const downloadAll = async () => {
-    console.log(convertList);
     await PDF.downloadZip(convertList);
   };
 
@@ -113,11 +129,24 @@ const ExtractText: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -132,9 +161,14 @@ const ExtractText: React.FC = () => {
 
     if (success) {
       action = (
-        <Button type="primary" size="large" block onClick={downloadAll}>
-          全部下载
-        </Button>
+        <>
+          <Button type="primary" size="large" block onClick={downloadAll}>
+            全部下载
+          </Button>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
+            继续
+          </div>
+        </>
       );
     } else if (fileList.length) {
       action = (
@@ -171,7 +205,7 @@ const ExtractText: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}

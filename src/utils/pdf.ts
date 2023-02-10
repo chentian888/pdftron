@@ -2,16 +2,7 @@ import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { Core, WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
-import {
-  map,
-  slice,
-  forEach,
-  flatten,
-  times,
-  includes,
-  fill,
-  join,
-} from 'lodash-es';
+import { map, slice, forEach, flatten, times, includes, join } from 'lodash-es';
 import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
 
@@ -267,7 +258,7 @@ export default class PDF {
   }
 
   /**
-   * 提取文档页面
+   * 提取文档页面 1次1个文件
    * @param instance 文档实例
    * @param doc 目标文档
    * @param file 原始File文件
@@ -305,7 +296,7 @@ export default class PDF {
   }
 
   /**
-   * 分割文档
+   * 分割文档 1次1个文件
    * @param instance 文档实例
    * @param doc 目标文档
    * @param file 原始File文件
@@ -360,7 +351,7 @@ export default class PDF {
   }
 
   /**
-   * 裁剪PDF
+   * 裁剪PDF 1次1个文件
    * @param doc 裁剪目标文档
    * @param file 原始File文件
    * @param deirection 裁剪方向水平竖直
@@ -419,22 +410,25 @@ export default class PDF {
         extension: suffix,
       });
       const count = doc.getPageCount();
-      const arr = fill(Array(count), '');
+      const arr = times(count, Number);
 
-      const loadTextSequence = function* () {
-        for (let i = 0; i < arr.length; i++) {
-          yield doc.loadPageText(i + 1);
-        }
-      };
+      // const loadTextSequence = function* () {
+      //   for (let i = 0; i < arr.length; i++) {
+      //     yield doc.loadPageText(i + 1);
+      //   }
+      // };
 
-      const textArr = await Tools.runSequence<string>(loadTextSequence());
+      // const textArr = await Tools.runSequence<string>(loadTextSequence());
+      const textArr = await Promise.all(
+        map(arr, async (i) => await doc.loadPageText(i + 1)),
+      );
       const textStr = join(textArr, '');
       const blob = new Blob([textStr], {
         type: 'text/plain;charset=utf-8',
       });
       const newFileName = `${prefix}.txt`;
       const newfile = Tools.blob2File(blob, newFileName, 'text/plain;');
-
+      doc.unloadResources();
       return { file, newfile, newFileName, newFileBlob: blob };
     };
 
@@ -443,7 +437,6 @@ export default class PDF {
 
     // 多个
     const textList = await Promise.all(multipleFileText);
-    console.log(textList);
     return textList;
   }
 
