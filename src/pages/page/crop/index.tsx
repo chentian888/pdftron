@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer, { Core } from '@pdftron/webviewer';
+// import WebViewer, { Core } from '@pdftron/webviewer';
 // import { times } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
@@ -14,22 +14,26 @@ const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  // const [cropNumber, setCropNumber] = useState<number[]>([]);
-  const [doc, setDoc] = useState<unknown>();
-  const [docCount, setDocCount] = useState<number>();
-  const [cropType, setCropType] = useState<CropType>();
 
   const {
     fileList,
+    success,
+    setSuccess,
     onRemove,
     beforeUpload,
-    setFileList,
     convertList,
     setConvertList,
+    resetList,
   } = useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    instance,
+    showWebviewer,
+    setShowWebviewer,
+    ready,
+    setReady,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
@@ -49,50 +53,33 @@ const PageManipulation: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
-  useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
-  }, []);
+  // 继续
+  const going = () => {
+    resetList();
+  };
 
-  const initDoc = async () => {
-    const file = fileList[0];
-    const doc = await instance?.Core.createDocument(file as any as File, {
-      filename: file.name,
-    });
-    const count = doc?.getPageCount();
-    setDoc(doc);
-    setDocCount(count!);
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
   };
 
   useEffect(() => {
-    if (fileList.length) {
-      initDoc();
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
     }
-  }, [fileList]);
+    return pageUmount;
+  }, []);
 
   // 裁剪页面
-  const handleCrop = async (pagesNum: number[] = []) => {
+  const handleCrop = async (pagesNum: number[] = [], cropType: CropType) => {
     const file = fileList[0];
     setLoading(true);
-    const res = await PDF.cropPage(
-      doc! as Core.Document,
-      file,
-      cropType,
-      pagesNum,
-    );
+    const res = await PDF.cropPage(instance!, file, cropType, pagesNum);
     setConvertList(res);
     await PDF.downloadZip(res);
     setLoading(false);
     setSuccess(true);
-  };
-
-  // 设置裁剪模式
-  const setCropModule = (type: CropType) => {
-    setCropType(type);
   };
 
   // 文件列表
@@ -101,10 +88,8 @@ const PageManipulation: React.FC = () => {
       return (
         <PdfCrop
           file={fileList[0]}
-          count={docCount!}
-          crop={handleCrop}
+          crop={(pagesNum, cropType) => handleCrop(pagesNum, cropType!)}
           loading={loading}
-          setCropModule={setCropModule}
         />
       );
     }
@@ -114,7 +99,7 @@ const PageManipulation: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -122,17 +107,7 @@ const PageManipulation: React.FC = () => {
     }
   };
 
-  const reset = () => {
-    setConvertList([]);
-    setFileList([]);
-    setDoc(null as unknown);
-    // setCropNumber([]);
-    setSuccess(false);
-    setCropType(null);
-  };
-
   const downloadAll = async () => {
-    console.log(convertList);
     await PDF.downloadZip(convertList);
   };
 
@@ -145,11 +120,24 @@ const PageManipulation: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -166,7 +154,7 @@ const PageManipulation: React.FC = () => {
           <Button type="primary" size="large" block onClick={downloadAll}>
             全部下载
           </Button>
-          <div className="text-center mt-4 cursor-pointer" onClick={reset}>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
             继续
           </div>
         </div>
@@ -178,6 +166,7 @@ const PageManipulation: React.FC = () => {
     <>
       {/* <Title title="转为PDF" /> */}
       <Dragger
+        disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
@@ -189,7 +178,7 @@ const PageManipulation: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}

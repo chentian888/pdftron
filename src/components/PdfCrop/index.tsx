@@ -1,29 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Select, Button } from 'antd';
 import { useModel } from '@umijs/max';
 import type { SelectProps } from 'antd';
 import { times, split, map } from 'lodash-es';
+import Tools from '@/utils/tools';
 import { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
   file: UploadFile;
-  count: number;
   loading: boolean;
-  crop: (pagesNum: number[]) => void;
-  setCropModule: (module: CropType) => void;
+  crop: (pagesNum: number[], type: CropType) => Promise<void>;
 }
 
 const PdfCrop: React.FC<Props> = (props) => {
-  const { file, count, crop, setCropModule, loading } = props;
-  const { instance, setShowWebviewer } = useModel('pdf');
+  const { file, crop, loading } = props;
+  const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [excludePages, setExcludePages] = useState<number[]>([]);
+  const [cropType, setCropType] = useState<CropType>();
+  const [options, setOptions] = useState<SelectProps['options']>([]);
 
-  let options: SelectProps['options'] = [];
+  // let options: SelectProps['options'] = [];
 
-  options = times(count!, (index) => ({
-    label: `第${index + 1}页`,
-    value: index + 1,
-  }));
+  const initDoc = async () => {
+    const { prefix, suffix } = Tools.fileMsg(file);
+    const doc = await instance?.Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
+    const count = doc?.getPageCount();
+    const options = times(count!, (index) => ({
+      label: `第${index + 1}页`,
+      value: index + 1,
+    }));
+    setOptions(options);
+    console.log(options);
+    doc?.unloadResources();
+  };
+
+  useEffect(() => {
+    if (file) {
+      initDoc();
+    }
+  }, [file]);
 
   const handleChange = (value: string) => {
     const arrStr = split(value, ',');
@@ -31,19 +49,27 @@ const PdfCrop: React.FC<Props> = (props) => {
     setExcludePages(arrNum);
   };
 
-  // 设置裁剪模式
-  const cropModule = (module: CropType) => {
-    setCropModule(module);
-  };
-
   // 预览
   const handlePreview = () => {
+    const { UI } = instance!;
+    const { prefix, suffix } = Tools.fileMsg(file);
     setShowWebviewer(true);
-    instance?.UI.loadDocument(file as any as File, { filename: file.name });
-    const { documentViewer } = instance!.Core;
-    documentViewer!.addEventListener('documentLoaded', () => {
-      // perform document operations
+    setWebviewerTtile(file.name);
+    UI.loadDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
     });
+  };
+
+  // 设置裁剪模式
+  const cropModule = (type: CropType) => {
+    setCropType(type);
+  };
+
+  const handleCrop = () => {
+    if (cropType) {
+      crop(excludePages, cropType);
+    }
   };
 
   return (
@@ -78,7 +104,11 @@ const PdfCrop: React.FC<Props> = (props) => {
 
       <div className="flex justify-between w-full mb-10">
         <div
-          className="w-48 h-48 flex flex-col justify-center items-center bg-white rounded-lg border border-dashed border-purple-600 cursor-pointer"
+          className={`w-48 h-48 flex flex-col justify-center items-center bg-white rounded-lg  ${
+            cropType === 'vertical'
+              ? 'border border-dashed border-purple-600'
+              : ''
+          } cursor-pointer`}
           onClick={() => cropModule('vertical')}
         >
           <img
@@ -89,7 +119,11 @@ const PdfCrop: React.FC<Props> = (props) => {
           <div className="mt-4">左右对半裁剪</div>
         </div>
         <div
-          className="w-48 h-48 flex flex-col justify-center items-center  bg-white rounded-lg border border-dashed border-purple-600 cursor-pointer"
+          className={`w-48 h-48 flex flex-col justify-center items-center bg-white rounded-lg ${
+            cropType === 'horizontal'
+              ? 'border border-dashed border-purple-600'
+              : ''
+          } cursor-pointer`}
           onClick={() => cropModule('horizontal')}
         >
           <img
@@ -104,8 +138,9 @@ const PdfCrop: React.FC<Props> = (props) => {
         block
         size="large"
         type="primary"
+        disabled={!cropType}
         loading={loading}
-        onClick={() => crop(excludePages)}
+        onClick={handleCrop}
       >
         裁剪
       </Button>

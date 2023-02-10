@@ -368,12 +368,16 @@ export default class PDF {
    * @returns 裁剪后文件拼装数据
    */
   static async cropPage(
-    doc: Core.Document,
+    instance: WebViewerInstance,
     file: UploadFile,
-    deirection?: CropType,
+    deirection: CropType,
     exclude?: number[],
   ): Promise<ConvertFile[]> {
-    const { prefix } = Tools.fileMsg(file);
+    const { prefix, suffix } = Tools.fileMsg(file);
+    const doc = await instance?.Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
     const count = doc.getPageCount();
 
     // 裁剪单个页面
@@ -397,7 +401,7 @@ export default class PDF {
     const blob = await Tools.buf2Blob(buf);
     const newFileName = `${prefix}-crop.pdf`;
     const newfile = Tools.blob2File(buf, newFileName);
-
+    doc.unloadResources();
     return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 

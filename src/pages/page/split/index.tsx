@@ -120,7 +120,6 @@ const PageManipulation: React.FC = () => {
   };
 
   const downloadAll = async () => {
-    console.log(convertList);
     await PDF.downloadZip(convertList);
   };
 
