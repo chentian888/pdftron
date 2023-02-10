@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { Button } from 'antd';
 import { Link } from '@umijs/max';
-// import Title from '@/components/Title';
+import { useModel } from '@umijs/max';
 
 type TabType = { name: string; value: string };
 
 const Home: React.FC = () => {
-  const [tab, setTab] = useState<string>('1');
+  const { tab, setTab } = useModel('global');
 
   const tabs: TabType[] = [
     { name: '转换为PDF', value: '1' },
@@ -251,7 +250,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="page" style={{ background: '#f1f3f8' }}>
-      {/* <Title title="PDF万能编辑器" /> */}
       <div className="flex justify-center">
         <img
           className="block max-w-full"
