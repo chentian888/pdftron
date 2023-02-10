@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
-import type { Core, WebViewerInstance } from '@pdftron/webviewer';
+import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
 import { map, slice, forEach, flatten, times, includes, join } from 'lodash-es';
 import Tools from '@/utils/tools';
@@ -258,7 +258,7 @@ export default class PDF {
   }
 
   /**
-   * 提取文档页面 1次1个文件
+   * 提取文档页面 不支持多文件
    * @param instance 文档实例
    * @param doc 目标文档
    * @param files 原始File文件
@@ -296,7 +296,7 @@ export default class PDF {
   }
 
   /**
-   * 分割文档 1次1个文件
+   * 分割文档 不支持多文件
    * @param instance 文档实例
    * @param doc 目标文档
    * @param file 原始File文件
@@ -351,7 +351,7 @@ export default class PDF {
   }
 
   /**
-   * 裁剪PDF 1次1个文件
+   * 裁剪PDF 不支持多文件
    * @param doc 裁剪目标文档
    * @param file 原始File文件
    * @param deirection 裁剪方向水平竖直
@@ -397,7 +397,7 @@ export default class PDF {
   }
 
   /**
-   * 提取文字
+   * 提取文字 支持多文件
    * @param instance
    * @param files
    * @returns
@@ -508,6 +508,13 @@ export default class PDF {
   //   }
   // }
 
+  /**
+   * 删除文字内容 不支持多文件
+   * @param instance
+   * @param files
+   * @param pages
+   * @returns
+   */
   static async removeText(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -560,6 +567,13 @@ export default class PDF {
     return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
+  /**
+   * 删除图片内容 不支持多文件
+   * @param instance
+   * @param files
+   * @param pages
+   * @returns
+   */
   static async removeImage(
     instance: WebViewerInstance,
     files: UploadFile[],
@@ -615,20 +629,31 @@ export default class PDF {
     return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
-  static async compress(
-    instance: WebViewerInstance,
-    doc: Core.Document,
-    file: UploadFile,
-  ) {
+  /**
+   * pdf压缩支持多文件
+   * @param instance
+   * @param files
+   * @returns
+   */
+  static async compress(instance: WebViewerInstance, files: UploadFile[]) {
     const { Core } = instance;
-    const { prefix } = Tools.fileMsg(file);
-    const pdfDoc = await doc.getPDFDoc();
-    await Core.PDFNet.Optimizer.optimize(pdfDoc);
-    const buf = await doc.getFileData();
-    const blob = await Tools.buf2Blob(buf);
-    const newFileName = `${prefix}.pdf`;
-    const newfile = Tools.blob2File(buf, newFileName);
-    return [{ file, newfile, newFileName, newFileBlob: blob }];
+    const compressOneFile = async (file: UploadFile) => {
+      const { prefix, suffix } = Tools.fileMsg(file);
+      const doc = await Core.createDocument(file as any as File, {
+        filename: prefix,
+        extension: suffix,
+      });
+      const pdfDoc = await doc.getPDFDoc();
+      await Core.PDFNet.Optimizer.optimize(pdfDoc);
+      const buf = await doc.getFileData();
+      const blob = await Tools.buf2Blob(buf);
+      const newFileName = `${prefix}.pdf`;
+      const newfile = Tools.blob2File(buf, newFileName);
+      doc.unloadResources();
+      return { file, newfile, newFileName, newFileBlob: blob };
+    };
+    const allCompressFile = await Promise.all(map(files, compressOneFile));
+    return allCompressFile;
   }
 
   // 下载文件
