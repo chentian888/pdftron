@@ -450,10 +450,15 @@ export default class PDF {
   //   instance: WebViewerInstance,
   //   files: UploadFile[],
   // ): Promise<ConvertFile[]> {
+  //   const { Core } = instance;
   //   const file = files[0];
   //   const buf = await Tools.file2Buf(file as any as File);
-  //   const doc = await instance?.Core.PDFNet.PDFDoc.createFromBuffer(buf);
-  //   const reader = await instance.Core.PDFNet.ElementReader.create();
+  //   const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+  //   const blankDoc = await Core.PDFNet.PDFDoc.create();
+  //   const eb = await Core.PDFNet.ElementBuilder.create();
+  //   const reader = await Core.PDFNet.ElementReader.create();
+  //   const writer = await Core.PDFNet.ElementWriter.create();
+  //   let blankelement;
 
   //   const ProcessElements = async (reader) => {
   //     // Traverse the page display list
@@ -463,37 +468,16 @@ export default class PDF {
   //       element = await reader.next()
   //     ) {
   //       const elementType = await element.getType();
-  //       // console.log(
-  //       //   element !== null,
-  //       //   elementType,
-  //       //   instance.Core.PDFNet.Element.Type.e_image,
-  //       // );
 
-  //       if (elementType === instance.Core.PDFNet.Element.Type.e_image) {
-  //         console.log(element);
+  //       if (elementType === Core.PDFNet.Element.Type.e_image) {
+  //         // console.log(element);
   //         const xObj = await element.getXObject();
-  //         // const bbb = await xObj.getBuffer();
-  //         console.log(xObj);
-  //         const image = await instance.Core.PDFNet.Image.createFromObj(xObj);
-  //         console.log(image);
-  //         const tt = await element.getImageData();
-  //         // const filter = await instance.Core.PDFNet.Filter.createFlateEncode(
-  //         //   new instance.Core.PDFNet.Filter('0'),
-  //         // );
-  //         // console.log(tt);
-  //         const filterWriter = await instance.Core.PDFNet.FilterWriter.create(
-  //           tt,
-  //         );
-  //         // filterWriter.writeBuffer(bbb);
-  //         console.log(filterWriter);
-  //         // await filterWriter.writeString('23232323');
-
-  //         const bb = await image.exportAsPngFromStream(filterWriter); // or exportAsTiffFromStream or exportAsPngFromStream
-  //         // console.log(await image.getImageData());
-
-  //         console.log(bb);
-
-  //         // console.log(await element.getImageData());
+  //         const image = await Core.PDFNet.Image.createFromObj(xObj);
+  //         // console.log(image);
+  //         // const sdf = await image.getSDFObj();
+  //         const sdf = await image.getSDFObj();
+  //         const dec_stm = await sdf.getDecodedStream();
+  //         const writer = await Core.PDFNet.FilterWriter.create(dec_stm);
   //       }
   //     }
   //   };
@@ -506,6 +490,35 @@ export default class PDF {
   //     await ProcessElements(reader);
   //     await reader.end();
   //   }
+  //   // const blankdoc = await Core.PDFNet.PDFDoc.create();
+  //   // const eb = await Core.PDFNet.ElementBuilder.create();
+  //   // const writer = await Core.PDFNet.ElementWriter.create();
+  //   // let element;
+  //   // const img = await Core.PDFNet.Image.createFromURL(
+  //   //   blankdoc,
+  //   //   ' https://wxp.cardpu.com/upload/image/1673939715548.png',
+  //   // );
+  //   // const w = await img.getImageWidth();
+  //   // const h = await img.getImageHeight();
+  //   // const pageRect = await Core.PDFNet.Rect.init(0, 0, w, h);
+  //   // console.log(pageRect);
+  //   // let page = await blankdoc.pageCreate(pageRect);
+  //   // writer.beginOnPage(page);
+  //   // element = await eb.createImageFromMatrix(
+  //   //   img,
+  //   //   await Core.PDFNet.Matrix2D.create(w, 0, 0, h, 0, 0),
+  //   // );
+  //   // writer.writePlacedElement(element);
+  //   // writer.end();
+  //   // blankdoc.pagePushBack(page);
+  //   // const docBuffer = await blankdoc.saveMemoryBuffer(
+  //   //   Core.PDFNet.SDFDoc.SaveOptions.e_remove_unused,
+  //   // );
+  //   // const blob = new Blob([docBuffer], {
+  //   //   type: 'application/pdf',
+  //   // });
+  //   // PDF.download(blob, 'aa.pdf');
+  //   // this.download(blob, 'aa.pdf');
   // }
 
   /**
@@ -548,6 +561,7 @@ export default class PDF {
       ) {
         const elementType = await element.getType();
         switch (elementType) {
+          case Core.PDFNet.Element.Type.e_inline_image:
           case Core.PDFNet.Element.Type.e_text:
             break;
           default:

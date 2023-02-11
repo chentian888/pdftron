@@ -1,39 +1,39 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-import WebViewer from '@pdftron/webviewer';
-import { pullAllBy, sortBy } from 'lodash-es';
+import { pullAllBy, sortBy, map } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
 import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
-import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
-// import type { ExtraThumbnailType } from '@/types/typings';
+import type { UploadProps } from 'antd/es/upload/interface';
 
 const { Dragger } = Upload;
 
 const ExtractText: React.FC = () => {
-  const [actionDisabled, setActionDisabled] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
-  const [extractNumber, setExtractNumber] = useState<number[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [doc, setDoc] = useState<unknown>();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [currentFile, setCurrentFile] = useState<UploadFile>();
+  const [extractNo, setExtractNo] = useState<number[]>([]);
 
   const {
     fileList,
+    success,
+    setSuccess,
     onRemove,
     beforeUpload,
-    setFileList,
     convertList,
-    setConvertList,
+    // setConvertList,
+    resetList,
   } = useModel('files');
-  const { instance, setInstance, showWebviewer, setShowWebviewer } =
-    useModel('pdf');
+  const {
+    instance,
+    showWebviewer,
+    setShowWebviewer,
+    ready,
+    setReady,
+    initWebViewer,
+    webviewerTtile,
+  } = useModel('pdf');
 
   const baseData = {
     accept: '.pdf',
@@ -53,83 +53,104 @@ const ExtractText: React.FC = () => {
     multiple: baseData.multiple || false,
   };
 
-  // 初始化缩图图
-  const initloadThumbnail = async () => {
-    const file = fileList[0];
-    setCurrentFile(file);
-    console.log(file);
-    const doc = await instance?.Core.createDocument(file as any as File, {
-      extension: 'pdf',
-      l: LICENSE_KEY,
-    });
-    setDoc(doc);
+  // 继续
+  const going = () => {
+    resetList();
+    setExtractNo([]);
+    setThumbnailList([]);
+  };
 
-    const arr: Promise<ExtraThumbnailType>[] = [];
-    const pageNo: number[] = []; // 需要提取页面编号
-    const count = doc?.getPageCount() as number;
-    const loadThumbnail = (index: number): Promise<ExtraThumbnailType> => {
-      return new Promise((resolve) => {
-        doc?.loadThumbnail(index, (thumbnail: HTMLCanvasElement) => {
-          const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
-          (thumbnail as HTMLCanvasElement).toBlob((blob) => {
-            console.log(doc);
-            resolve({
-              blob: blob!,
-              img: base64,
-              total: count,
-              current: index,
-              sourceFile: file,
-              currentDoc: doc,
-            });
-          });
-        });
-      });
-    };
-    for (let i = 0; i < count; i++) {
-      const current = i + 1;
-      arr.push(loadThumbnail(current));
-      pageNo.push(current);
-    }
-    const res = await Promise.all(arr);
-    setActionDisabled(false);
-    setThumbnailList(res);
-    setExtractNumber(pageNo);
+  // 页面卸载
+  const pageUmount = () => {
+    going();
+    setReady(false);
   };
 
   useEffect(() => {
-    setActionDisabled(true);
+    if (viewer.current) {
+      initWebViewer(viewer.current!);
+    }
+    return pageUmount;
+  }, []);
+
+  const initThumb = async () => {
+    const res = await PDF.genThumbnail(instance!, fileList[0], true);
+    const pageNo = map(res, (ele) => ele.currentPage);
+    setExtractNo(pageNo);
+    setThumbnailList(res);
+  };
+
+  useEffect(() => {
     if (fileList.length) {
-      initloadThumbnail();
+      initThumb();
     }
   }, [fileList]);
 
+  // const test = async () => {
+  //   const { Core } = instance!;
+  //   const { PDFNet } = Core;
+  //   const doc = await PDFNet.PDFDoc.create();
+
+  //   // ElementBuilder is used to build new Element objects
+  //   const eb = await PDFNet.ElementBuilder.create();
+  //   // ElementWriter is used to write Elements to the page
+  //   const writer = await PDFNet.ElementWriter.create();
+  //   let element;
+
+  //   const img = await PDFNet.Image.createFromURL(
+  //     doc,
+  //     ' https://wxp.cardpu.com/upload/image/1673939715548.png',
+  //   );
+  //   console.log('=======');
+  //   const w = await img.getImageWidth();
+  //   const h = await img.getImageHeight();
+  //   const pageRect = await PDFNet.Rect.init(0, 0, w, h);
+  //   console.log(pageRect);
+  //   let page = await doc.pageCreate(pageRect);
+
+  //   writer.beginOnPage(page);
+  //   element = await eb.createImageFromMatrix(
+  //     img,
+  //     await PDFNet.Matrix2D.create(w, 0, 0, h, 0, 0),
+  //   );
+  //   writer.writePlacedElement(element);
+
+  //   writer.end();
+  //   doc.pagePushBack(page);
+  //   // UI.loadDocument(doc);
+  //   const docBuffer = await doc.saveMemoryBuffer(
+  //     Core.PDFNet.SDFDoc.SaveOptions.e_remove_unused,
+  //   );
+  //   const blob = new Blob([docBuffer], {
+  //     type: 'application/pdf',
+  //   });
+  //   // PDF.download(blob, 'aa.pdf');
+  // };
+  // 测试
+  // useEffect(() => {
+  //   if (ready) {
+  //     test();
+  //   }
+  // }, [ready]);
+
   // 勾选文件
   const checkFile = (index: number) => {
-    extractNumber.push(index);
-    const sort = sortBy(extractNumber, (o) => o);
-    setExtractNumber(sort);
+    extractNo.push(index);
+    const sort = sortBy(extractNo, (o) => o);
+    setExtractNo(sort);
   };
 
   // 反选文件
   const unCheckFile = (index: number) => {
-    pullAllBy(extractNumber, [index]);
+    pullAllBy(extractNo, [index]);
   };
-
-  useEffect(() => {
-    WebViewer({ path: '/webviewer/lib', fullAPI: true }, viewer.current!).then(
-      async (instance) => {
-        setInstance(instance);
-        await instance.Core.PDFNet.initialize();
-      },
-    );
-  }, []);
 
   // 文件列表
   const renderInitFile = () => {
     const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
         <ExtraThumbnail
-          file={file}
+          thumb={file}
           checkFile={checkFile}
           unCheckFile={unCheckFile}
         />
@@ -144,7 +165,7 @@ const ExtractText: React.FC = () => {
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile img={file} index={index} />
+        <ConvertedFile convert={file} index={index} />
       </Col>
     ));
     if (success) {
@@ -157,20 +178,11 @@ const ExtractText: React.FC = () => {
     setLoading(true);
     // const res = await PDF.extraImage(instance!, fileList);
     // console.log(res);
+    // await PDF.downloadZip(res);
     // setThumbnailList([]);
     // setConvertList(res);
-    // await PDF.downloadZip(res);
     setLoading(false);
     setSuccess(true);
-  };
-
-  const reset = () => {
-    setConvertList([]);
-    setFileList([]);
-    setDoc(null as unknown);
-    setExtractNumber([]);
-    setThumbnailList([]);
-    setSuccess(false);
   };
 
   const downloadAll = async () => {
@@ -187,11 +199,24 @@ const ExtractText: React.FC = () => {
             {baseData.title}
           </div>
           <div className="text-gray-400 text-center mb-14">{baseData.desc}</div>
-          <Button className="mb-8" type="primary" size="large" block ghost>
+          <Button
+            className="mb-8"
+            type="primary"
+            size="large"
+            block
+            loading={!ready}
+            ghost
+          >
             可以拖拽至此
           </Button>
           <Upload className="w-full" {...props}>
-            <Button className="w-full" type="primary" size="large" block>
+            <Button
+              className="w-full"
+              type="primary"
+              size="large"
+              loading={!ready}
+              block
+            >
               选择本地文件
             </Button>
           </Upload>
@@ -210,7 +235,7 @@ const ExtractText: React.FC = () => {
           <Button type="primary" size="large" block onClick={downloadAll}>
             全部下载
           </Button>
-          <div className="text-center mt-4 cursor-pointer" onClick={reset}>
+          <div className="text-center mt-4 cursor-pointer" onClick={going}>
             继续
           </div>
         </>
@@ -221,11 +246,10 @@ const ExtractText: React.FC = () => {
           type="primary"
           size="large"
           block
-          disabled={actionDisabled}
-          loading={loading}
+          loading={loading || !thumbnailList?.length}
           onClick={extraPageImage}
         >
-          提取图片
+          {thumbnailList?.length ? '提取图片' : '页面加载中请稍等'}
         </Button>
       );
     }
@@ -251,7 +275,7 @@ const ExtractText: React.FC = () => {
       {renderAction()}
       <Modal
         className="webviewer-modal"
-        title="Modal 1000px width"
+        title={webviewerTtile}
         centered
         forceRender
         open={showWebviewer}
