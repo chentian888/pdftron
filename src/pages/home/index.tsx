@@ -165,7 +165,7 @@ const Home: React.FC = () => {
         desc: 'PDF替换文字',
         icon: 'icon-text',
         className: 'justify-self-center',
-        to: '/content/textreplace',
+        to: '/content/replacetext',
       },
       {
         title: 'PDF替换图片',

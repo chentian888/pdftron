@@ -1,17 +1,43 @@
 import React from 'react';
 import { Input, Button, Row, Col } from 'antd';
+import { useModel } from '@umijs/max';
+import Tools from '@/utils/tools';
+import { UploadFile } from 'antd/es/upload/interface';
 
-const PdfReplaceText: React.FC = () => {
+interface Props {
+  file: UploadFile;
+  loading: boolean;
+  remove: () => Promise<void>;
+}
+
+const PdfReplaceText: React.FC<Props> = (props) => {
+  const { file, remove, loading } = props;
+  const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
+
+  // 预览
+  const handlePreview = () => {
+    const { UI } = instance!;
+    const { prefix, suffix } = Tools.fileMsg(file);
+    setShowWebviewer(true);
+    setWebviewerTtile(file.name);
+    UI.loadDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
+  };
+
   return (
     <>
       <div className="w-2/6 z-10 relative m-auto">
-        <div className="flex justify-center text-xl">PDF加密解密</div>
+        <div className="flex justify-center text-xl">PDF替换文字</div>
         <div className="flex justify-between my-6">
           <div className="flex items-center  text-gray-400">
-            PDF名称：我的手机
+            PDF名称：{file.name || ''}
           </div>
           <div>
-            <Button type="primary">预览</Button>
+            <Button type="primary" onClick={handlePreview}>
+              预览
+            </Button>
           </div>
         </div>
         <div className="text-red-500 mb-7 leading-7">
@@ -44,7 +70,13 @@ const PdfReplaceText: React.FC = () => {
         </Row>
       </div>
       <div className="w-2/6 z-10 relative m-auto">
-        <Button block size="large" type="primary">
+        <Button
+          block
+          size="large"
+          type="primary"
+          loading={loading}
+          onClick={remove}
+        >
           一键替换
         </Button>
         <div className=" text-blue-400"></div>

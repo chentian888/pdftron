@@ -97,6 +97,11 @@ export default defineConfig({
       component: '@/layouts/ConvertLayout',
       routes: [
         {
+          title: 'PDF替换文字',
+          path: 'replacetext',
+          component: './content/replacetext',
+        },
+        {
           title: 'PDF删除文字数据',
           path: 'removetext',
           component: './content/removetext',
