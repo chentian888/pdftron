@@ -133,6 +133,11 @@ export default defineConfig({
       ],
     },
     {
+      title: '在线编辑',
+      path: '/editor',
+      component: './editor',
+    },
+    {
       title: '登录',
       path: '/login',
       component: './login',

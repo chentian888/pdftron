@@ -14,6 +14,7 @@ export default () => {
       { path: '/webviewer/lib', fullAPI: true, licenseKey: LICENSE_KEY },
       mountDom,
     );
+    instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
     instance.UI.disableElements([
       'leftPanel',
       'leftPanelButton',

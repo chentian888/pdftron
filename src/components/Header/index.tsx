@@ -1,11 +1,19 @@
 import React from 'react';
 import { Button } from 'antd';
 import { Link } from '@umijs/max';
+interface Props {
+  block?: boolean;
+}
 
-const Header: React.FC = () => {
+const Header: React.FC<Props> = (props) => {
+  const { block = false } = props;
   return (
-    <div className="h-[101px]">
-      <div className="w-1200 m-auto h-full flex justify-between items-center">
+    <div className="h-[101px] bg-white">
+      <div
+        className={`${
+          block ? 'w-11/12' : 'w-1200'
+        } m-auto h-full flex justify-between items-center`}
+      >
         <div className="text-lg h-full">
           <Link
             to="/"

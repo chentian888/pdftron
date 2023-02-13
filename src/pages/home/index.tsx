@@ -270,9 +270,11 @@ const Home: React.FC = () => {
             <div className="text-gray-400 pb-7 leading-6">
               万能PDF编辑专注PDF在线编辑服务，为你提供最便捷 的操作方案与服务！
             </div>
-            <Button size="large" type="primary">
-              PDF在线编辑
-            </Button>
+            <a href="/editor">
+              <Button size="large" type="primary">
+                PDF在线编辑
+              </Button>
+            </a>
           </div>
           <img
             className="block max-w-full"
