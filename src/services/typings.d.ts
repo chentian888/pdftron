@@ -61,4 +61,13 @@ declare namespace API {
     email?: string;
     gender?: UserGenderEnum;
   }
+
+  interface UploadFileParams {
+    file: File;
+  }
+
+  interface ConvertOfficeParams {
+    id: number;
+    convertType: 1 | 2 | 3;
+  }
 }

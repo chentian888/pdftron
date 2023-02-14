@@ -90,3 +90,39 @@ export async function alipay(id: number, options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// 文件上传
+export async function uploadFile(
+  body: API.UploadFileParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.HttpResponse<string>>(`/api/common/multiUpload`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+// pdf转word/xlsx/pptx
+export async function pdf2Office(
+  body: API.ConvertOfficeParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.HttpResponse<string>>(`/api/pdf/asyncConvert`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+// 查询转换状态
+export async function convertStatus(
+  params: unknown,
+  options?: { [key: string]: any },
+) {
+  return request<API.HttpResponse<string>>(`/api/pdf/queryState`, {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
