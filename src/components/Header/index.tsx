@@ -1,14 +1,21 @@
 import React from 'react';
 import { Button } from 'antd';
-import { Link } from '@umijs/max';
+import { Link, useModel } from '@umijs/max';
+import LoginModal from '@/components/LoginModal';
+import PayModal from '@/components/PayModal';
+
 interface Props {
   block?: boolean;
 }
 
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
+  const { setShowLoginModal, setShowVipModal } = useModel('user');
+
   return (
     <div className="h-[101px] bg-white">
+      <LoginModal />
+      <PayModal />
       <div
         className={`${
           block ? 'w-11/12' : 'w-1200'
@@ -28,13 +35,16 @@ const Header: React.FC<Props> = (props) => {
           <Link to="/" className="px-8 text-black no-underline text-lg">
             首页
           </Link>
-          <Link to="/vip" className="px-8 text-black no-underline text-lg">
+          <div
+            onClick={() => setShowVipModal(true)}
+            className="px-8 text-black no-underline text-lg cursor-pointer"
+          >
             购买
-          </Link>
+          </div>
 
-          <Link to="login" className="px-8 text-black no-underline text-lg">
-            <Button type="primary">登录/注册</Button>
-          </Link>
+          <Button type="primary" onClick={() => setShowLoginModal(true)}>
+            登录/注册
+          </Button>
         </div>
       </div>
     </div>

@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import { Modal, Col, Row, Radio, Button } from 'antd';
+import { useModel } from '@umijs/max';
 import { CloseCircleOutlined } from '@ant-design/icons';
+import type { RadioChangeEvent } from 'antd';
+
 import './index.less';
 
 const LoginModal: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { showVipModal, setShowVipModal } = useModel('user');
+  const [value, setValue] = useState(1);
+
   const handleOk = () => {
-    setIsModalOpen(false);
+    setShowVipModal(false);
   };
 
   const handleCancel = () => {
-    setIsModalOpen(false);
+    setShowVipModal(false);
+  };
+
+  const onChange = (e: RadioChangeEvent) => {
+    console.log('radio checked', e.target.value);
+    setValue(e.target.value);
   };
 
   const vips = [
@@ -34,34 +44,38 @@ const LoginModal: React.FC = () => {
   };
 
   const pays = [
-    { text: '支付宝支付', icon: 'icon-alipay' },
-    { text: 'paypal支付', icon: 'icon-paypal' },
+    { text: '支付宝支付', icon: 'icon-alipay', value: 1 },
+    { text: 'paypal支付', icon: 'icon-paypal', value: 2 },
   ];
 
   // 支付方式
   const renderPays = () => {
-    return pays.map((ele, index) => {
-      return (
-        <div className="pay-item" key={index}>
-          <div className="text">
-            <img
-              className={ele.icon}
-              src={require(`./img/${ele.icon}.png`)}
-              alt=""
-            />
-            {ele.text}
-          </div>
-          <div className="radio">
-            <Radio value={1}></Radio>
-          </div>
-        </div>
-      );
-    });
+    return (
+      <Radio.Group className="w-full" onChange={onChange} value={value}>
+        {pays.map((ele, index) => {
+          return (
+            <div className="pay-item" key={index}>
+              <div className="text text-lg">
+                <img
+                  className={ele.icon}
+                  src={require(`./img/${ele.icon}.png`)}
+                  alt=""
+                />
+                {ele.text}
+              </div>
+              <div className="radio">
+                <Radio value={ele.value}></Radio>
+              </div>
+            </div>
+          );
+        })}
+      </Radio.Group>
+    );
   };
   return (
     <Modal
       className="pay-modal"
-      open={isModalOpen}
+      open={showVipModal}
       onOk={handleOk}
       onCancel={handleCancel}
       closeIcon={<CloseCircleOutlined />}

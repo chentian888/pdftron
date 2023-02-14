@@ -3,9 +3,11 @@ import { useState } from 'react';
 
 export default () => {
   const [showLogin, setShowLoginModal] = useState(false);
-
+  const [showVipModal, setShowVipModal] = useState(false);
   return {
     showLogin,
     setShowLoginModal,
+    showVipModal,
+    setShowVipModal,
   };
 };
