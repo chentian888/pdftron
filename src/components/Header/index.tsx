@@ -13,7 +13,7 @@ const Header: React.FC<Props> = (props) => {
   const { setShowLoginModal, setShowVipModal } = useModel('user');
 
   return (
-    <div className="h-[101px] bg-white">
+    <div className={`h-[101px]  ${block ? 'bg-white' : ''}`}>
       <LoginModal />
       <PayModal />
       <div

@@ -364,8 +364,9 @@ export default class PDF {
     deirection: CropType,
     exclude?: number[],
   ): Promise<ConvertFile[]> {
+    const { Core } = instance;
     const { prefix, suffix } = Tools.fileMsg(file);
-    const doc = await instance?.Core.createDocument(file as any as File, {
+    const doc = await Core.createDocument(file as any as File, {
       filename: prefix,
       extension: suffix,
     });
@@ -395,6 +396,40 @@ export default class PDF {
     doc.unloadResources();
     return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
+
+  // static async replaceText(
+  //   instance: WebViewerInstance,
+  //   file: UploadFile,
+  // ): Promise<ConvertFile[]> {
+  //   const { Core } = instance;
+  //   const main = async () => {
+  //     const { prefix } = Tools.fileMsg(file);
+  //     const frombuf = await Tools.file2Buf(file as any as File);
+  //     const doc = await Core.PDFNet.PDFDoc.createFromBuffer(frombuf);
+  //     const count = doc.getPageCount();
+  //     doc.initSecurityHandler();
+  //     doc.lock();
+  //     const replacer = await Core.PDFNet.ContentReplacer.create();
+  //     const page = await doc.getPage(1);
+  //     const region = await page.getMediaBox();
+  //     await replacer.addText(
+  //       region,
+  //       'The quick onyx goblin jumps over the lazy dwarf',
+  //     );
+  //     await replacer.process(page);
+
+  //     const docbuf = await doc.saveMemoryBuffer(
+  //       Core.PDFNet.SDFDoc.SaveOptions.e_remove_unused,
+  //     );
+  //     const blob = Tools.buf2Blob(docbuf);
+  //     const newFileName = `${prefix}-replacetext.pdf`;
+  //     const newfile = Tools.blob2File(docbuf, newFileName);
+
+  //     return { file: file, newfile, newFileName, newFileBlob: blob };
+  //   };
+  //   Core.PDFNet.runWithCleanup(main, LICENSE_KEY);
+  //   // return [{ file: file, newfile, newFileName, newFileBlob: blob }];
+  // }
 
   /**
    * 提取文字 支持多文件
