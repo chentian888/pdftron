@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Row, Col, Spin, Space, Tag, Typography } from 'antd';
+import { Row, Col, Spin } from 'antd';
 import WebViewer from '@pdftron/webviewer';
 import { useModel } from '@umijs/max';
 import { last } from 'lodash-es';
@@ -8,27 +8,27 @@ import Header from '@/components/Header';
 // import type { UploadProps } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 
-const { Title } = Typography;
+// const { Title } = Typography;
 const Editor: React.FC = () => {
   const viewer = useRef<HTMLDivElement>(null);
   const { fileList, resetList } = useModel('files');
   const [ready, setReady] = useState<boolean>(false);
   const [instance, setInstance] = useState<WebViewerInstance>();
 
-  const supportFile = [
-    '.pdf',
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.doc',
-    '.docx',
-    '.xls',
-    '.xlsx',
-    '.ppt',
-    '.pptx',
-    '.md',
-    '.xod',
-  ];
+  // const supportFile = [
+  //   '.pdf',
+  //   '.jpg',
+  //   '.jpeg',
+  //   '.png',
+  //   '.doc',
+  //   '.docx',
+  //   '.xls',
+  //   '.xlsx',
+  //   '.ppt',
+  //   '.pptx',
+  //   '.md',
+  //   '.xod',
+  // ];
 
   //   const uploadProps: UploadProps = {
   //     onRemove,
@@ -86,27 +86,9 @@ const Editor: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-gray-200">
       <Header block />
-      <div className="h-full px-4 border-t border-solid border-gray-100">
-        <Row className="h-full" gutter={20}>
-          <Col className="p-4 bg-white" span={5}>
-            <Space direction="vertical">
-              {/* <Title level={4}>上传文件</Title>
-              {fileList.length ? <span>{fileList[0].name}</span> : ''}
-              <Upload className="w-full" {...uploadProps}>
-                <Button type="primary" block size="large" loading={!ready}>
-                  选择文件
-                </Button>
-              </Upload> */}
-
-              <Title level={4}>支持文件格式</Title>
-              <Space size={[0, 8]} wrap>
-                {supportFile.map((t, index) => (
-                  <Tag key={index}>{t}</Tag>
-                ))}
-              </Space>
-            </Space>
-          </Col>
-          <Col className="py-2" span={19}>
+      <div className="h-full border-t border-solid border-gray-100">
+        <Row className="h-full">
+          <Col span={24}>
             {!ready ? (
               <Spin
                 className="absolute w-full h-full flex flex-col justify-center items-center"
