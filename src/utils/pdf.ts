@@ -402,32 +402,56 @@ export default class PDF {
   //   file: UploadFile,
   // ): Promise<ConvertFile[]> {
   //   const { Core } = instance;
+  //   const { PDFNet } = Core;
   //   const main = async () => {
-  //     const { prefix } = Tools.fileMsg(file);
-  //     const frombuf = await Tools.file2Buf(file as any as File);
-  //     const doc = await Core.PDFNet.PDFDoc.createFromBuffer(frombuf);
-  //     const count = doc.getPageCount();
-  //     doc.initSecurityHandler();
-  //     doc.lock();
-  //     const replacer = await Core.PDFNet.ContentReplacer.create();
-  //     const page = await doc.getPage(1);
-  //     const region = await page.getMediaBox();
-  //     await replacer.addText(
-  //       region,
-  //       'The quick onyx goblin jumps over the lazy dwarf',
-  //     );
-  //     await replacer.process(page);
+  //     try {
+  //       const buf = await Tools.file2Buf(file);
+  //       const doc = await PDFNet.PDFDoc.createFromBuffer(buf);
+  //       doc.initSecurityHandler();
+  //       doc.lock();
 
-  //     const docbuf = await doc.saveMemoryBuffer(
-  //       Core.PDFNet.SDFDoc.SaveOptions.e_remove_unused,
-  //     );
-  //     const blob = Tools.buf2Blob(docbuf);
-  //     const newFileName = `${prefix}-replacetext.pdf`;
-  //     const newfile = Tools.blob2File(docbuf, newFileName);
+  //       const txtSearch = await PDFNet.TextSearch.create();
+  //       let mode =
+  //         PDFNet.TextSearch.Mode.e_whole_word +
+  //         PDFNet.TextSearch.Mode.e_page_stop; // Uses both whole word and page stop
+  //       let pattern = '1234';
 
-  //     return { file: file, newfile, newFileName, newFileBlob: blob };
+  //       txtSearch.begin(doc, pattern, mode); // searches for the "pattern" in the document while following the inputted modes.
+
+  //       let step = 0;
+
+  //       // call Run() iteratively to find all matching instances of the word 'joHn sMiTh'
+  //       /* eslint-disable-next-line no-constant-condition */
+  //       while (true) {
+  //         const result = await txtSearch.run();
+  //         // console.log(result);
+
+  //         if (result.code === PDFNet.TextSearch.ResultCode.e_found) {
+  //           // Step 0: found "John Smith"
+  //           // note that, here, 'ambient_str' and 'highlights' are not written to,
+  //           // as 'e_ambient_string' and 'e_highlight' are not set.
+  //           const res = await result.highlights.getCurrentQuads()//https://docs.apryse.com/api/web/Core.Math.Quad.html
+  //           console.log(await result.highlights.getCurrentQuads())
+  //           // https://docs.apryse.com/documentation/web/guides/extraction/text-position/
+  //           // const replacer = await PDFNet.ContentReplacer.create();
+  //           // await replacer.addText(region, 'The quick onyx goblin jumps over the lazy dwarf');
+  //           // await replacer.process(page);
+
+  //           console.log(result);
+  //           console.log(result.out_str + "'s credit card number is: ");
+  //         } else if (result.code === PDFNet.TextSearch.ResultCode.e_page) {
+  //           // you can update your UI here, if needed
+  //           console.log('page end');
+  //         } else if (result.code === PDFNet.TextSearch.ResultCode.e_done) {
+  //           break;
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
   //   };
-  //   Core.PDFNet.runWithCleanup(main, LICENSE_KEY);
+  //   // add your own license key as the second parameter, e.g. PDFNet.runWithCleanup(main, 'YOUR_LICENSE_KEY')
+  //   PDFNet.runWithCleanup(main, LICENSE_KEY);
   //   // return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   // }
 

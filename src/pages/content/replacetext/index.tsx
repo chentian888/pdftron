@@ -71,6 +71,7 @@ const ContentRemoveText: React.FC = () => {
   const handleReplace = async () => {
     setLoading(true);
     // const res = [];
+    // await PDF.replaceText(instance, fileList[0]);
     // await PDF.downloadZip(res);
     // setConvertList(res);
     setLoading(false);
