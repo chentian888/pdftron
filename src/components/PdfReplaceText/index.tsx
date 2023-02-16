@@ -1,5 +1,10 @@
 import React from 'react';
-import { Input, Button, Row, Col } from 'antd';
+import { Input, Button, Space, Form, Row, Col } from 'antd';
+import {
+  MinusCircleOutlined,
+  PlusOutlined,
+  PlusCircleOutlined,
+} from '@ant-design/icons';
 import { useModel } from '@umijs/max';
 import Tools from '@/utils/tools';
 import { UploadFile } from 'antd/es/upload/interface';
@@ -11,7 +16,7 @@ interface Props {
 }
 
 const PdfReplaceText: React.FC<Props> = (props) => {
-  const { file, remove, loading } = props;
+  const { file, loading } = props;
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
 
   // 预览
@@ -24,6 +29,10 @@ const PdfReplaceText: React.FC<Props> = (props) => {
       filename: prefix,
       extension: suffix,
     });
+  };
+
+  const onFinish = (values: any) => {
+    console.log('Received values of form:', values);
   };
 
   return (
@@ -46,40 +55,150 @@ const PdfReplaceText: React.FC<Props> = (props) => {
         </div>
       </div>
       <div className="w-6/12 z-10 relative m-auto">
-        <Row className="mb-5" justify="center" align="middle">
-          <Col span={11}>
-            <Input size="large" placeholder="输入需要修改的文字" />
-          </Col>
-          <Col span={2}>
-            <div className="text-center">替换</div>
-          </Col>
-          <Col span={11}>
-            <Input size="large" placeholder="输入需要修改的文字" />
-          </Col>
-        </Row>
-        <Row className="mb-5" justify="center" align="middle">
-          <Col span={11}>
-            <Input size="large" placeholder="输入需要修改的文字" />
-          </Col>
-          <Col span={2}>
-            <div className=" text-center">替换</div>
-          </Col>
-          <Col span={11}>
-            <Input size="large" placeholder="输入需要修改的文字" />
-          </Col>
-        </Row>
-      </div>
-      <div className="w-2/6 z-10 relative m-auto">
-        <Button
-          block
-          size="large"
-          type="primary"
-          loading={loading}
-          onClick={remove}
+        <Form
+          name="dynamic_form_nest_item"
+          onFinish={onFinish}
+          autoComplete="off"
         >
-          一键替换
-        </Button>
-        <div className=" text-blue-400"></div>
+          <Form.List name="users">
+            {(fields, { add, remove }) => (
+              <>
+                <Row justify="start" align="middle">
+                  <Col span={9}>
+                    <Form.Item
+                      name={['users', 'key']}
+                      rules={[
+                        { required: true, message: 'Missing first name' },
+                      ]}
+                    >
+                      <Input size="large" placeholder="输入需要修改的文字" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={3}>
+                    <div className="text-center">替换</div>
+                  </Col>
+                  <Col span={9}>
+                    <Form.Item
+                      name={['users', 'value']}
+                      rules={[{ required: true, message: 'Missing last name' }]}
+                    >
+                      <Input size="large" placeholder="输入需要修改的文字" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row justify="start" align="middle">
+                  <Col span={9}>
+                    <Form.Item
+                      name={['users', 'key']}
+                      rules={[
+                        { required: true, message: 'Missing first name' },
+                      ]}
+                    >
+                      <Input size="large" placeholder="输入需要修改的文字" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={3}>
+                    <div className="text-center">替换</div>
+                  </Col>
+                  <Col span={9}>
+                    <Form.Item
+                      name={['users', 'value']}
+                      rules={[{ required: true, message: 'Missing last name' }]}
+                    >
+                      <Input size="large" placeholder="输入需要修改的文字" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={3} className="flex justify-center">
+                    <Space>
+                      <PlusCircleOutlined
+                        style={{ fontSize: '20px' }}
+                        onClick={() => add()}
+                      />
+                      <MinusCircleOutlined
+                        style={{ fontSize: '20px' }}
+                        onClick={() => remove(name)}
+                      />
+                    </Space>
+                  </Col>
+                </Row>
+
+                {fields.map(({ key, name, ...restField }) => {
+                  console.log(name);
+                  console.log(restField);
+                  return (
+                    <Row key={key} justify="center" align="middle">
+                      <Col span={9}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'first']}
+                          rules={[
+                            { required: true, message: 'Missing first name' },
+                          ]}
+                        >
+                          <Input
+                            size="large"
+                            placeholder="输入需要修改的文字"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={3}>
+                        <div className="text-center">替换</div>
+                      </Col>
+                      <Col span={9}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'last']}
+                          rules={[
+                            { required: true, message: 'Missing last name' },
+                          ]}
+                        >
+                          <Input
+                            size="large"
+                            placeholder="输入需要修改的文字"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={3} className="flex justify-center">
+                        <Space>
+                          <PlusCircleOutlined
+                            style={{ fontSize: '20px' }}
+                            onClick={() => add()}
+                          />
+                          <MinusCircleOutlined
+                            style={{ fontSize: '20px' }}
+                            onClick={() => remove(name)}
+                          />
+                        </Space>
+                      </Col>
+                    </Row>
+                  );
+                })}
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Add sights
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+
+          <div className="w-2/3 z-10 relative m-auto">
+            <Button
+              block
+              size="large"
+              type="primary"
+              loading={loading}
+              htmlType="submit"
+            >
+              一键替换
+            </Button>
+          </div>
+        </Form>
       </div>
     </>
   );
