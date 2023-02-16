@@ -18,11 +18,11 @@ const ContentRemoveText: React.FC = () => {
     onRemove,
     beforeUpload,
     convertList,
-    // setConvertList,
+    setConvertList,
     resetList,
   } = useModel('files');
   const {
-    // instance,
+    instance,
     showWebviewer,
     setShowWebviewer,
     ready,
@@ -70,10 +70,9 @@ const ContentRemoveText: React.FC = () => {
   // 文字替换
   const handleReplace = async () => {
     setLoading(true);
-    // const res = [];
-    // await PDF.replaceText(instance, fileList[0]);
-    // await PDF.downloadZip(res);
-    // setConvertList(res);
+    const res = await PDF.replaceText(instance!, fileList[0]);
+    await PDF.downloadZip(res);
+    setConvertList(res);
     setLoading(false);
     setSuccess(true);
   };

@@ -397,63 +397,58 @@ export default class PDF {
     return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 
-  // static async replaceText(
-  //   instance: WebViewerInstance,
-  //   file: UploadFile,
-  // ): Promise<ConvertFile[]> {
-  //   const { Core } = instance;
-  //   const { PDFNet } = Core;
-  //   const main = async () => {
-  //     try {
-  //       const buf = await Tools.file2Buf(file);
-  //       const doc = await PDFNet.PDFDoc.createFromBuffer(buf);
-  //       doc.initSecurityHandler();
-  //       doc.lock();
+  static async replaceText(
+    instance: WebViewerInstance,
+    file: UploadFile,
+  ): Promise<ConvertFile[]> {
+    const { Core } = instance;
+    const { PDFNet } = Core;
+    async function main(): Promise<ConvertFile[]> {
+      const { prefix } = await Tools.fileMsg(file);
+      const buf = await Tools.file2Buf(file as any as File);
+      const doc = await PDFNet.PDFDoc.createFromBuffer(buf);
+      const count = await doc.getPageCount();
+      // 逐页处理
+      for (let i = 1; i <= count; i++) {
+        const page = await doc.getPage(i);
+        const txt = await PDFNet.TextExtractor.create();
+        const rect = await page.getCropBox();
+        txt.begin(page, rect); // Read the page.
+        // Extract words one by one.
+        let line = await txt.getFirstLine();
+        let word;
 
-  //       const txtSearch = await PDFNet.TextSearch.create();
-  //       let mode =
-  //         PDFNet.TextSearch.Mode.e_whole_word +
-  //         PDFNet.TextSearch.Mode.e_page_stop; // Uses both whole word and page stop
-  //       let pattern = '1234';
+        // 遍历行
+        for (; await line.isValid(); line = await line.getNextLine()) {
+          for (
+            word = await line.getFirstWord();
+            await word.isValid();
+            word = await word.getNextWord()
+          ) {
+            const searchTerm = '无';
+            let text = await word.getString();
+            const rect = await word.getBBox();
+            if (text.indexOf(searchTerm) > -1) {
+              text = text.replaceAll(searchTerm, '擦擦擦');
+              console.log(text);
+              const replacer = await PDFNet.ContentReplacer.create();
+              await replacer.addText(rect, text);
+              await replacer.process(page);
+            }
+          }
+        }
+      }
 
-  //       txtSearch.begin(doc, pattern, mode); // searches for the "pattern" in the document while following the inputted modes.
-
-  //       let step = 0;
-
-  //       // call Run() iteratively to find all matching instances of the word 'joHn sMiTh'
-  //       /* eslint-disable-next-line no-constant-condition */
-  //       while (true) {
-  //         const result = await txtSearch.run();
-  //         // console.log(result);
-
-  //         if (result.code === PDFNet.TextSearch.ResultCode.e_found) {
-  //           // Step 0: found "John Smith"
-  //           // note that, here, 'ambient_str' and 'highlights' are not written to,
-  //           // as 'e_ambient_string' and 'e_highlight' are not set.
-  //           const res = await result.highlights.getCurrentQuads()//https://docs.apryse.com/api/web/Core.Math.Quad.html
-  //           console.log(await result.highlights.getCurrentQuads())
-  //           // https://docs.apryse.com/documentation/web/guides/extraction/text-position/
-  //           // const replacer = await PDFNet.ContentReplacer.create();
-  //           // await replacer.addText(region, 'The quick onyx goblin jumps over the lazy dwarf');
-  //           // await replacer.process(page);
-
-  //           console.log(result);
-  //           console.log(result.out_str + "'s credit card number is: ");
-  //         } else if (result.code === PDFNet.TextSearch.ResultCode.e_page) {
-  //           // you can update your UI here, if needed
-  //           console.log('page end');
-  //         } else if (result.code === PDFNet.TextSearch.ResultCode.e_done) {
-  //           break;
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   };
-  //   // add your own license key as the second parameter, e.g. PDFNet.runWithCleanup(main, 'YOUR_LICENSE_KEY')
-  //   PDFNet.runWithCleanup(main, LICENSE_KEY);
-  //   // return [{ file: file, newfile, newFileName, newFileBlob: blob }];
-  // }
+      const docbuf = await doc.saveMemoryBuffer(
+        PDFNet.SDFDoc.SaveOptions.e_remove_unused,
+      );
+      const blob = await Tools.buf2Blob(docbuf);
+      const newFileName = `${prefix}-replacetext.pdf`;
+      const newfile = Tools.blob2File(docbuf, newFileName);
+      return [{ file: file, newfile, newFileName, newFileBlob: blob }];
+    }
+    return await PDFNet.runWithCleanup(main, LICENSE_KEY);
+  }
 
   /**
    * 提取文字 支持多文件
