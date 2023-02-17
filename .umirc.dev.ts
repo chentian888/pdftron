@@ -8,4 +8,10 @@ export default defineConfig({
     BROWSER_FILE: 'https://www.pdfinto.com/file/',
     API_URL: 'https://www.pdfinto.com/',
   },
+  proxy: {
+    '/api': {
+      target: 'https://www.pdfinto.com',
+      changeOrigin: true,
+    },
+  },
 });

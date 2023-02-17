@@ -156,11 +156,5 @@ export default defineConfig({
   },
 
   npmClient: 'pnpm',
-  proxy: {
-    '/api': {
-      target: 'https://www.pdfinto.com',
-      changeOrigin: true,
-    },
-  },
   tailwindcss: {},
 });
