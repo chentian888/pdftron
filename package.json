@@ -7,6 +7,7 @@
     "format": "prettier --cache --write .",
     "postinstall": "max setup && node tools/copy-webviewer-files.js",
     "prepare": "husky install",
+    "preview": "max preview",
     "setup": "max setup",
     "start": "npm run dev"
   },
