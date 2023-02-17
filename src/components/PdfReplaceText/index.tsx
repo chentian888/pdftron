@@ -60,13 +60,13 @@ const PdfReplaceText: React.FC<Props> = (props) => {
           onFinish={onFinish}
           autoComplete="off"
         >
-          <Form.List name="users">
-            {(fields, { add, remove }) => (
+          <Form.List name="aa">
+            {() => (
               <>
                 <Row justify="start" align="middle">
                   <Col span={9}>
                     <Form.Item
-                      name={['users', 'key']}
+                      name={[0, 'key']}
                       rules={[
                         { required: true, message: 'Missing first name' },
                       ]}
@@ -79,58 +79,27 @@ const PdfReplaceText: React.FC<Props> = (props) => {
                   </Col>
                   <Col span={9}>
                     <Form.Item
-                      name={['users', 'value']}
+                      name={[0, 'value']}
                       rules={[{ required: true, message: 'Missing last name' }]}
                     >
                       <Input size="large" placeholder="输入需要修改的文字" />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Row justify="start" align="middle">
-                  <Col span={9}>
-                    <Form.Item
-                      name={['users', 'key']}
-                      rules={[
-                        { required: true, message: 'Missing first name' },
-                      ]}
-                    >
-                      <Input size="large" placeholder="输入需要修改的文字" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={3}>
-                    <div className="text-center">替换</div>
-                  </Col>
-                  <Col span={9}>
-                    <Form.Item
-                      name={['users', 'value']}
-                      rules={[{ required: true, message: 'Missing last name' }]}
-                    >
-                      <Input size="large" placeholder="输入需要修改的文字" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={3} className="flex justify-center">
-                    <Space>
-                      <PlusCircleOutlined
-                        style={{ fontSize: '20px' }}
-                        onClick={() => add()}
-                      />
-                      <MinusCircleOutlined
-                        style={{ fontSize: '20px' }}
-                        onClick={() => remove(name)}
-                      />
-                    </Space>
-                  </Col>
-                </Row>
-
+              </>
+            )}
+          </Form.List>
+          <Form.List name="users">
+            {(fields, { add, remove }) => (
+              <>
                 {fields.map(({ key, name, ...restField }) => {
-                  console.log(name);
-                  console.log(restField);
+                  console.log(key, name, restField);
                   return (
                     <Row key={key} justify="center" align="middle">
                       <Col span={9}>
                         <Form.Item
                           {...restField}
-                          name={[name, 'first']}
+                          name={[name, 'key']}
                           rules={[
                             { required: true, message: 'Missing first name' },
                           ]}
@@ -147,7 +116,7 @@ const PdfReplaceText: React.FC<Props> = (props) => {
                       <Col span={9}>
                         <Form.Item
                           {...restField}
-                          name={[name, 'last']}
+                          name={[name, 'value']}
                           rules={[
                             { required: true, message: 'Missing last name' },
                           ]}
@@ -174,14 +143,16 @@ const PdfReplaceText: React.FC<Props> = (props) => {
                   );
                 })}
                 <Form.Item>
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                  >
-                    Add sights
-                  </Button>
+                  <div className="w-2/3 z-10 relative m-auto">
+                    <Button
+                      size="large"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      添加更多替换
+                    </Button>
+                  </div>
                 </Form.Item>
               </>
             )}
