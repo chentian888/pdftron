@@ -11,7 +11,8 @@ interface Props {
 
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
-  const { setShowLoginModal, setShowVipModal, userInfo } = useModel('user');
+  const { initialState } = useModel('@@initialState');
+  const { setShowLoginModal, setShowVipModal } = useModel('user');
 
   return (
     <div className={`h-[101px]  ${block ? 'bg-white' : ''}`}>
@@ -42,7 +43,7 @@ const Header: React.FC<Props> = (props) => {
           >
             购买
           </div>
-          {userInfo?.id ? (
+          {initialState?.id ? (
             <Avatar
               style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}
               size="large"

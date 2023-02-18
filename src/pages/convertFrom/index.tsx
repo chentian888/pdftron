@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel, useParams } from '@umijs/max';
-// import WebViewer from '@pdftron/webviewer';
-// import { last, split, nth } from 'lodash-es';
-// import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
-// import PdfDeEncrypt from '@/components/PdfDeEncrypt';
-// import PdfReplaceText from '@/components/PdfReplaceText';
-// import PdfCrop from '@/components/PdfCrop';
+import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
 
@@ -16,7 +11,6 @@ const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  // const [success, setSuccess] = useState<boolean>(false);
   const {
     fileList,
     success,
@@ -150,20 +144,22 @@ const ConvertFrom: React.FC = () => {
 
   // 转换
   const convert = async () => {
-    setLoading(true);
-    let arr = [];
-    // 转blob
-    if (from === 'image') {
-      arr = await PDF.image2pdf(instance!, checkFileList);
-    } else {
-      arr = await PDF.office2pdf(instance!, fileList);
-    }
+    try {
+      setLoading(true);
+      let arr = [];
+      // 转blob
+      if (from === 'image') {
+        arr = await PDF.image2pdf(instance!, checkFileList);
+      } else {
+        arr = await PDF.office2pdf(instance!, fileList);
+      }
 
-    // 下载
-    await PDF.downloadZip(arr);
-    setConvertList(arr);
-    setLoading(false);
-    setSuccess(true);
+      // 下载
+      await PDF.downloadZip(arr);
+      setConvertList(arr);
+      setLoading(false);
+      setSuccess(true);
+    } catch (error) {}
   };
 
   // 内容区域
@@ -220,16 +216,18 @@ const ConvertFrom: React.FC = () => {
       );
     } else if (fileList.length) {
       action = (
-        <Button
-          type="primary"
-          size="large"
-          block
-          disabled={convertBtnDisabled}
-          loading={loading}
-          onClick={convert}
-        >
-          转换
-        </Button>
+        <PermissionBtn text="转换">
+          <Button
+            type="primary"
+            size="large"
+            block
+            disabled={convertBtnDisabled}
+            loading={loading}
+            onClick={convert}
+          >
+            转换
+          </Button>
+        </PermissionBtn>
       );
     }
     return (
@@ -258,12 +256,6 @@ const ConvertFrom: React.FC = () => {
       {renderInitContent()}
       {renderInitFile()}
       {renderConvertFile()}
-
-      {/* <Col span={24}>
-          <PdfDeEncrypt />
-          <PdfReplaceText />
-          <PdfCrop />
-        </Col> */}
       {renderAction()}
       <Modal
         className="webviewer-modal"

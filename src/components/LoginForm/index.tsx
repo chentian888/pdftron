@@ -12,7 +12,7 @@ const LoginForm: React.FC = () => {
     labelCol: { span: 0 },
     wrapperCol: { span: 24 },
   };
-  const toLogin = (values: any) => {
+  const toLogin = () => {
     form.validateFields().then(async (values) => {
       setLoading(true);
       const { userName, password } = values;
@@ -22,7 +22,6 @@ const LoginForm: React.FC = () => {
       setLoading(false);
       setShowLoginModal(false);
     });
-    console.log('Success:', values);
   };
 
   return (

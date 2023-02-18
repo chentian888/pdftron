@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel, useParams } from '@umijs/max';
-// import { last, split, nth } from 'lodash-es';
-// import Title from '@/components/Title';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
-// import PdfDeEncrypt from '@/components/PdfDeEncrypt';
-// import PdfReplaceText from '@/components/PdfReplaceText';
-// import PdfCrop from '@/components/PdfCrop';
+import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
 
@@ -218,15 +214,17 @@ const ConvertFrom: React.FC = () => {
       );
     } else if (fileList.length) {
       action = (
-        <Button
-          type="primary"
-          size="large"
-          block
-          loading={loading}
-          onClick={() => convert()}
-        >
-          转换
-        </Button>
+        <PermissionBtn text="转换">
+          <Button
+            type="primary"
+            size="large"
+            block
+            loading={loading}
+            onClick={() => convert()}
+          >
+            转换
+          </Button>
+        </PermissionBtn>
       );
     }
     return (
