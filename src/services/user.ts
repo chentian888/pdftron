@@ -5,7 +5,7 @@ export async function login(
   body: API.LoginParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse>('/api/user/login', {
+  return request<API.HttpResponse<API.LoginRes>>('/api/user/login', {
     method: 'POST',
     data: body,
     ...(options || {}),
@@ -17,7 +17,7 @@ export async function register(
   body: API.RegisterParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse>('/api/user/register', {
+  return request<API.HttpResponse<API.RegisterParams>>('/api/user/register', {
     method: 'POST',
     data: body,
     ...(options || {}),
@@ -41,7 +41,7 @@ export async function sendEmailCode(
   params: API.SendEmailParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse>('/api/user/sendEmailCode', {
+  return request<API.HttpResponse<null>>('/api/user/sendEmailCode', {
     method: 'GET',
     params: {
       ...params,
@@ -55,7 +55,7 @@ export async function getUserInfo(
   params = {},
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse>('/api/user/getUserInfo', {
+  return request<API.HttpResponse<API.UserVipInfo>>('/api/user/getUserInfo', {
     method: 'GET',
     params: {
       ...params,
@@ -77,7 +77,7 @@ export async function vipList(params = {}, options?: { [key: string]: any }) {
 
 // paypal支付
 export async function paypal(id: number, options?: { [key: string]: any }) {
-  return request<API.HttpResponse<string>>(`/api/paypal/pay/${id}`, {
+  return request<API.HttpResponse<API.PayPayRes>>(`/api/paypal/pay/${id}`, {
     method: 'POST',
     ...(options || {}),
   });

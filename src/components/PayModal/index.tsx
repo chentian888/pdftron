@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Col, Row, Radio, Button } from 'antd';
 import { useModel } from '@umijs/max';
-import { CloseCircleOutlined } from '@ant-design/icons';
+import { CheckSquareTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd';
+
+import { vipList, paypal, alipay } from '@/services/user';
 
 import './index.less';
 
 const LoginModal: React.FC = () => {
-  const { showVipModal, setShowVipModal } = useModel('user');
-  const [value, setValue] = useState(1);
+  const { showVipModal, setShowVipModal, getUserVipInfo } = useModel('user');
+  const [value, setValue] = useState<number>();
+  const [vips, setVips] = useState<API.VipRes[]>([]);
+  const [price, setPrice] = useState<API.VipRes>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleOk = () => {
     setShowVipModal(false);
@@ -23,24 +28,68 @@ const LoginModal: React.FC = () => {
     setValue(e.target.value);
   };
 
-  const vips = [
-    { month: '3个月', price: '99.9', oldPrice: '199.9' },
-    { month: '6个月', price: '99.9', oldPrice: '199.9' },
-    { month: '9个月', price: '99.9', oldPrice: '199.9' },
-    { month: '12个月', price: '99.9', oldPrice: '199.9' },
-  ];
+  // 选择商品
+  const checkPrice = (ele: API.VipRes) => {
+    console.log(ele);
+    setPrice(ele);
+  };
+
+  // 商品列表
+  const getVipList = async () => {
+    const { data = [] } = await vipList();
+    setVips(data);
+  };
+
+  useEffect(() => {
+    if (showVipModal) {
+      getVipList();
+    }
+  }, [showVipModal]);
+
+  // 去支付
+  const toPay = async () => {
+    setLoading(true);
+    if (value === 1) {
+      const { data } = await alipay(price!.id);
+      window.open(data);
+    } else {
+      const { data } = await paypal(price!.id);
+      window.open(data.approve);
+    }
+    setLoading(false);
+    handleCancel();
+    Modal.confirm({
+      title: '支付结果',
+      icon: <CheckSquareTwoTone />,
+      content: '您是否已经完成了支付',
+      okText: '我已经完成支付',
+      cancelText: '支付遇到了问题',
+      async onOk() {
+        await getUserVipInfo();
+      },
+    });
+  };
 
   // 套餐类型
   const renderVip = () => {
-    return vips.map((ele, index) => {
-      return (
-        <div className="vip-item" key={index}>
-          <div className="month">{ele.month}</div>
-          <div className="price">￥{ele.price}</div>
-          <div className="old-price">￥{ele.oldPrice}</div>
-        </div>
-      );
-    });
+    return (
+      vips.length &&
+      vips.map((ele) => {
+        return (
+          <div
+            className={`vip-item cursor-pointer border border-solid  ${
+              ele.id === price?.id ? 'border-purple-600' : 'border-gray-200'
+            }`}
+            key={ele.id}
+            onClick={() => checkPrice(ele)}
+          >
+            <div className="month">{ele.describes}</div>
+            <div className="price">￥{ele.totalPrice}</div>
+            <div className="old-price">￥{ele.originalPrice}</div>
+          </div>
+        );
+      })
+    );
   };
 
   const pays = [
@@ -94,7 +143,15 @@ const LoginModal: React.FC = () => {
             <div className="pay-list">
               <div className="pay-card-title">支付方式选择</div>
               {renderPays()}
-              <Button className="pay-btn" type="primary" block size="large">
+              <Button
+                className="pay-btn"
+                type="primary"
+                block
+                disabled={!price?.id || !value}
+                loading={loading}
+                size="large"
+                onClick={toPay}
+              >
                 立即支付
               </Button>
             </div>

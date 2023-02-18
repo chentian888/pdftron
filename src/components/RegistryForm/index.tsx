@@ -1,39 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { useModel } from '@umijs/max';
 import useCountDown from '@/hooks/useCountDown';
 
-import { sendEmailCode, register } from '@/services/user';
+import { sendEmailCode } from '@/services/user';
 import './index.less';
 
 const RegistryForm: React.FC = () => {
   const [form] = Form.useForm();
-  const { setShowLoginModal } = useModel('user');
+  const { userRegister, setShowLoginModal } = useModel('user');
+  const [loading, setLoading] = useState<boolean>(false);
+
   const { start, count, sendable } = useCountDown();
   const layout = {
     labelCol: { span: 0 },
     wrapperCol: { span: 24 },
   };
 
-  const regsitry = (values: any) => {
+  const regsitry = () => {
     form.validateFields().then(async (values) => {
+      setLoading(true);
       const { email, password, code } = values;
-      await register({
+      await userRegister({
         userName: email,
-        nickName: email,
         password: password,
         code: code,
       });
+      form.resetFields();
+      setLoading(false);
       setShowLoginModal(false);
     });
-    console.log('Success:', values);
   };
 
   const sendCode = () => {
     if (sendable) {
-      start();
       form.validateFields(['email']).then(async (values) => {
-        await sendEmailCode({ email: values.email, subject: '测试注册验证码' });
+        start();
+        await sendEmailCode({ email: values.email });
         message.success('验证码发送成功');
       });
     }
@@ -47,10 +50,22 @@ const RegistryForm: React.FC = () => {
       name="control-hooks"
       onFinish={regsitry}
     >
-      <Form.Item name="email">
+      <Form.Item
+        name="email"
+        rules={[
+          { required: true, message: '请输入邮箱' },
+          { type: 'email', message: '请输入正确邮箱' },
+        ]}
+      >
         <Input placeholder="请输入邮箱" />
       </Form.Item>
-      <Form.Item name="code">
+      <Form.Item
+        name="code"
+        rules={[
+          { required: true, message: '请输入邮箱验证码' },
+          { min: 6, max: 6, message: '邮箱验证码由6位数字组成' },
+        ]}
+      >
         <Input
           placeholder="请输入邮箱验证码"
           suffix={
@@ -59,6 +74,7 @@ const RegistryForm: React.FC = () => {
               size="large"
               type="primary"
               disabled={!sendable}
+              loading={loading}
               onClick={sendCode}
             >
               {sendable ? '发送验证码' : count + 's后发送'}
@@ -66,11 +82,31 @@ const RegistryForm: React.FC = () => {
           }
         ></Input>
       </Form.Item>
-      <Form.Item name="password">
-        <Input placeholder="请输入密码" />
+      <Form.Item
+        name="password"
+        rules={[
+          { required: true, message: '请输入密码' },
+          { min: 6, max: 12, message: '密码最短6位最长12位' },
+        ]}
+      >
+        <Input type="password" placeholder="请输入密码" />
       </Form.Item>
-      <Form.Item name="password2">
-        <Input placeholder="请再次输入密码" />
+      <Form.Item
+        name="password2"
+        dependencies={['password']}
+        rules={[
+          { required: true, message: '请确认密码' },
+          ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (!value || getFieldValue('password') === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject(new Error('两次输入密码不一致'));
+            },
+          }),
+        ]}
+      >
+        <Input type="password" placeholder="请再次输入密码" />
       </Form.Item>
       <Form.Item>
         <Button type="primary" size="large" block htmlType="submit">

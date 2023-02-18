@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Input } from 'antd';
 import { useModel } from '@umijs/max';
-
-import { login } from '@/services/user';
 import './index.less';
 
 const LoginForm: React.FC = () => {
   const [form] = Form.useForm();
-  const { setShowLoginModal } = useModel('user');
+  const { userLogin, setShowLoginModal } = useModel('user');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const layout = {
     labelCol: { span: 0 },
@@ -15,8 +14,12 @@ const LoginForm: React.FC = () => {
   };
   const toLogin = (values: any) => {
     form.validateFields().then(async (values) => {
+      setLoading(true);
       const { userName, password } = values;
-      await login({ userName, password });
+      const data = await userLogin({ userName, password });
+      console.log(data);
+      form.resetFields();
+      setLoading(false);
       setShowLoginModal(false);
     });
     console.log('Success:', values);
@@ -30,7 +33,13 @@ const LoginForm: React.FC = () => {
       name="control-hooks"
       onFinish={toLogin}
     >
-      <Form.Item name="userName">
+      <Form.Item
+        name="userName"
+        rules={[
+          { required: true, message: '请输入邮箱' },
+          { type: 'email', message: '请输入正确邮箱' },
+        ]}
+      >
         <Input
           placeholder="请输入登录邮箱"
           prefix={
@@ -44,7 +53,13 @@ const LoginForm: React.FC = () => {
           }
         />
       </Form.Item>
-      <Form.Item name="password">
+      <Form.Item
+        name="password"
+        rules={[
+          { required: true, message: '请输入密码' },
+          { min: 6, max: 12, message: '密码最短6位最长12位' },
+        ]}
+      >
         <Input
           placeholder="请输入登录密码"
           prefix={
@@ -59,7 +74,13 @@ const LoginForm: React.FC = () => {
         />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" size="large" block htmlType="submit">
+        <Button
+          type="primary"
+          size="large"
+          block
+          loading={loading}
+          htmlType="submit"
+        >
           登录
         </Button>
       </Form.Item>

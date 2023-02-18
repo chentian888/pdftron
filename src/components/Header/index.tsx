@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import { Link, useModel } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
@@ -10,7 +11,7 @@ interface Props {
 
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
-  const { setShowLoginModal, setShowVipModal } = useModel('user');
+  const { setShowLoginModal, setShowVipModal, userInfo } = useModel('user');
 
   return (
     <div className={`h-[101px]  ${block ? 'bg-white' : ''}`}>
@@ -41,10 +42,17 @@ const Header: React.FC<Props> = (props) => {
           >
             购买
           </div>
-
-          <Button type="primary" onClick={() => setShowLoginModal(true)}>
-            登录/注册
-          </Button>
+          {userInfo?.id ? (
+            <Avatar
+              style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}
+              size="large"
+              icon={<UserOutlined />}
+            ></Avatar>
+          ) : (
+            <Button type="primary" onClick={() => setShowLoginModal(true)}>
+              登录/注册
+            </Button>
+          )}
         </div>
       </div>
     </div>

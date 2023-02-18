@@ -9,13 +9,53 @@ declare namespace API {
     userName: string;
     password: string;
   }
-  // interface LoginRes {}
+
+  interface UserInfo {
+    id: number;
+    userName: string;
+    nickName: null;
+    password: string;
+    status: string;
+    vip: string;
+    email: null;
+    phone: null;
+    sex: null;
+    avatar: null;
+    userType: string;
+    createBy: number;
+    createTime: string;
+    updateBy: number;
+    updateTime: string;
+    openid: null;
+    delFlag: number;
+  }
+  interface LoginRes {
+    user: UserInfo;
+    permissions: null;
+    loginDate: string;
+    authorities: null;
+    enabled: boolean;
+    accountNonExpired: boolean;
+    accountNonLocked: boolean;
+    credentialsNonExpired: boolean;
+    password: string;
+    username: string;
+  }
+
+  interface UserVipInfo {
+    userId: null;
+    vipName: string;
+    expirationTime: string;
+    createTime: string;
+    updateTime: string;
+    vip: boolean;
+  }
 
   interface RegisterParams {
     code: string;
     password: string;
     userName: string;
-    nickName: string;
+    nickName?: string;
     phone?: string;
     avatar?: string;
     openid?: string;
@@ -31,11 +71,9 @@ declare namespace API {
 
   interface SendEmailParams {
     email: string;
-    subject: string;
+    subject?: string;
   }
   // interface SendEmailRes {}
-
-  // interface UserInfoRes {}
 
   // interface VipParams {}
   interface VipRes {
@@ -50,17 +88,12 @@ declare namespace API {
     sortNumber: number;
   }
 
-  type UserGenderEnum = 'MALE' | 'FEMALE';
-
-  interface UserInfo {
-    id?: string;
-    name?: string;
-    /** nick */
-    nickName?: string;
-    /** email */
-    email?: string;
-    gender?: UserGenderEnum;
+  interface PayPayRes {
+    approve: string;
+    paymentId: string;
   }
+
+  type UserGenderEnum = 'MALE' | 'FEMALE';
 
   interface UploadFileParams {
     file: File;
