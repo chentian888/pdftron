@@ -68,9 +68,9 @@ const ContentRemoveText: React.FC = () => {
   }, []);
 
   // 文字替换
-  const handleReplace = async () => {
+  const handleReplace = async (replaceList: ReplaceTextListType[]) => {
     setLoading(true);
-    const res = await PDF.replaceText(instance!, fileList[0]);
+    const res = await PDF.replaceText(instance!, fileList[0], replaceList);
     await PDF.downloadZip(res);
     setConvertList(res);
     setLoading(false);

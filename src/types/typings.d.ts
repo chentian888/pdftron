@@ -18,4 +18,6 @@ declare global {
   };
 
   type CropType = 'vertical' | 'horizontal' | null;
+
+  type ReplaceTextListType = { from: string; to: string };
 }

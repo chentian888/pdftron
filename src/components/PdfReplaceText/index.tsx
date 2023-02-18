@@ -1,22 +1,19 @@
 import React from 'react';
-import { Input, Button, Space, Form, Row, Col } from 'antd';
-import {
-  MinusCircleOutlined,
-  PlusOutlined,
-  PlusCircleOutlined,
-} from '@ant-design/icons';
+import { Input, Button, Form, Row, Col } from 'antd';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
+import { get, concat, map, trim } from 'lodash-es';
 import Tools from '@/utils/tools';
 import { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
   file: UploadFile;
   loading: boolean;
-  remove: () => Promise<void>;
+  remove: (target: ReplaceTextListType[]) => Promise<void>;
 }
 
 const PdfReplaceText: React.FC<Props> = (props) => {
-  const { file, loading } = props;
+  const { file, loading, remove } = props;
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
 
   // 预览
@@ -32,7 +29,11 @@ const PdfReplaceText: React.FC<Props> = (props) => {
   };
 
   const onFinish = (values: any) => {
-    console.log('Received values of form:', values);
+    const arr1 = get(values, 'replaceArr1');
+    const arr2 = get(values, 'replaceArr2');
+    let removeList = concat(arr1, arr2);
+    removeList = map(removeList, (str) => trim(str));
+    remove(removeList);
   };
 
   return (
@@ -55,32 +56,30 @@ const PdfReplaceText: React.FC<Props> = (props) => {
         </div>
       </div>
       <div className="w-6/12 z-10 relative m-auto">
-        <Form
-          name="dynamic_form_nest_item"
-          onFinish={onFinish}
-          autoComplete="off"
-        >
-          <Form.List name="aa">
+        <Form name="replace" onFinish={onFinish} autoComplete="off">
+          <Form.List name="replaceArr1">
             {() => (
               <>
-                <Row justify="start" align="middle">
+                <Row justify="start">
                   <Col span={9}>
                     <Form.Item
-                      name={[0, 'key']}
+                      name={[0, 'from']}
                       rules={[
-                        { required: true, message: 'Missing first name' },
+                        { required: true, message: '输入需要修改的文字' },
                       ]}
                     >
                       <Input size="large" placeholder="输入需要修改的文字" />
                     </Form.Item>
                   </Col>
                   <Col span={3}>
-                    <div className="text-center">替换</div>
+                    <div className="text-center my-2">替换</div>
                   </Col>
                   <Col span={9}>
                     <Form.Item
-                      name={[0, 'value']}
-                      rules={[{ required: true, message: 'Missing last name' }]}
+                      name={[0, 'to']}
+                      rules={[
+                        { required: true, message: '输入需要修改的文字' },
+                      ]}
                     >
                       <Input size="large" placeholder="输入需要修改的文字" />
                     </Form.Item>
@@ -89,19 +88,19 @@ const PdfReplaceText: React.FC<Props> = (props) => {
               </>
             )}
           </Form.List>
-          <Form.List name="users">
+          <Form.List name="replaceArr2">
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => {
                   console.log(key, name, restField);
                   return (
-                    <Row key={key} justify="center" align="middle">
+                    <Row key={key} justify="center">
                       <Col span={9}>
                         <Form.Item
                           {...restField}
-                          name={[name, 'key']}
+                          name={[name, 'from']}
                           rules={[
-                            { required: true, message: 'Missing first name' },
+                            { required: true, message: '输入需要修改的文字' },
                           ]}
                         >
                           <Input
@@ -111,14 +110,14 @@ const PdfReplaceText: React.FC<Props> = (props) => {
                         </Form.Item>
                       </Col>
                       <Col span={3}>
-                        <div className="text-center">替换</div>
+                        <div className="text-center my-2">替换</div>
                       </Col>
                       <Col span={9}>
                         <Form.Item
                           {...restField}
-                          name={[name, 'value']}
+                          name={[name, 'to']}
                           rules={[
-                            { required: true, message: 'Missing last name' },
+                            { required: true, message: '输入需要修改的文字' },
                           ]}
                         >
                           <Input
@@ -127,17 +126,12 @@ const PdfReplaceText: React.FC<Props> = (props) => {
                           />
                         </Form.Item>
                       </Col>
-                      <Col span={3} className="flex justify-center">
-                        <Space>
-                          <PlusCircleOutlined
-                            style={{ fontSize: '20px' }}
-                            onClick={() => add()}
-                          />
-                          <MinusCircleOutlined
-                            style={{ fontSize: '20px' }}
-                            onClick={() => remove(name)}
-                          />
-                        </Space>
+                      <Col span={3}>
+                        <MinusCircleOutlined
+                          className="m-3"
+                          style={{ fontSize: '20px' }}
+                          onClick={() => remove(name)}
+                        />
                       </Col>
                     </Row>
                   );

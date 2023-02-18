@@ -400,6 +400,7 @@ export default class PDF {
   static async replaceText(
     instance: WebViewerInstance,
     file: UploadFile,
+    replaceList: ReplaceTextListType[],
   ): Promise<ConvertFile[]> {
     const { Core } = instance;
     const { PDFNet } = Core;
@@ -425,16 +426,21 @@ export default class PDF {
             await word.isValid();
             word = await word.getNextWord()
           ) {
-            const searchTerm = '无';
             let text = await word.getString();
             const rect = await word.getBBox();
-            if (text.indexOf(searchTerm) > -1) {
-              text = text.replaceAll(searchTerm, '擦擦擦');
-              console.log(text);
-              const replacer = await PDFNet.ContentReplacer.create();
-              await replacer.addText(rect, text);
-              await replacer.process(page);
+            // 对需要替换的列表进行遍历
+            for (let i = 0; i < replaceList.length; i++) {
+              const searchTerm: ReplaceTextListType = replaceList[i];
+              const from = searchTerm.from;
+              const to = searchTerm.to;
+              if (text.indexOf(from) > -1) {
+                text = text.replaceAll(from, to);
+                console.log(text);
+              }
             }
+            const replacer = await PDFNet.ContentReplacer.create();
+            await replacer.addText(rect, text);
+            await replacer.process(page);
           }
         }
       }
