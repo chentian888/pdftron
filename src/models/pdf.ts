@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { Modal } from 'antd';
 import WebViewer from '@pdftron/webviewer';
+import PDF from '@/utils/pdf';
 import type { WebViewerInstance } from '@pdftron/webviewer';
+import type { UploadFile } from 'antd/es/upload/interface';
 
 export default () => {
   const [instance, setInstance] = useState<WebViewerInstance>();
@@ -29,6 +32,27 @@ export default () => {
     await instance.Core.PDFNet.initialize();
     setReady(true);
   };
+
+  const validateFile = async (file: UploadFile) => {
+    console.log(file);
+    const password = await PDF.hasPassword(instance!, file);
+    if (password) {
+      Modal.warning({
+        title: '无效文档',
+        content: '文档不能加密',
+      });
+      return Promise.reject('文档不能加密');
+    }
+    const blank = await PDF.isBlank(instance!, file);
+    if (blank) {
+      Modal.warning({
+        title: '无效文档',
+        content: '文档不能为空',
+      });
+      return Promise.reject('文档不能为空');
+    }
+    return Promise.resolve();
+  };
   return {
     instance,
     setInstance,
@@ -39,5 +63,6 @@ export default () => {
     ready,
     setReady,
     initWebViewer,
+    validateFile,
   };
 };

@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useModel } from '@umijs/max';
 import type { UploadFile } from 'antd/es/upload/interface';
 // import type { ConvertFile } from '@/types/typings';
 
 export default () => {
+  const { validateFile } = useModel('pdf');
   // 选择的文件列表
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
@@ -32,8 +34,11 @@ export default () => {
   }
 
   async function beforeUpload(file: UploadFile, files: UploadFile[]) {
-    setFileList([...fileList, ...files]);
-    console.log(fileList);
+    try {
+      await validateFile(file);
+      setFileList([...fileList, ...files]);
+      console.log(fileList);
+    } catch (e) {}
     return false;
   }
 

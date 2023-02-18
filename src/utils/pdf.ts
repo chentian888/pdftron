@@ -813,21 +813,48 @@ export default class PDF {
     return [{ file, newfile, newFileName, newFileBlob: blob }];
   }
 
+  /**
+   * 判断文档是否有密码
+   * @param instance
+   * @param file
+   * @returns
+   */
   static async hasPassword(instance: WebViewerInstance, file: UploadFile) {
     const { Core } = instance;
     // return new Pormise()
     const main = async (): Promise<boolean> => {
       const buf = await Tools.file2Buf(file as any as File);
       const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-      const success = await doc.initSecurityHandler();
-      return success;
+      return await doc.isEncrypted();
     };
-    const pass: boolean = await Core.PDFNet.runWithCleanup(
+    const isEncrypted: boolean = await Core.PDFNet.runWithCleanup(
       await main,
       LICENSE_KEY,
     );
-    return !pass;
+    return isEncrypted;
   }
+
+  /**
+   * 判断文档是否为空
+   * @param instance
+   * @param file
+   * @returns
+   */
+  static async isBlank(instance: WebViewerInstance, file: UploadFile) {
+    const { Core } = instance;
+    // return new Pormise()
+    const main = async (): Promise<boolean> => {
+      const buf = await Tools.file2Buf(file as any as File);
+      const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      return !(await doc.getPageCount()) || true;
+    };
+    const isBlank: boolean = await Core.PDFNet.runWithCleanup(
+      await main,
+      LICENSE_KEY,
+    );
+    return isBlank;
+  }
+
   static async correctPassword(
     instance: WebViewerInstance,
     file: UploadFile,
