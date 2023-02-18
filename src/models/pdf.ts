@@ -34,23 +34,25 @@ export default () => {
   };
 
   const validateFile = async (file: UploadFile) => {
-    console.log(file);
+    console.log(await PDF.hasPassword(instance!, file));
     const password = await PDF.hasPassword(instance!, file);
     if (password) {
       Modal.warning({
         title: '无效文档',
-        content: '文档不能加密',
+        content: `${file.name}不能加密`,
       });
       return Promise.reject('文档不能加密');
     }
-    const blank = await PDF.isBlank(instance!, file);
-    if (blank) {
-      Modal.warning({
-        title: '无效文档',
-        content: '文档不能为空',
-      });
-      return Promise.reject('文档不能为空');
-    }
+    // const blank = await PDF.isBlank(instance!, file);
+    // console.log('blank=====', blank);
+    // if (blank) {
+    //   Modal.warning({
+    //     title: '无效文档',
+    //     content: '文档不能为空',
+    //   });
+    //   return Promise.reject('文档不能为空');
+    // }
+    // console.log('file=====', file);
     return Promise.resolve();
   };
   return {

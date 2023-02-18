@@ -821,7 +821,6 @@ export default class PDF {
    */
   static async hasPassword(instance: WebViewerInstance, file: UploadFile) {
     const { Core } = instance;
-    // return new Pormise()
     const main = async (): Promise<boolean> => {
       const buf = await Tools.file2Buf(file as any as File);
       const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
@@ -846,7 +845,8 @@ export default class PDF {
     const main = async (): Promise<boolean> => {
       const buf = await Tools.file2Buf(file as any as File);
       const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-      return !(await doc.getPageCount()) || true;
+      console.log(await doc.getPageCount());
+      return !(await doc.getPageCount());
     };
     const isBlank: boolean = await Core.PDFNet.runWithCleanup(
       await main,
