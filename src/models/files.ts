@@ -42,6 +42,13 @@ export default () => {
     return false;
   }
 
+  // PDF加密模块专用，不用校验文件有效性
+  async function beforeUploadNoValidate(file: UploadFile, files: UploadFile[]) {
+    setFileList([...fileList, ...files]);
+    console.log(fileList);
+    return false;
+  }
+
   // 清除文件列联表
   function clearFileList() {
     setFileList([]);
@@ -95,6 +102,7 @@ export default () => {
     onRemove,
     onReplace,
     beforeUpload,
+    beforeUploadNoValidate,
     clearFileList,
     checkFileList,
     checkFile,

@@ -19,7 +19,7 @@ const Security: React.FC = () => {
     success,
     setSuccess,
     onRemove,
-    beforeUpload,
+    beforeUploadNoValidate,
     convertList,
     setConvertList,
     resetList,
@@ -45,7 +45,7 @@ const Security: React.FC = () => {
 
   const props: UploadProps = {
     onRemove,
-    beforeUpload,
+    beforeUpload: beforeUploadNoValidate,
     fileList,
     accept: baseData.accept,
     showUploadList: false,
