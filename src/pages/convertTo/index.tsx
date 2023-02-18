@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 // import { last, split, nth } from 'lodash-es';
 // import Title from '@/components/Title';
@@ -238,7 +238,13 @@ const ConvertFrom: React.FC = () => {
 
   return (
     <>
-      {/* <Title title="转为PDF" /> */}
+      {loading && (
+        <Spin
+          size="large"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center"
+        ></Spin>
+      )}
+
       <Dragger
         disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"

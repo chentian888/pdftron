@@ -242,7 +242,13 @@ const ConvertFrom: React.FC = () => {
   return (
     <>
       {/* <Title title="转为PDF" /> */}
-      <Spin size="large"></Spin>
+      {loading && (
+        <Spin
+          size="large"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center"
+        ></Spin>
+      )}
+
       <Dragger
         disabled={!ready}
         className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
