@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useModel } from '@umijs/max';
+import Cache from '@/utils/cache';
 import { login, register, getUserInfo } from '@/services/user';
 
 export default () => {
@@ -10,10 +11,13 @@ export default () => {
 
   // 登录
   const userLogin = async (params: API.LoginParams) => {
-    const { data } = await login(params);
-    console.log(data);
-    // setUserInfo(data.user);
-    setInitialState(data.user);
+    const { data, headers } = await login(params, {
+      getResponse: true,
+    });
+    const token = headers.authorization || '';
+    Cache.setCookieToken(token);
+    Cache.setCookieUserInfo(data?.data.user);
+    setInitialState(data.data.user);
     return data;
   };
 

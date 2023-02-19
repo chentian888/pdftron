@@ -96,11 +96,20 @@ declare namespace API {
   type UserGenderEnum = 'MALE' | 'FEMALE';
 
   interface UploadFileParams {
-    file: File;
+    files: File;
+  }
+
+  interface UploadFileRes {
+    fileId: string;
   }
 
   interface ConvertOfficeParams {
-    id: number;
-    convertType: 1 | 2 | 3;
+    fileId: string;
+    convertType: '1' | '2' | '3';
+  }
+
+  interface ConvertOfficeRes {
+    state: number;
+    convertedPaths: string[];
   }
 }

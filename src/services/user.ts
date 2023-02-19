@@ -1,15 +1,18 @@
-import { request } from '@umijs/max';
-
+import { request, AxiosResponse } from '@umijs/max';
+import Cache from '@/utils/cache';
 // 登录
 export async function login(
   body: API.LoginParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse<API.LoginRes>>('/api/user/login', {
-    method: 'POST',
-    data: body,
-    ...(options || {}),
-  });
+  return request<AxiosResponse<API.HttpResponse<API.LoginRes>>>(
+    '/api/user/login',
+    {
+      method: 'POST',
+      data: body,
+      ...(options || {}),
+    },
+  );
 }
 
 // 注册
@@ -61,6 +64,7 @@ export async function getUserInfo(
       ...params,
     },
     ...(options || {}),
+    headers: { token: Cache.getCookieToken() as string },
   });
 }
 
@@ -80,6 +84,7 @@ export async function paypal(id: number, options?: { [key: string]: any }) {
   return request<API.HttpResponse<API.PayPayRes>>(`/api/paypal/pay/${id}`, {
     method: 'POST',
     ...(options || {}),
+    headers: { token: Cache.getCookieToken() as string },
   });
 }
 
@@ -88,6 +93,7 @@ export async function alipay(id: number, options?: { [key: string]: any }) {
   return request<API.HttpResponse<string>>(`/api/alipay/pay/${id}`, {
     method: 'POST',
     ...(options || {}),
+    headers: { token: Cache.getCookieToken() as string },
   });
 }
 
@@ -96,11 +102,15 @@ export async function uploadFile(
   body: API.UploadFileParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse<string>>(`/api/common/multiUpload`, {
-    method: 'POST',
-    data: body,
-    ...(options || {}),
-  });
+  return request<API.HttpResponse<API.UploadFileRes>>(
+    `/api/common/multiUpload`,
+    {
+      method: 'POST',
+      data: body,
+      ...(options || {}),
+      headers: { token: Cache.getCookieToken() as string },
+    },
+  );
 }
 
 // pdf转word/xlsx/pptx
@@ -112,6 +122,7 @@ export async function pdf2Office(
     method: 'POST',
     data: body,
     ...(options || {}),
+    headers: { token: Cache.getCookieToken() as string },
   });
 }
 
@@ -120,9 +131,13 @@ export async function convertStatus(
   params: unknown,
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse<string>>(`/api/pdf/queryState`, {
-    method: 'GET',
-    params,
-    ...(options || {}),
-  });
+  return request<API.HttpResponse<API.ConvertOfficeRes>>(
+    `/api/pdf/queryState`,
+    {
+      method: 'GET',
+      params,
+      ...(options || {}),
+      headers: { token: Cache.getCookieToken() as string },
+    },
+  );
 }

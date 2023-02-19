@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Col, Row, Radio, Button } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, useAccess, Access } from '@umijs/max';
 import { CheckSquareTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd';
 
@@ -9,6 +9,7 @@ import { vipList, paypal, alipay } from '@/services/user';
 import './index.less';
 
 const LoginModal: React.FC = () => {
+  const access = useAccess();
   const { showVipModal, setShowVipModal, getUserVipInfo } = useModel('user');
   const [value, setValue] = useState<number>();
   const [vips, setVips] = useState<API.VipRes[]>([]);
@@ -143,17 +144,26 @@ const LoginModal: React.FC = () => {
             <div className="pay-list">
               <div className="pay-card-title">支付方式选择</div>
               {renderPays()}
-              <Button
-                className="pay-btn"
-                type="primary"
-                block
-                disabled={!price?.id || !value}
-                loading={loading}
-                size="large"
-                onClick={toPay}
+              <Access
+                accessible={!access.isVisitor}
+                fallback={
+                  <Button className="pay-btn" type="primary" block size="large">
+                    请登录
+                  </Button>
+                }
               >
-                立即支付
-              </Button>
+                <Button
+                  className="pay-btn"
+                  type="primary"
+                  block
+                  disabled={!price?.id || !value}
+                  loading={loading}
+                  size="large"
+                  onClick={toPay}
+                >
+                  立即支付
+                </Button>
+              </Access>
             </div>
             <div className="pay-tips">
               <div className="pay-card-title">温馨提示</div>

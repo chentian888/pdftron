@@ -8,7 +8,7 @@ const userInfo = {
 };
 
 const queryState = {
-  state: 1,
+  state: 0,
   convertedPaths: ['2023-02-17/1676647255760.docx'],
 };
 
@@ -19,7 +19,7 @@ const login = {
     nickName: null,
     password: '',
     status: '0',
-    vip: '0',
+    vip: '1',
     email: null,
     phone: null,
     sex: null,
@@ -131,7 +131,7 @@ export default {
     res.json({
       msg: '',
       data: 'https://openapi.alipay.com/gateway.do?alipay_sdk=alipay-sdk-java-dynamicVersionNo&app_id=2021003143624951&biz_content=%7B%22body%22%3A%22%E9%AB%98%E7%BA%A7%E4%BC%9A%E5%91%98%22%2C%22out_trade_no%22%3A%22c9c2e336cf3d4bd498dcf7828c6dc3d3%22%2C%22product_code%22%3A%22FAST_INSTANT_TRADE_PAY%22%2C%22subject%22%3A%22%E9%AB%98%E7%BA%A7%E4%BC%9A%E5%91%98%22%2C%22total_amount%22%3A%221.00%22%7D&charset=utf-8&format=json&method=alipay.trade.page.pay&notify_url=https%3A%2F%2Fpdfinto.com%2Fapi%2Falipay%2Fsuccess&return_url=https%3A%2F%2Fpdfinto.com%2F&sign=iz0bncjmy9owtgHfUhqnW3kgHSrOaaP1fmYQgYXasMxJahkxuaOgl%2Fd23%2F%2FMa%2B4SdmrYK01DZ0l%2FgmvJ0QmvvoGMzZvEI8OjmLprU34TULF3MOpP6O3y52SIxDPKI%2FcXNGpbx%2FgLh2nZzBUdz%2BXFY4LJoiARnyOMtahCrC%2BgZUE16sIlTFMtVHiX1kuW7yPFE1iiUKqtV50DCZHQ63afUInyTAJMGz2JWPdR6TnImZfN6hQM7VWv1kzt0ypJ%2B53ik%2BOmDcDyaquyL3COY7aVqzD9TZSLWmAKSHRgcYbHDPNZU1A14ucn%2F5Ql%2BNbN6JHALNRaDHiqV0EAuBxsYMuAbA%3D%3D&sign_type=RSA2&timestamp=2023-02-17+22%3A42%3A04&version=1.0',
-      code: 0,
+      code: 401,
     });
   },
   'POST /api/common/multiUpload': (req: any, res: any) => {

@@ -3,6 +3,8 @@ import type { UploadFile } from 'antd/es/upload/interface';
 
 declare global {
   const LICENSE_KEY: string;
+  const BROWSER_FILE: string;
+
   type ConvertFile = {
     file: UploadFile;
     newfile: File;

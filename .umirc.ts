@@ -32,12 +32,17 @@ export default defineConfig({
       ],
     },
     {
-      title: '转换为pdf',
+      title: 'pdf转换',
       path: '/convertTo',
       component: '@/layouts/ConvertLayout',
       routes: [
         {
-          title: '转换为pdf',
+          title: 'pdf转换',
+          path: 'office/:to',
+          component: './convertTo/office',
+        },
+        {
+          title: 'pdf转换',
           path: ':to',
           component: './convertTo',
         },

@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
-import { useModel, useParams } from '@umijs/max';
+import { useModel, useParams, useRequest } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
 import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
-import PDF from '@/utils/pdf';
+// import PDF from '@/utils/pdf';
+import { uploadFile, pdf2Office, convertStatus } from '@/services/user';
 
 const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [statusData, seStatusData] = useState<API.ConvertOfficeRes>();
   const {
     fileList,
     success,
@@ -18,11 +20,9 @@ const ConvertFrom: React.FC = () => {
     onRemove,
     beforeUpload,
     convertList,
-    setConvertList,
     resetList,
   } = useModel('files');
   const {
-    instance,
     showWebviewer,
     ready,
     setReady,
@@ -32,18 +32,40 @@ const ConvertFrom: React.FC = () => {
   } = useModel('pdf');
   const { to = 'word' } = useParams();
 
-  const fileType: Record<string, any> = {
-    image: {
-      accept: '.pdf',
-      multiple: true,
-      title: 'PDF转图片',
-      desc: 'PDF转图片（jpeg,png）',
+  const downloadAll = async () => {
+    window.open(BROWSER_FILE + statusData?.convertedPaths[0]);
+  };
+
+  const { run, cancel } = useRequest(convertStatus, {
+    manual: true,
+    pollingInterval: 5000,
+    onSuccess(data) {
+      if (data.state === 1) {
+        cancel();
+        seStatusData(data);
+        downloadAll();
+      }
     },
-    pdfa: {
+  });
+
+  const fileType: Record<string, any> = {
+    word: {
       accept: '.pdf',
-      multiple: true,
-      title: 'PDF转PDF/A',
-      desc: 'PDF转PDF/A',
+      convertType: '0',
+      title: 'PDF转Word',
+      desc: 'PDF转Word',
+    },
+    excel: {
+      accept: '.pdf',
+      convertType: '1',
+      title: 'PDF转Excel',
+      desc: 'PDF转Excel',
+    },
+    ppt: {
+      accept: '.pdf',
+      convertType: '2',
+      title: 'PDF转PPT',
+      desc: 'PDF转PPT',
     },
   };
 
@@ -61,6 +83,7 @@ const ConvertFrom: React.FC = () => {
 
   // 继续
   const going = () => {
+    seStatusData({} as API.ConvertOfficeRes);
     resetList();
   };
 
@@ -121,25 +144,23 @@ const ConvertFrom: React.FC = () => {
   // 转换
   const convert = async () => {
     setLoading(true);
-    // 转blob
-    let arr: ConvertFile[] = [];
-    if (to === 'image') {
-      // const buf = await PDF.file2Buf(lastFile as any as File);
-      arr = await PDF.pdf2image(instance!, fileList);
-    } else if (to === 'pdfa') {
-      arr = await PDF.pdf2pdfa(instance!, fileList);
-    }
+    try {
+      // 在线转换
+      const file = fileList[0];
+      const { data } = await uploadFile({ files: file as any as File });
+      await pdf2Office({
+        fileId: data.fileId,
+        convertType: baseData.convertType,
+      });
+      await run('');
+      console.log(statusData);
 
-    // 下载
-    await PDF.downloadZip(arr);
-    setConvertList(arr);
-    setLoading(false);
-    setSuccess(true);
-  };
-
-  const downloadAll = async () => {
-    console.log(convertList);
-    await PDF.downloadZip(convertList);
+      // 下载
+      // await PDF.downloadZip(arr);
+      // setConvertList(arr);
+      setLoading(false);
+      setSuccess(true);
+    } catch (e) {}
   };
 
   // 内容区域
@@ -185,7 +206,7 @@ const ConvertFrom: React.FC = () => {
       action = (
         <>
           <Button type="primary" size="large" block onClick={downloadAll}>
-            全部下载
+            下载
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
             继续
