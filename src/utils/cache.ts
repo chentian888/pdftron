@@ -5,7 +5,7 @@ export default class Cache {
    * @param msg
    * @returns
    */
-  static setCookieUserInfo(msg: API.UserInfo) {
+  static setCookieUserInfo(msg: Record<string, unknown>) {
     Cookies.set('userInfo', JSON.stringify(msg), { expires: 1 });
     return msg;
   }

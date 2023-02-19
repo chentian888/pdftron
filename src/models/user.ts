@@ -9,6 +9,14 @@ export default () => {
   const [showLogin, setShowLoginModal] = useState(false);
   const [showVipModal, setShowVipModal] = useState(false);
 
+  // 获取用户信息
+  const getUserVipInfo = async () => {
+    const { data } = await getUserInfo();
+    const isVip = data.vip ? '1' : '0';
+    console.log(data);
+    return isVip;
+  };
+
   // 登录
   const userLogin = async (params: API.LoginParams) => {
     const { data, headers } = await login(params, {
@@ -16,15 +24,10 @@ export default () => {
     });
     const token = headers.authorization || '';
     Cache.setCookieToken(token);
-    Cache.setCookieUserInfo(data?.data.user);
-    setInitialState(data.data.user);
+    const isVip = await getUserVipInfo();
+    Cache.setCookieUserInfo({ ...data?.data.user, vip: isVip });
+    setInitialState({ ...data.data.user, vip: isVip });
     return data;
-  };
-
-  // 获取用户信息
-  const getUserVipInfo = async () => {
-    const { data } = await getUserInfo();
-    console.log(data);
   };
 
   // 注册

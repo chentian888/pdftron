@@ -75,7 +75,7 @@ export default {
       code: 200,
     });
   },
-  'GET /api/user/getUserInfo': (req: any, res: any) => {
+  'GET /api/vip/getUserInfo': (req: any, res: any) => {
     res.json({
       msg: 'ok',
       data: userInfo,

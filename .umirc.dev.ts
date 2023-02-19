@@ -1,6 +1,7 @@
 import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
+  mock: false,
   define: {
     ENV: 'dev',
     LICENSE_KEY:

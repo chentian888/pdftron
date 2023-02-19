@@ -54,6 +54,9 @@ const Editor: React.FC = () => {
     await instance.Core.PDFNet.initialize();
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
     instance.UI.enableFeatures([instance.UI.Feature.MultiTab]);
+    instance.UI.addEventListener('tabAdded', (id, src, options) => {
+      console.log(id, src, options);
+    });
     setReady(true);
   };
 

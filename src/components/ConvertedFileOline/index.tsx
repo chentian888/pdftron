@@ -5,77 +5,67 @@ import {
   EyeOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
-import { useModel, useParams } from '@umijs/max';
+import { useModel } from '@umijs/max';
+import { last, split } from 'lodash-es';
 import LoadingThumbnail from '@/components/LoadingThumbnail';
-import PDF from '@/utils/pdf';
 import Tools from '@/utils/tools';
-import type { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
-  convert: ConvertFile;
-  index: number;
-  nonsupport?: boolean;
+  src: string;
 }
 
-const ConvertedFile: React.FC<Props> = (props) => {
-  // txt格式文件不支持
-  const { convert, nonsupport = false } = props;
-  const { removeConvertFile } = useModel('files');
+const ConvertedFileOline: React.FC<Props> = (props) => {
+  const { src } = props;
+  const url = `${BROWSER_FILE}${src}`;
+  const fileName = last(split(src, '/'));
+
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
-  const { to = '' } = useParams();
 
   const style = { fontSize: '19px', color: '#6478B3' };
 
   const computedThumb = async () => {
-    if (nonsupport) return;
     try {
-      let base64 = '';
-      if (to && to === 'image') {
-        // PDF转图片
-        base64 = await Tools.blob2Base64(convert.newfile);
-      } else {
-        const thumbnail = await PDF.genThumbnail(
-          instance!,
-          convert.newfile as any as UploadFile,
-        );
-        base64 = thumbnail[0].img;
-      }
-      setThumb(base64);
+      const doc = await instance?.Core.createDocument(url);
+      doc?.loadThumbnail(
+        1,
+        (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
+          let base64 = '';
+          (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
+          (thumbnail as HTMLImageElement).onload = function () {
+            base64 = Tools.getBase64Image(thumbnail as HTMLImageElement);
+          };
+          doc.unloadResources();
+          setThumb(base64);
+        },
+      );
     } catch (e) {
       console.log(e);
     }
   };
 
   useEffect(() => {
-    if (convert.newfile) {
+    if (src) {
       computedThumb();
     }
   }, []);
 
   // 移除
   const handleRemove = () => {
-    removeConvertFile(convert);
+    // removeConvertFile(convert);
   };
 
   // 预览
   const handlePreview = () => {
-    if (nonsupport) return;
     const { UI } = instance!;
-    const { prefix, suffix } = Tools.fileMsg(
-      convert.newfile as any as UploadFile,
-    );
     setShowWebviewer(true);
-    setWebviewerTtile(convert.newFileName);
-    UI.loadDocument(convert.newfile as any as File, {
-      filename: prefix,
-      extension: suffix,
-    });
+    setWebviewerTtile(fileName!);
+    UI.loadDocument(`${BROWSER_FILE}${src}`);
   };
 
   // 下载图片
-  const downloadImage = () => {
-    PDF.download(convert.newfile, convert.newFileName);
+  const downloadOffice = () => {
+    window.open(url);
   };
 
   return (
@@ -96,19 +86,17 @@ const ConvertedFile: React.FC<Props> = (props) => {
         </div>
         <div className="h-[86px]">
           <div className="text-gray-400 p-1 text-center overflow-hidden text-ellipsis whitespace-normal">
-            {convert.newFileName}
+            {fileName}
           </div>
         </div>
 
-        {!nonsupport && (
-          <Tooltip title="预览文件">
-            <EyeOutlined
-              style={style}
-              className="cursor-pointer absolute left-[15px] top-[8px]"
-              onClick={handlePreview}
-            />
-          </Tooltip>
-        )}
+        <Tooltip title="预览文件">
+          <EyeOutlined
+            style={style}
+            className="cursor-pointer absolute left-[15px] top-[8px]"
+            onClick={handlePreview}
+          />
+        </Tooltip>
 
         <Tooltip title="删除文件">
           <DeleteOutlined
@@ -122,7 +110,7 @@ const ConvertedFile: React.FC<Props> = (props) => {
           <DownloadOutlined
             style={style}
             className="cursor-pointer absolute right-[15px] bottom-[15px]"
-            onClick={downloadImage}
+            onClick={downloadOffice}
           />
         </Tooltip>
       </div>
@@ -130,4 +118,4 @@ const ConvertedFile: React.FC<Props> = (props) => {
   );
 };
 
-export default ConvertedFile;
+export default ConvertedFileOline;

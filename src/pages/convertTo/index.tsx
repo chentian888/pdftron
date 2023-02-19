@@ -219,7 +219,8 @@ const ConvertFrom: React.FC = () => {
       {loading && (
         <Spin
           size="large"
-          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center"
+          tip="文件转换中请耐心等待"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
         ></Spin>
       )}
 

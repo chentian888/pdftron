@@ -2,26 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel, useParams, useRequest } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
-import ConvertedFile from '@/components/ConvertedFile';
+import ConvertedFileOline from '@/components/ConvertedFileOline';
 import PermissionBtn from '@/components/PermissionBtn';
+import Cache from '@/utils/cache';
 import type { UploadProps } from 'antd/es/upload/interface';
 // import PDF from '@/utils/pdf';
-import { uploadFile, pdf2Office, convertStatus } from '@/services/user';
+import { uploadFile, pdf2Office } from '@/services/user';
 
 const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [statusData, seStatusData] = useState<API.ConvertOfficeRes>();
-  const {
-    fileList,
-    success,
-    setSuccess,
-    onRemove,
-    beforeUpload,
-    convertList,
-    resetList,
-  } = useModel('files');
+  const { fileList, success, setSuccess, onRemove, beforeUpload, resetList } =
+    useModel('files');
   const {
     showWebviewer,
     ready,
@@ -32,21 +25,30 @@ const ConvertFrom: React.FC = () => {
   } = useModel('pdf');
   const { to = 'word' } = useParams();
 
-  const downloadAll = async () => {
-    window.open(BROWSER_FILE + statusData?.convertedPaths[0]);
-  };
-
-  const { run, cancel } = useRequest(convertStatus, {
-    manual: true,
-    pollingInterval: 5000,
-    onSuccess(data) {
-      if (data.state === 1) {
-        cancel();
-        seStatusData(data);
-        downloadAll();
-      }
+  const { data, run, cancel } = useRequest(
+    {
+      url: `/api/pdf/queryState`,
+      method: 'GET',
+      headers: { token: Cache.getCookieToken() as string },
     },
-  });
+    {
+      manual: true,
+      pollingInterval: 5000,
+      async onSuccess(data) {
+        if (data.state === 1) {
+          cancel();
+          window.open(BROWSER_FILE + data?.convertedPaths[0]);
+          setLoading(false);
+          setSuccess(true);
+        }
+      },
+    },
+  );
+
+  const downloadAll = async () => {
+    console.log(data);
+    window.open(BROWSER_FILE + data?.convertedPaths[0]);
+  };
 
   const fileType: Record<string, any> = {
     word: {
@@ -83,7 +85,6 @@ const ConvertFrom: React.FC = () => {
 
   // 继续
   const going = () => {
-    seStatusData({} as API.ConvertOfficeRes);
     resetList();
   };
 
@@ -131,13 +132,16 @@ const ConvertFrom: React.FC = () => {
 
   // 转换为image列表
   const renderConvertFile = () => {
-    const list = convertList.map((file, index) => (
-      <Col span={4} key={index}>
-        <ConvertedFile convert={file} index={index} />
-      </Col>
-    ));
-    if (success) {
-      return <Row gutter={[16, 16]}>{list}</Row>;
+    if (success && data && data.convertedPaths) {
+      return (
+        <Row gutter={[16, 16]}>
+          {data.convertedPaths.map((url: string, index: number) => (
+            <Col span={4} key={index}>
+              <ConvertedFileOline src={url} />
+            </Col>
+          ))}
+        </Row>
+      );
     }
   };
 
@@ -152,14 +156,11 @@ const ConvertFrom: React.FC = () => {
         fileId: data.fileId,
         convertType: baseData.convertType,
       });
-      await run('');
-      console.log(statusData);
+      run('');
 
       // 下载
       // await PDF.downloadZip(arr);
       // setConvertList(arr);
-      setLoading(false);
-      setSuccess(true);
     } catch (e) {}
   };
 
@@ -240,7 +241,8 @@ const ConvertFrom: React.FC = () => {
       {loading && (
         <Spin
           size="large"
-          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center"
+          tip="文件转换中请耐心等待"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
         ></Spin>
       )}
 

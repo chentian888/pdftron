@@ -58,7 +58,7 @@ export async function getUserInfo(
   params = {},
   options?: { [key: string]: any },
 ) {
-  return request<API.HttpResponse<API.UserVipInfo>>('/api/user/getUserInfo', {
+  return request<API.HttpResponse<API.UserVipInfo>>('/api/vip/getUserInfo', {
     method: 'GET',
     params: {
       ...params,
@@ -108,7 +108,10 @@ export async function uploadFile(
       method: 'POST',
       data: body,
       ...(options || {}),
-      headers: { token: Cache.getCookieToken() as string },
+      headers: {
+        token: Cache.getCookieToken() as string,
+        'content-type': 'multipart/form-data',
+      },
     },
   );
 }
