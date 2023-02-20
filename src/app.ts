@@ -23,7 +23,7 @@ export function onRouteChange({ clientRoutes, location }) {
 }
 
 export const request: RequestConfig = {
-  timeout: 1000,
+  timeout: 1000 * 60 * 3,
   errorConfig: {
     errorHandler() {},
     errorThrower() {},
