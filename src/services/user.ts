@@ -110,7 +110,7 @@ export async function uploadFile(
       ...(options || {}),
       headers: {
         token: Cache.getCookieToken() as string,
-        'content-type': 'multipart/form-data',
+        'Content-Type': 'multipart/form-data',
       },
     },
   );
