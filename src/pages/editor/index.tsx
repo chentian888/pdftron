@@ -47,13 +47,16 @@ const Editor: React.FC = () => {
 
   const initWebViewer = async (mountDom: HTMLDivElement) => {
     const instance = await WebViewer(
-      { path: '/webviewer/lib', fullAPI: true, licenseKey: LICENSE_KEY },
+      { path: '/webviewer/lib', licenseKey: LICENSE_KEY },
       mountDom,
     );
     setInstance(instance);
     await instance.Core.PDFNet.initialize();
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
-    instance.UI.enableFeatures([instance.UI.Feature.MultiTab]);
+    instance.UI.enableFeatures([
+      instance.UI.Feature.MultiTab,
+      instance.UI.Feature.ContentEdit,
+    ]);
     instance.UI.addEventListener('tabAdded', (id, src, options) => {
       console.log(id, src, options);
     });
