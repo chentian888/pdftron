@@ -37,6 +37,7 @@ export const request: RequestConfig = {
         Modal.error({
           title: '登录失效',
           content: '用户信息失效请重新登录',
+          okText: '重新登录',
           onOk() {
             window.location.reload();
           },
