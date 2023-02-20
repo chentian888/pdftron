@@ -57,17 +57,17 @@ const ConvertFrom: React.FC = () => {
       title: 'PDF转Word',
       desc: 'PDF转Word',
     },
-    excel: {
-      accept: '.pdf',
-      convertType: '1',
-      title: 'PDF转Excel',
-      desc: 'PDF转Excel',
-    },
     ppt: {
       accept: '.pdf',
-      convertType: '2',
+      convertType: '1',
       title: 'PDF转PPT',
       desc: 'PDF转PPT',
+    },
+    excel: {
+      accept: '.pdf',
+      convertType: '2',
+      title: 'PDF转Excel',
+      desc: 'PDF转Excel',
     },
   };
 
@@ -85,6 +85,7 @@ const ConvertFrom: React.FC = () => {
 
   // 继续
   const going = () => {
+    // data.convertedPaths = [];
     resetList();
   };
 
@@ -137,7 +138,7 @@ const ConvertFrom: React.FC = () => {
         <Row gutter={[16, 16]}>
           {data.convertedPaths.map((url: string, index: number) => (
             <Col span={4} key={index}>
-              <ConvertedFileOline src={url} />
+              <ConvertedFileOline src={url} remove={going} />
             </Col>
           ))}
         </Row>

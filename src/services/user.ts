@@ -90,7 +90,7 @@ export async function paypal(id: number, options?: { [key: string]: any }) {
 
 // 支付宝支付
 export async function alipay(id: number, options?: { [key: string]: any }) {
-  return request<API.HttpResponse<string>>(`/api/alipay/pay/${id}`, {
+  return request<string>(`/api/alipay/pay/${id}`, {
     method: 'POST',
     ...(options || {}),
     headers: { token: Cache.getCookieToken() as string },

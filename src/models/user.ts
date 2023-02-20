@@ -19,15 +19,17 @@ export default () => {
 
   // 登录
   const userLogin = async (params: API.LoginParams) => {
-    const { data, headers } = await login(params, {
-      getResponse: true,
-    });
-    const token = headers.authorization || '';
-    Cache.setCookieToken(token);
-    const isVip = await getUserVipInfo();
-    Cache.setCookieUserInfo({ ...data?.data.user, vip: isVip });
-    setInitialState({ ...data.data.user, vip: isVip });
-    return data;
+    try {
+      const { data, headers } = await login(params, {
+        getResponse: true,
+      });
+      const token = headers.authorization || '';
+      Cache.setCookieToken(token);
+      const isVip = await getUserVipInfo();
+      Cache.setCookieUserInfo({ ...data?.data.user, vip: isVip });
+      setInitialState({ ...data.data.user, vip: isVip });
+      return data;
+    } catch (e) {}
   };
 
   // 注册

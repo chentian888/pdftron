@@ -12,10 +12,11 @@ import Tools from '@/utils/tools';
 
 interface Props {
   src: string;
+  remove: () => void;
 }
 
 const ConvertedFileOline: React.FC<Props> = (props) => {
-  const { src } = props;
+  const { src, remove } = props;
   const url = `${BROWSER_FILE}${src}`;
   const fileName = last(split(src, '/'));
 
@@ -52,7 +53,7 @@ const ConvertedFileOline: React.FC<Props> = (props) => {
 
   // 移除
   const handleRemove = () => {
-    // removeConvertFile(convert);
+    remove();
   };
 
   // 预览

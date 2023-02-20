@@ -41,8 +41,10 @@ export const request: RequestConfig = {
             window.location.reload();
           },
         });
+        throw new Error('登录失效');
       } else if (data.code >= 300) {
         message.error(data.msg);
+        throw new Error(data.msg);
       }
       return response;
     },

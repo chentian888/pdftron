@@ -172,7 +172,7 @@ const Home: React.FC = () => {
         desc: 'PDF替换图片',
         icon: 'icon-txt',
         className: 'justify-self-end',
-        to: '/content/imagereplace',
+        to: '/forbid',
       },
       {
         title: 'PDF提取文字',
@@ -186,7 +186,8 @@ const Home: React.FC = () => {
         desc: '提取PDF中的所有小图片',
         icon: 'icon-extra-image',
         className: 'justify-self-center',
-        to: '/extraction/image',
+        // to: '/extraction/image',
+        to: '/forbid',
       },
       {
         title: 'PDF删除文字数据',

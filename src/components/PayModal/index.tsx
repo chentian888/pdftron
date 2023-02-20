@@ -51,27 +51,30 @@ const LoginModal: React.FC = () => {
   // 去支付
   const toPay = async () => {
     setLoading(true);
-    if (value === 1) {
-      const { data } = await alipay(price!.id);
-      window.open(data);
-    } else {
-      const { data } = await paypal(price!.id);
-      window.open(data.approve);
-    }
-    setLoading(false);
-    handleCancel();
-    Modal.confirm({
-      title: '支付结果',
-      icon: <CheckSquareTwoTone />,
-      content: '您是否已经完成了支付',
-      okText: '我已经完成支付',
-      cancelText: '支付遇到了问题',
-      async onOk() {
-        const isVip = await getUserVipInfo();
-        Cache.setCookieUserInfo({ vip: isVip });
-        setInitialState({ ...initialState, vip: isVip });
-      },
-    });
+    try {
+      setLoading(true);
+      if (value === 1) {
+        const data = await alipay(price!.id);
+        window.open(data);
+      } else {
+        const { data } = await paypal(price!.id);
+        window.open(data.approve);
+      }
+      setLoading(false);
+      handleCancel();
+      Modal.confirm({
+        title: '支付结果',
+        icon: <CheckSquareTwoTone />,
+        content: '您是否已经完成了支付',
+        okText: '我已经完成支付',
+        cancelText: '支付遇到了问题',
+        async onOk() {
+          const isVip = await getUserVipInfo();
+          Cache.updateCookieUserInfo({ vip: isVip });
+          setInitialState({ ...initialState, vip: isVip });
+        },
+      });
+    } catch (e) {}
   };
 
   // 套餐类型

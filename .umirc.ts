@@ -153,6 +153,11 @@ export default defineConfig({
       path: '/register',
       component: './register',
     },
+    {
+      title: '禁止进入',
+      path: '/forbid',
+      component: './forbid',
+    },
   ],
 
   locale: {
