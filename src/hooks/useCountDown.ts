@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function useCountDown(initCount = 10, callBack = () => {}) {
+export default function useCountDown(initCount = 60, callBack = () => {}) {
   const timeId = useRef<{ id: number }>({ id: 0 });
   const [count, setCount] = useState(initCount);
   const [sendable, setSentable] = useState(true);

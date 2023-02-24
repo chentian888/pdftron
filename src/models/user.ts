@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useModel } from '@umijs/max';
 import Cache from '@/utils/cache';
-import { login, register, getUserInfo } from '@/services/user';
+import { login, register, getUserInfo, restPassword } from '@/services/user';
 
 export default () => {
   const { setInitialState } = useModel('@@initialState');
@@ -44,6 +44,16 @@ export default () => {
     return data;
   };
 
+  // 忘记密码
+  const userResetPassword = async (params: API.RegisterParams) => {
+    await restPassword(params);
+    const data = await userLogin({
+      userName: params.userName,
+      password: params.password,
+    });
+    return data;
+  };
+
   return {
     showLogin,
     setShowLoginModal,
@@ -52,5 +62,6 @@ export default () => {
     userLogin,
     getUserVipInfo,
     userRegister,
+    userResetPassword,
   };
 };

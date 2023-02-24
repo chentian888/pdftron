@@ -174,7 +174,7 @@ const LoginModal: React.FC = () => {
             <div className="pay-tips">
               <div className="pay-card-title">温馨提示</div>
               <div>
-                扫码支付成功后、系统将自动关闭该页面。如遇订单问题请联系客服QQ：347126478164178。感谢您的支持与信任。
+                扫码支付成功后、系统将自动关闭该页面。如遇订单问题请联系客服邮箱:912786297@qq.com。感谢您的支持与信任。
               </div>
             </div>
           </Col>

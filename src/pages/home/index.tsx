@@ -181,40 +181,40 @@ const Home: React.FC = () => {
         className: '',
         to: '/extraction/text',
       },
-      {
-        title: 'PDF提取图片',
-        desc: '提取PDF中的所有小图片',
-        icon: 'icon-extra-image',
-        className: 'justify-self-center',
-        // to: '/extraction/image',
-        to: '/forbid',
-      },
+      // {
+      //   title: 'PDF提取图片',
+      //   desc: '提取PDF中的所有小图片',
+      //   icon: 'icon-extra-image',
+      //   className: 'justify-self-center',
+      //   // to: '/extraction/image',
+      //   to: '/forbid',
+      // },
       {
         title: 'PDF删除文字数据',
         desc: '删除PDF中已选择的文字',
         icon: 'icon-remove-text',
-        className: 'justify-self-end',
+        className: 'justify-self-center',
         to: '/content/removetext',
       },
       {
         title: 'PDF删除图片数据',
         desc: '删除PDF中已选择的图片数据',
         icon: 'icon-remove-image',
-        className: '',
+        className: 'justify-self-end',
         to: '/content/removeimage',
       },
       {
         title: 'PDF压缩',
         desc: 'PDF压缩',
         icon: 'icon-compress',
-        className: 'justify-self-center',
+        className: '',
         to: '/compress',
       },
       {
         title: 'PDF加密解密',
         desc: 'PDF加密解密',
         icon: 'icon-lock',
-        className: 'justify-self-end',
+        className: 'justify-self-center',
         to: '/security',
       },
     ];
@@ -252,14 +252,14 @@ const Home: React.FC = () => {
   return (
     <div className="page" style={{ background: '#f1f3f8' }}>
       <Header />
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <img
           className="block max-w-full"
           src={require('./img/banner.png')}
           alt=""
         />
-      </div>
-      <div className="w-1200 m-auto rounded-3xl bg-white p-16 -mt-60 z-10 relative">
+      </div> */}
+      <div className="w-1200 m-auto rounded-3xl bg-white p-16 z-10 relative">
         <img
           className="max-w-full m-auto block"
           src={require('./img/feature.png')}

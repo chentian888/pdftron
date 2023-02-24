@@ -6,9 +6,15 @@ import useCountDown from '@/hooks/useCountDown';
 import { sendEmailCode } from '@/services/user';
 import './index.less';
 
-const RegistryForm: React.FC = () => {
+interface Props {
+  type?: string;
+}
+
+const RegistryForm: React.FC<Props> = (props) => {
+  const { type = '1' } = props;
   const [form] = Form.useForm();
-  const { userRegister, setShowLoginModal } = useModel('user');
+  const { userRegister, userResetPassword, setShowLoginModal } =
+    useModel('user');
   const [loading, setLoading] = useState<boolean>(false);
 
   const { start, count, sendable } = useCountDown();
@@ -20,15 +26,29 @@ const RegistryForm: React.FC = () => {
   const regsitry = () => {
     form.validateFields().then(async (values) => {
       setLoading(true);
-      const { email, password, code } = values;
-      await userRegister({
-        userName: email,
-        password: password,
-        code: code,
-      });
-      form.resetFields();
-      setLoading(false);
-      setShowLoginModal(false);
+      try {
+        const { email, password, code } = values;
+        if (type === '1') {
+          await userRegister({
+            userName: email,
+            password: password,
+            code: code,
+          });
+        } else {
+          await userResetPassword({
+            userName: email,
+            password: password,
+            code: code,
+          });
+        }
+
+        form.resetFields();
+
+        setShowLoginModal(false);
+      } catch (e) {
+      } finally {
+        setLoading(false);
+      }
     });
   };
 
@@ -74,7 +94,6 @@ const RegistryForm: React.FC = () => {
               size="large"
               type="primary"
               disabled={!sendable}
-              loading={loading}
               onClick={sendCode}
             >
               {sendable ? '发送验证码' : count + 's后发送'}
@@ -109,8 +128,14 @@ const RegistryForm: React.FC = () => {
         <Input type="password" placeholder="请再次输入密码" />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" size="large" block htmlType="submit">
-          注册账号
+        <Button
+          type="primary"
+          size="large"
+          block
+          loading={loading}
+          htmlType="submit"
+        >
+          {type === '1' ? '注册账号' : '重置密码'}
         </Button>
       </Form.Item>
     </Form>

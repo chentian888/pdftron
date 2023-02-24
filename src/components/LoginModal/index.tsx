@@ -10,6 +10,7 @@ import './index.less';
 const LoginModal: React.FC = () => {
   const { showLogin, setShowLoginModal } = useModel('user');
   const [formType, setFormType] = useState('1'); // 1-登录/2-注册
+  const [registryFormType, setRegistryFormType] = useState('1'); // 1-注册/2-重置密码
   const handleOk = () => {
     setShowLoginModal(false);
   };
@@ -21,7 +22,12 @@ const LoginModal: React.FC = () => {
   const showLoginForm = () => {
     setFormType('1');
   };
+
   const showRegistryForm = () => {
+    setFormType('2');
+  };
+  const showResetForm = () => {
+    setRegistryFormType('2');
     setFormType('2');
   };
 
@@ -38,9 +44,12 @@ const LoginModal: React.FC = () => {
           >
             去注册
           </div>
-          <Link className="no-underline text-black" to="/">
+          <div
+            onClick={showResetForm}
+            className="no-underline text-black cursor-pointer"
+          >
             忘记密码
-          </Link>
+          </div>
         </div>
         <div className="flex justify-center pt-10">
           注册表示同意
@@ -55,7 +64,7 @@ const LoginModal: React.FC = () => {
   const renderRegistryForm = () => {
     return (
       <>
-        <RegistryForm />
+        <RegistryForm type={registryFormType} />
         <div
           onClick={showLoginForm}
           className=" text-center text-black no-underline m-auto block cursor-pointer"

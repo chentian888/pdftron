@@ -88,7 +88,7 @@ const PageManipulation: React.FC = () => {
     ));
     if (!success && fileList.length) {
       return (
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           {list}
           {renderMoreFileButton()}
         </Row>

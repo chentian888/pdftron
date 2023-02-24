@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
 import {
-  DeleteOutlined,
+  // DeleteOutlined,
   EyeOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const ConvertedFileOline: React.FC<Props> = (props) => {
-  const { src, remove } = props;
+  const { src } = props;
   const url = `${BROWSER_FILE}${src}`;
   const fileName = last(split(src, '/'));
 
@@ -52,9 +52,9 @@ const ConvertedFileOline: React.FC<Props> = (props) => {
   }, []);
 
   // 移除
-  const handleRemove = () => {
-    remove();
-  };
+  // const handleRemove = () => {
+  //   remove();
+  // };
 
   // 预览
   const handlePreview = () => {
@@ -99,13 +99,13 @@ const ConvertedFileOline: React.FC<Props> = (props) => {
           />
         </Tooltip>
 
-        <Tooltip title="删除文件">
+        {/* <Tooltip title="删除文件">
           <DeleteOutlined
             style={style}
             className="cursor-pointer absolute left-[15px] bottom-[15px]"
             onClick={handleRemove}
           />
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip title="下载文件">
           <DownloadOutlined

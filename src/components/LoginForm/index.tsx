@@ -15,12 +15,16 @@ const LoginForm: React.FC = () => {
   const toLogin = () => {
     form.validateFields().then(async (values) => {
       setLoading(true);
-      const { userName, password } = values;
-      const data = await userLogin({ userName, password });
-      console.log(data);
-      form.resetFields();
-      setLoading(false);
-      setShowLoginModal(false);
+      try {
+        const { userName, password } = values;
+        const data = await userLogin({ userName, password });
+        console.log(data);
+        form.resetFields();
+        setLoading(false);
+        if (data) {
+          setShowLoginModal(false);
+        }
+      } catch (e) {}
     });
   };
 

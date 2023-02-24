@@ -122,7 +122,7 @@ const ConvertFrom: React.FC = () => {
     ));
     if (!success && fileList.length) {
       return (
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           {list}
           {renderMoreFileButton()}
         </Row>
@@ -138,7 +138,7 @@ const ConvertFrom: React.FC = () => {
       </Col>
     ));
     if (success) {
-      return <Row gutter={16}>{list}</Row>;
+      return <Row gutter={[16, 16]}>{list}</Row>;
     }
   };
 

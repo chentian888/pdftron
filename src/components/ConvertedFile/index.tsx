@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
 import {
-  DeleteOutlined,
+  // DeleteOutlined,
   EyeOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
@@ -20,7 +20,7 @@ interface Props {
 const ConvertedFile: React.FC<Props> = (props) => {
   // txt格式文件不支持
   const { convert, nonsupport = false } = props;
-  const { removeConvertFile } = useModel('files');
+  // const { removeConvertFile } = useModel('files');
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
   const { to = '' } = useParams();
@@ -54,9 +54,9 @@ const ConvertedFile: React.FC<Props> = (props) => {
   }, []);
 
   // 移除
-  const handleRemove = () => {
-    removeConvertFile(convert);
-  };
+  // const handleRemove = () => {
+  //   removeConvertFile(convert);
+  // };
 
   // 预览
   const handlePreview = () => {
@@ -110,13 +110,13 @@ const ConvertedFile: React.FC<Props> = (props) => {
           </Tooltip>
         )}
 
-        <Tooltip title="删除文件">
+        {/* <Tooltip title="删除文件">
           <DeleteOutlined
             style={style}
             className="cursor-pointer absolute left-[15px] bottom-[15px]"
             onClick={handleRemove}
           />
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip title="下载文件">
           <DownloadOutlined
