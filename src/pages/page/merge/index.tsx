@@ -12,6 +12,7 @@ const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -59,9 +60,11 @@ const PageManipulation: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: 'PDF合并' }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

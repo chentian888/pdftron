@@ -13,7 +13,7 @@ const Security: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [hasPassword, setHasPassword] = useState<boolean>(false);
-
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -61,9 +61,11 @@ const Security: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: 'PDF加解密' }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

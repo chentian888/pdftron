@@ -15,7 +15,7 @@ const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
   const [extractNo, setExtractNo] = useState<number[]>([]);
-
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -65,6 +65,7 @@ const PageManipulation: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   // 勾选文件
@@ -80,6 +81,7 @@ const PageManipulation: React.FC = () => {
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: 'PDF拆分1' }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

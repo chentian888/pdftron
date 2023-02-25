@@ -13,7 +13,7 @@ const ContentRemoveText: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
   const [extractNo, setExtractNo] = useState<number[]>([]);
-
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -61,9 +61,11 @@ const ContentRemoveText: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: 'PDF删除文字数据' }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

@@ -10,6 +10,7 @@ const { Dragger } = Upload;
 
 const ExtractText: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -56,9 +57,11 @@ const ExtractText: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: '提取文字' }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

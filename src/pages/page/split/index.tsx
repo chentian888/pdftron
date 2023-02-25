@@ -15,7 +15,7 @@ const { Dragger } = Upload;
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
-
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -64,6 +64,7 @@ const PageManipulation: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
@@ -79,6 +80,7 @@ const PageManipulation: React.FC = () => {
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: 'PDF分割' }]);
     if (fileList.length) {
       initThumb();
     }

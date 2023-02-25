@@ -66,7 +66,7 @@ const Header: React.FC<Props> = (props) => {
               return (
                 <Breadcrumb.Item key={index}>
                   {b.link ? (
-                    <a href={b.link}>{b.title}</a>
+                    <Link to={b.link}>{b.title}</Link>
                   ) : (
                     <span>{b.title}</span>
                   )}

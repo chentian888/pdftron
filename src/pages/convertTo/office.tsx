@@ -13,6 +13,7 @@ const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const { setBread } = useModel('global');
   const { fileList, success, setSuccess, onRemove, beforeUpload, resetList } =
     useModel('files');
   const {
@@ -93,9 +94,11 @@ const ConvertFrom: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: baseData.title }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }
