@@ -111,17 +111,19 @@ const LoginModal: React.FC = () => {
         {pays.map((ele, index) => {
           return (
             <div className="pay-item" key={index}>
-              <div className="text text-lg">
-                <img
-                  className={ele.icon}
-                  src={require(`./img/${ele.icon}.png`)}
-                  alt=""
-                />
-                {ele.text}
-              </div>
-              <div className="radio">
-                <Radio value={ele.value}></Radio>
-              </div>
+              <Radio
+                className="w-full flex items-center justify-end flex-row-reverse"
+                value={ele.value}
+              >
+                <div className="text text-lg">
+                  <img
+                    className={ele.icon}
+                    src={require(`./img/${ele.icon}.png`)}
+                    alt=""
+                  />
+                  {ele.text}
+                </div>
+              </Radio>
             </div>
           );
         })}

@@ -39,9 +39,9 @@ export default () => {
     if (password) {
       Modal.warning({
         title: '无效文档',
-        content: `${file.name}不能加密`,
+        content: '暂不支持有密码的文档进行转换',
       });
-      return Promise.reject('文档不能加密');
+      return Promise.reject('暂不支持有密码的文档进行转换');
     }
     // const blank = await PDF.isBlank(instance!, file);
     // console.log('blank=====', blank);

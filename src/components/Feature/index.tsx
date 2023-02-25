@@ -8,7 +8,7 @@ const Feature: React.FC = () => {
         src={require('/public/logo.png')}
         alt=""
       />
-      万能PDF编辑
+      PDF Edit All
     </div>
   );
 };

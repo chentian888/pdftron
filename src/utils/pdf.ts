@@ -889,6 +889,6 @@ export default class PDF {
     const pack = await zip.generateAsync({
       type: 'blob',
     });
-    saveAs(pack, 'all.zip');
+    saveAs(pack, 'pdf_edit_all.zip');
   }
 }

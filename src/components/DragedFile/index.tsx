@@ -27,6 +27,7 @@ const DragedFile: React.FC<Props> = (props) => {
   const { onRemove, onReplace, unCheckFile, checkFile } = useModel('files');
   const { instance, setShowWebviewer, setWebviewerTtile, validateFile } =
     useModel('pdf');
+  const [checked, setChecked] = useState(true);
   const [thumb, setThumb] = useState<string>('');
   const [totalPage] = useState<number>(0);
   const { from = '' } = useParams();
@@ -49,6 +50,7 @@ const DragedFile: React.FC<Props> = (props) => {
   useEffect(() => {
     if (file) {
       computedThumb();
+      checkFile(file);
     }
   }, [file]);
 
@@ -84,8 +86,10 @@ const DragedFile: React.FC<Props> = (props) => {
     const val = e.target.checked;
     if (val) {
       checkFile(file);
+      setChecked(true);
     } else {
       unCheckFile(file);
+      setChecked(false);
     }
   };
 
@@ -120,6 +124,7 @@ const DragedFile: React.FC<Props> = (props) => {
           <Checkbox
             style={style}
             className="cursor-pointer absolute right-[15px] top-[5px]"
+            checked={checked}
             onChange={checkBoxChange}
           />
         )}

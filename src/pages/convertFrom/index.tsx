@@ -11,6 +11,7 @@ const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const { setBread } = useModel('global');
   const {
     fileList,
     success,
@@ -31,6 +32,7 @@ const ConvertFrom: React.FC = () => {
     initWebViewer,
     webviewerTtile,
   } = useModel('pdf');
+
   const { from = 'word' } = useParams();
 
   const fileType: Record<string, any> = {
@@ -83,9 +85,11 @@ const ConvertFrom: React.FC = () => {
   const pageUmount = () => {
     going();
     setReady(false);
+    setBread([]);
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: baseData.title }]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }
