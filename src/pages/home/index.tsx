@@ -1,10 +1,11 @@
-import { Button } from 'antd';
-import { Link, useModel } from '@umijs/max';
+import { Button, Modal } from 'antd';
+import { useNavigate, useModel } from '@umijs/max';
 import Header from '@/components/Header';
 
 type TabType = { name: string; value: string };
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
   const { tab, setTab } = useModel('global');
 
   const tabs: TabType[] = [
@@ -33,6 +34,17 @@ const Home: React.FC = () => {
     });
   };
 
+  const handleClick = (ele: HomeItemType) => {
+    if (ele.to) {
+      navigate(ele.to);
+    } else {
+      Modal.info({
+        title: '功能提示',
+        content: '可在PDF在线编辑中使用该功能',
+        okText: '知道了',
+      });
+    }
+  };
   const renderTabContent = () => {
     const items1 = [
       {
@@ -165,14 +177,12 @@ const Home: React.FC = () => {
         desc: 'PDF替换文字',
         icon: 'icon-text',
         className: 'justify-self-center',
-        to: '/content/replacetext',
       },
       {
         title: 'PDF替换图片',
         desc: 'PDF替换图片',
         icon: 'icon-txt',
         className: 'justify-self-end',
-        to: '/forbid',
       },
       {
         title: 'PDF提取文字',
@@ -219,7 +229,7 @@ const Home: React.FC = () => {
       },
     ];
 
-    let cols = items1;
+    let cols: HomeItemType[] = items1;
     if (tab === '1') {
       cols = items1;
     } else if (tab === '2') {
@@ -230,8 +240,8 @@ const Home: React.FC = () => {
 
     return cols.map((ele, index) => {
       return (
-        <div className={`mb-16 ${ele.className}`} key={index}>
-          <Link to={ele.to} className="no-underline">
+        <div className={`mb-16 ${ele.className} cursor-pointer`} key={index}>
+          <div className="no-underline" onClick={() => handleClick(ele)}>
             <img
               className="w-[140px] block max-w-full m-auto"
               src={require(`./img/${ele.icon}.png`)}
@@ -243,7 +253,7 @@ const Home: React.FC = () => {
             <div className="w-[140px] text-gray-400 text-center leading-6">
               {ele.desc}
             </div>
-          </Link>
+          </div>
         </div>
       );
     });

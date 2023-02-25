@@ -23,8 +23,17 @@ declare global {
 
   type ReplaceTextListType = { from: string; to: string };
 
-  interface BREADCRUMBS {
+  interface BreadCrumbsType {
     title: string;
     link?: string;
+  }
+
+  interface HomeItemType {
+    title: string;
+    desc: string;
+    icon: string;
+    className: string;
+    to?: string;
+    callback?: (...args: unknown[]) => unknown;
   }
 }

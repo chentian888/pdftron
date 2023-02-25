@@ -5,7 +5,7 @@ import { useState } from 'react';
 export default () => {
   const [name, setName] = useState<string>(DEFAULT_NAME);
   const [tab, setTab] = useState<string>('1');
-  const [bread, setBread] = useState<BREADCRUMBS[]>([]);
+  const [bread, setBread] = useState<BreadCrumbsType[]>([]);
   return {
     name,
     setName,

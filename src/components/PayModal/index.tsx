@@ -11,7 +11,8 @@ import './index.less';
 const LoginModal: React.FC = () => {
   const access = useAccess();
   const { initialState, setInitialState } = useModel('@@initialState');
-  const { showVipModal, setShowVipModal, getUserVipInfo } = useModel('user');
+  const { showVipModal, setShowLoginModal, setShowVipModal, getUserVipInfo } =
+    useModel('user');
   const [value, setValue] = useState<number>();
   const [vips, setVips] = useState<API.VipRes[]>([]);
   const [price, setPrice] = useState<API.VipRes>();
@@ -62,12 +63,11 @@ const LoginModal: React.FC = () => {
       }
       setLoading(false);
       handleCancel();
-      Modal.confirm({
+      Modal.info({
         title: '支付结果',
         icon: <CheckSquareTwoTone />,
         content: '您是否已经完成了支付',
         okText: '我已经完成支付',
-        cancelText: '支付遇到了问题',
         async onOk() {
           const isVip = await getUserVipInfo();
           Cache.updateCookieUserInfo({ vip: isVip });
@@ -130,6 +130,11 @@ const LoginModal: React.FC = () => {
       </Radio.Group>
     );
   };
+
+  const toLogin = () => {
+    handleCancel();
+    setShowLoginModal(true);
+  };
   return (
     <Modal
       className="pay-modal"
@@ -155,7 +160,13 @@ const LoginModal: React.FC = () => {
               <Access
                 accessible={!access.isVisitor}
                 fallback={
-                  <Button className="pay-btn" type="primary" block size="large">
+                  <Button
+                    className="pay-btn"
+                    type="primary"
+                    block
+                    size="large"
+                    onClick={toLogin}
+                  >
                     请登录
                   </Button>
                 }
