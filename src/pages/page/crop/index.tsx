@@ -37,7 +37,7 @@ const PageManipulation: React.FC = () => {
 
   const baseData = {
     accept: '.pdf',
-    multiple: true,
+    multiple: false,
     title: 'PDF裁剪',
     desc: '将PDF拆分成两半再按正确顺序合并',
   };

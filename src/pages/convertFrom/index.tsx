@@ -38,19 +38,19 @@ const ConvertFrom: React.FC = () => {
   const fileType: Record<string, any> = {
     word: {
       accept: '.doc,.docx',
-      multiple: true,
+      multiple: false,
       title: 'Word转PDF',
       desc: 'Word(.doc.docx)转PDF',
     },
     ppt: {
       accept: '.ppt,.pptx',
-      multiple: true,
+      multiple: false,
       title: 'PPT转PDF',
       desc: 'PPT(.ppt.pptx)转PDF',
     },
     excel: {
       accept: '.xls,.xlsx',
-      multiple: true,
+      multiple: false,
       title: 'Excel转PDF',
       desc: 'Excel(.xls.xlsx)转PDF',
     },

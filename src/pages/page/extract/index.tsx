@@ -6,6 +6,7 @@ import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
 import ExtraThumbnail from '@/components/ExtraThumbnail';
 import ConvertedFile from '@/components/ConvertedFile';
+import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
 // import type { ExtraThumbnailType } from '@/types/typings';
 
@@ -196,15 +197,17 @@ const PageManipulation: React.FC = () => {
       );
     } else if (fileList.length) {
       action = (
-        <Button
-          type="primary"
-          size="large"
-          block
-          loading={loading || !thumbnailList?.length}
-          onClick={() => convert()}
-        >
-          {thumbnailList?.length ? '提取' : '页面加载中请稍等'}
-        </Button>
+        <PermissionBtn text="合并选中">
+          <Button
+            type="primary"
+            size="large"
+            block
+            loading={loading || !thumbnailList?.length}
+            onClick={() => convert()}
+          >
+            {thumbnailList?.length ? '合并选中' : '页面加载中请稍等'}
+          </Button>
+        </PermissionBtn>
       );
     }
     return (

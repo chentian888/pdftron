@@ -4,6 +4,7 @@ import { useModel } from '@umijs/max';
 import type { SelectProps } from 'antd';
 import { times, split, map } from 'lodash-es';
 import Tools from '@/utils/tools';
+import PermissionBtn from '@/components/PermissionBtn';
 import { UploadFile } from 'antd/es/upload/interface';
 
 interface Props {
@@ -134,16 +135,18 @@ const PdfCrop: React.FC<Props> = (props) => {
           <div className="mt-4">上下对半裁剪</div>
         </div>
       </div>
-      <Button
-        block
-        size="large"
-        type="primary"
-        disabled={!cropType}
-        loading={loading}
-        onClick={handleCrop}
-      >
-        裁剪
-      </Button>
+      <PermissionBtn text="裁剪">
+        <Button
+          block
+          size="large"
+          type="primary"
+          disabled={!cropType}
+          loading={loading}
+          onClick={handleCrop}
+        >
+          裁剪
+        </Button>
+      </PermissionBtn>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Avatar, Breadcrumb } from 'antd';
+import { Button, Avatar, Breadcrumb, Modal, Space, Tag } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { Link, useModel } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
@@ -14,7 +14,52 @@ const Header: React.FC<Props> = (props) => {
   const { initialState } = useModel('@@initialState');
   const { setShowLoginModal, setShowVipModal } = useModel('user');
   const { bread } = useModel('global');
-
+  // const supportFile = [
+  //   '.pdf',
+  //   '.jpg',
+  //   '.jpeg',
+  //   '.png',
+  //   '.doc',
+  //   '.docx',
+  //   '.xls',
+  //   '.xlsx',
+  //   '.ppt',
+  //   '.pptx',
+  //   '.md',
+  //   '.xod',
+  // ];
+  const SupportFile = () => {
+    const fileList = [
+      '.pdf',
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.doc',
+      '.docx',
+      '.xls',
+      '.xlsx',
+      '.ppt',
+      '.pptx',
+      '.md',
+      '.xod',
+    ];
+    return (
+      <Space size={[0, 8]} wrap>
+        {fileList.map((ele, index) => (
+          <Tag key={index} color="success">
+            {ele}
+          </Tag>
+        ))}
+      </Space>
+    );
+  };
+  const handleLogoClick = () => {
+    Modal.info({
+      title: 'PDF Edit All 支持以下格式文件',
+      content: <SupportFile />,
+      onOk() {},
+    });
+  };
   return (
     <>
       <div className={`h-[101px]  ${block ? 'bg-white' : ''}`}>
@@ -26,13 +71,13 @@ const Header: React.FC<Props> = (props) => {
           } m-auto h-full flex justify-between items-center`}
         >
           <div className="text-lg h-full">
-            <Link
-              to="/"
-              className=" text-black no-underline text-lg flex justify-start items-center h-full"
+            <div
+              className=" text-black no-underline text-lg flex justify-start items-center h-full cursor-pointer"
+              onClick={handleLogoClick}
             >
               <img className="block w-[50px]" src="/logo.png" alt="" /> PDF Edit
               All
-            </Link>
+            </div>
           </div>
 
           <div className="flex justify-end items-center">

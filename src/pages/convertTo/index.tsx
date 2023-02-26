@@ -36,13 +36,14 @@ const ConvertFrom: React.FC = () => {
   const fileType: Record<string, any> = {
     image: {
       accept: '.pdf',
-      multiple: true,
+      multiple: false,
+      free: true,
       title: 'PDF转图片',
       desc: 'PDF转图片（jpeg,png）',
     },
     pdfa: {
       accept: '.pdf',
-      multiple: true,
+      multiple: false,
       title: 'PDF转PDF/A',
       desc: 'PDF转PDF/A',
     },
@@ -196,7 +197,18 @@ const ConvertFrom: React.FC = () => {
         </>
       );
     } else if (fileList.length) {
-      action = (
+      // 免费使用的功能
+      action = baseData.free ? (
+        <Button
+          type="primary"
+          size="large"
+          block
+          loading={loading}
+          onClick={() => convert()}
+        >
+          转换
+        </Button>
+      ) : (
         <PermissionBtn text="转换">
           <Button
             type="primary"

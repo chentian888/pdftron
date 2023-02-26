@@ -33,7 +33,7 @@ const PageManipulation: React.FC = () => {
 
   const baseData = {
     accept: '.pdf',
-    multiple: true,
+    multiple: false,
     title: 'PDF压缩',
     desc: 'PDF压缩',
   };
