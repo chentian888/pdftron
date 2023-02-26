@@ -69,7 +69,8 @@ const LoginModal: React.FC = () => {
         content: '您是否已经完成了支付',
         okText: '我已经完成支付',
         async onOk() {
-          const isVip = await getUserVipInfo();
+          const vipData = await getUserVipInfo();
+          const isVip = vipData.vip ? '1' : '0';
           Cache.updateCookieUserInfo({ vip: isVip });
           setInitialState({ ...initialState, vip: isVip });
         },

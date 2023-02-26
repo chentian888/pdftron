@@ -12,9 +12,7 @@ export default () => {
   // 获取用户信息
   const getUserVipInfo = async () => {
     const { data } = await getUserInfo();
-    const isVip = data.vip ? '1' : '0';
-    console.log(data);
-    return isVip;
+    return data;
   };
 
   // 登录
@@ -25,9 +23,18 @@ export default () => {
       });
       const token = headers.authorization || '';
       Cache.setCookieToken(token);
-      const isVip = await getUserVipInfo();
-      Cache.setCookieUserInfo({ ...data?.data.user, vip: isVip });
-      setInitialState({ ...data.data.user, vip: isVip });
+      const vipData = await getUserVipInfo();
+      const isVip = vipData.vip ? '1' : '0';
+      Cache.setCookieUserInfo({
+        ...data?.data.user,
+        vip: isVip,
+        expirationTime: vipData.expirationTime,
+      });
+      setInitialState({
+        ...data.data.user,
+        vip: isVip,
+        expirationTime: vipData.expirationTime,
+      });
       return data;
     } catch (e) {}
   };

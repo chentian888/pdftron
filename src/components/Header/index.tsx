@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, Avatar, Breadcrumb, Modal, Space, Tag } from 'antd';
+import { Button, Avatar, Breadcrumb, Modal, Space, Tag, Popover } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { Link, useModel } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
+import Cache from '@/utils/cache';
 
 interface Props {
   block?: boolean;
@@ -11,9 +12,11 @@ interface Props {
 
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
-  const { initialState } = useModel('@@initialState');
+  const { initialState, setInitialState } = useModel('@@initialState');
   const { setShowLoginModal, setShowVipModal } = useModel('user');
   const { bread } = useModel('global');
+  // const { resetList } = useModel('files');
+  // const { setReady } = useModel('pdf');
   // const supportFile = [
   //   '.pdf',
   //   '.jpg',
@@ -60,6 +63,49 @@ const Header: React.FC<Props> = (props) => {
       onOk() {},
     });
   };
+
+  const logout = () => {
+    Cache.clearCookie();
+    setInitialState({});
+    window.location.reload();
+  };
+
+  const avatarContent = () => {
+    const nickName = (
+      initialState?.nickName ? initialState.nickName : initialState?.userName
+    ) as string;
+    const userName = (initialState?.userName || '') as string;
+    const expirationTime = (initialState?.expirationTime || '') as string;
+
+    return (
+      <>
+        <div className="w-[270px]">
+          <div className="flex justify-between pb-3">
+            <div className="font-bold text-black">昵称</div>
+            <div className="text-gray-500">{nickName}</div>
+          </div>
+          <div className="flex justify-between pb-3">
+            <div className="font-bold text-black">邮箱</div>
+            <div className="text-gray-500">{userName}</div>
+          </div>
+          <div className="flex justify-between pb-3">
+            <div className="font-bold text-black">会员状态</div>
+            <div className="text-gray-500">
+              {initialState?.vip === '1' ? '已开通' : '未开通'}
+            </div>
+          </div>
+          <div className="flex justify-between pb-3">
+            <div className="font-bold text-black">到期时间</div>
+            <div className="text-gray-500">{expirationTime}</div>
+          </div>
+          <Button type="primary" block onClick={logout}>
+            退出登录
+          </Button>
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
       <div className={`h-[101px]  ${block ? 'bg-white' : ''}`}>
@@ -91,11 +137,16 @@ const Header: React.FC<Props> = (props) => {
               购买
             </div>
             {initialState?.id ? (
-              <Avatar
-                style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}
-                size="large"
-                icon={<UserOutlined />}
-              ></Avatar>
+              <Popover placement="bottomRight" content={() => avatarContent()}>
+                <Avatar
+                  style={{
+                    backgroundColor: '#f56a00',
+                    verticalAlign: 'middle',
+                  }}
+                  size="large"
+                  icon={<UserOutlined />}
+                ></Avatar>
+              </Popover>
             ) : (
               <Button type="primary" onClick={() => setShowLoginModal(true)}>
                 登录/注册

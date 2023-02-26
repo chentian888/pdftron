@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, message } from 'antd';
 import { useModel } from '@umijs/max';
 // import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
@@ -123,6 +123,10 @@ const PageManipulation: React.FC = () => {
 
   // 转换
   const convert = async () => {
+    if (fileList.length <= 1) {
+      message.error('PDF合并最少需要2个文件');
+      return;
+    }
     setLoading(true);
     await startMergeDocument();
     setLoading(false);
