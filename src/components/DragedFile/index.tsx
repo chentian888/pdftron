@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, Tooltip, Upload, message } from 'antd';
+import { Checkbox, Tooltip, Upload } from 'antd';
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { useModel, useParams } from '@umijs/max';
 import LoadingThumbnail from '@/components/LoadingThumbnail';
@@ -17,16 +17,9 @@ interface Props {
 }
 
 const DragedFile: React.FC<Props> = (props) => {
-  const {
-    file,
-    showCheckBox = false,
-    showReplaceBtn = true,
-    accept,
-    validate = true,
-  } = props;
+  const { file, showCheckBox = false, showReplaceBtn = true, accept } = props;
   const { onRemove, onReplace, unCheckFile, checkFile } = useModel('files');
-  const { instance, setShowWebviewer, setWebviewerTtile, validateFile } =
-    useModel('pdf');
+  const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   // const [checked, setChecked] = useState(true);
   const [thumb, setThumb] = useState<string>('');
   const [totalPage] = useState<number>(0);
@@ -36,15 +29,10 @@ const DragedFile: React.FC<Props> = (props) => {
 
   const computedThumb = async () => {
     try {
-      if (validate) {
-        await validateFile(file);
-      }
       const thumbnail = await PDF.genThumbnail(instance!, file);
       setThumb(thumbnail[0].img);
       console.log(thumb);
-    } catch (e) {
-      message.error('请检查文档是否有密码或者为空');
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {

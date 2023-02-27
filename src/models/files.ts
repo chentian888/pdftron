@@ -1,9 +1,13 @@
 import { useState } from 'react';
-// import { useModel } from '@umijs/max';
+import { Modal } from 'antd';
+import { useModel } from '@umijs/max';
+import PDF from '@/utils/pdf';
 import type { UploadFile } from 'antd/es/upload/interface';
 // import type { ConvertFile } from '@/types/typings';
 
 export default () => {
+  const { instance } = useModel('pdf');
+
   // 选择的文件列表
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
@@ -33,7 +37,22 @@ export default () => {
   }
 
   async function beforeUpload(file: UploadFile, files: UploadFile[]) {
-    setFileList([...fileList, ...files]);
+    try {
+      const hasPassword = await PDF.hasPassword(instance!, files[0]);
+      if (hasPassword) {
+        Modal.warning({
+          title: '无效文档',
+          content: '暂不支持有密码的文档进行转换',
+        });
+        return false;
+      }
+      setFileList([...fileList, ...files]);
+    } catch (e) {
+      Modal.warning({
+        title: '无效文档',
+        content: '暂不支持有密码的文档进行转换',
+      });
+    }
     return false;
   }
 

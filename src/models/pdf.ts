@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { Modal } from 'antd';
 import WebViewer from '@pdftron/webviewer';
-import PDF from '@/utils/pdf';
 import type { WebViewerInstance } from '@pdftron/webviewer';
-import type { UploadFile } from 'antd/es/upload/interface';
 
 export default () => {
   const [instance, setInstance] = useState<WebViewerInstance>();
@@ -33,28 +30,6 @@ export default () => {
     setReady(true);
   };
 
-  const validateFile = async (file: UploadFile) => {
-    console.log(await PDF.hasPassword(instance!, file));
-    const password = await PDF.hasPassword(instance!, file);
-    if (password) {
-      Modal.warning({
-        title: '无效文档',
-        content: '暂不支持有密码的文档进行转换',
-      });
-      return Promise.reject('暂不支持有密码的文档进行转换');
-    }
-    // const blank = await PDF.isBlank(instance!, file);
-    // console.log('blank=====', blank);
-    // if (blank) {
-    //   Modal.warning({
-    //     title: '无效文档',
-    //     content: '文档不能为空',
-    //   });
-    //   return Promise.reject('文档不能为空');
-    // }
-    // console.log('file=====', file);
-    return Promise.resolve();
-  };
   return {
     instance,
     setInstance,
@@ -65,6 +40,5 @@ export default () => {
     ready,
     setReady,
     initWebViewer,
-    validateFile,
   };
 };
