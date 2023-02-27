@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal } from 'antd';
 import { useModel } from '@umijs/max';
-// import { map } from 'lodash-es';
+import { pullAllBy, sortBy, map } from 'lodash-es';
 // import { Core } from '@pdftron/webviewer';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
@@ -16,6 +16,8 @@ const { Dragger } = Upload;
 const PageManipulation: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
+  const [extractNo, setExtractNo] = useState<number[]>([]);
+
   const { setBread } = useModel('global');
   const {
     fileList,
@@ -58,6 +60,7 @@ const PageManipulation: React.FC = () => {
   // 继续
   const going = () => {
     resetList();
+    setExtractNo([]);
     setThumbnailList([]);
   };
 
@@ -77,6 +80,8 @@ const PageManipulation: React.FC = () => {
 
   const initThumb = async () => {
     const res = await PDF.genThumbnail(instance!, fileList[0], true);
+    const pageNo = map(res, (ele) => ele.currentPage);
+    setExtractNo(pageNo);
     setThumbnailList(res);
   };
 
@@ -87,11 +92,27 @@ const PageManipulation: React.FC = () => {
     }
   }, [fileList]);
 
+  // 勾选文件
+  const checkFile = (index: number) => {
+    extractNo.push(index);
+    const sort = sortBy(extractNo, (o) => o);
+    setExtractNo(sort);
+  };
+
+  // 反选文件
+  const unCheckFile = (index: number) => {
+    pullAllBy(extractNo, [index]);
+  };
+
   // 文件列表
   const renderInitFile = () => {
     const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
-        <ExtraThumbnail thumb={file} showCheckBox={false} />
+        <ExtraThumbnail
+          thumb={file}
+          checkFile={checkFile}
+          unCheckFile={unCheckFile}
+        />
       </Col>
     ));
     if (thumbnailList?.length) {
@@ -114,7 +135,7 @@ const PageManipulation: React.FC = () => {
   // 提取页面
   const convert = async () => {
     setLoading(true);
-    const res = await PDF.splitPage(instance!, fileList);
+    const res = await PDF.splitPage(instance!, fileList, extractNo);
     await PDF.downloadZip(res);
     setThumbnailList([]);
     setConvertList(res);

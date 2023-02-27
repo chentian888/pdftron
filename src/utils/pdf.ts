@@ -306,6 +306,7 @@ export default class PDF {
   static async splitPage(
     instance: WebViewerInstance,
     files: UploadFile[],
+    pages: number[],
   ): Promise<ConvertFile[]> {
     const { Core } = instance;
 
@@ -316,7 +317,7 @@ export default class PDF {
         filename: prefix,
         extension: suffix,
       });
-      const count = doc.getPageCount();
+      // const count = doc.getPageCount();
 
       // 提取某一页
       const onPage = async (index: number): Promise<ConvertFile> => {
@@ -339,11 +340,9 @@ export default class PDF {
           newFileBlob: blob,
         };
       };
-      const pages = await Promise.all(
-        map(times(count, Number), (index) => onPage(index + 1)),
-      );
+      const pdfs = await Promise.all(map(pages, (index) => onPage(index + 1)));
       doc.unloadResources();
-      return pages;
+      return pdfs;
     };
 
     const allFilePages = await Promise.all(map(files, startSplit));
@@ -882,13 +881,19 @@ export default class PDF {
 
   // 下载zip
   static async downloadZip(list: ConvertFile[]) {
-    const zip = new JSZip();
-    forEach(list, (data) => {
-      zip.file(data.newFileName, data.newfile);
-    });
-    const pack = await zip.generateAsync({
-      type: 'blob',
-    });
-    saveAs(pack, 'pdf_edit_all.zip');
+    // 只有1个文件直接下载文件
+    if (list.length > 1) {
+      const zip = new JSZip();
+      forEach(list, (data) => {
+        zip.file(data.newFileName, data.newfile);
+      });
+      const pack = await zip.generateAsync({
+        type: 'blob',
+      });
+      saveAs(pack, 'pdf_edit_all.zip');
+    } else if (list.length === 1) {
+      const file = list[0];
+      this.download(file.newfile, file.newFileName);
+    }
   }
 }

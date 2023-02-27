@@ -55,18 +55,21 @@ const ConvertFrom: React.FC = () => {
     word: {
       accept: '.pdf',
       convertType: '0',
+      multiple: false,
       title: 'PDF转Word',
       desc: 'PDF转Word',
     },
     ppt: {
       accept: '.pdf',
       convertType: '1',
+      multiple: false,
       title: 'PDF转PPT',
       desc: 'PDF转PPT',
     },
     excel: {
       accept: '.pdf',
       convertType: '2',
+      multiple: false,
       title: 'PDF转Excel',
       desc: 'PDF转Excel',
     },
@@ -141,7 +144,7 @@ const ConvertFrom: React.FC = () => {
         <Row gutter={[16, 16]}>
           {data.convertedPaths.map((url: string, index: number) => (
             <Col span={4} key={index}>
-              <ConvertedFileOline src={url} remove={going} />
+              <ConvertedFileOline src={url} remove={going} file={fileList[0]} />
             </Col>
           ))}
         </Row>
