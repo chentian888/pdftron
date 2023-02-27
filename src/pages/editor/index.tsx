@@ -45,6 +45,36 @@ const Editor: React.FC = () => {
     resetList();
   };
 
+  const downloadBtn = {
+    type: 'actionButton',
+    title: '下载',
+    img: 'icon-header-download',
+    onClick: () => {
+      // save the annotations
+      console.log('====');
+    },
+  };
+
+  const saveAsBtn = {
+    type: 'actionButton',
+    title: '另存为',
+    img: 'icon-save',
+    onClick: () => {
+      // save the annotations
+      console.log('====');
+    },
+  };
+
+  const printBtn = {
+    type: 'actionButton',
+    title: '打印',
+    img: 'icon-header-print-line',
+    onClick: () => {
+      // save the annotations
+      console.log('====');
+    },
+  };
+
   const initWebViewer = async (mountDom: HTMLDivElement) => {
     const instance = await WebViewer(
       { path: '/webviewer/lib', licenseKey: LICENSE_KEY },
@@ -53,12 +83,19 @@ const Editor: React.FC = () => {
     setInstance(instance);
     await instance.Core.PDFNet.initialize();
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
+    // instance.UI.disableElements(['menuButton']);
     instance.UI.enableFeatures([
       instance.UI.Feature.MultiTab,
       instance.UI.Feature.ContentEdit,
     ]);
+
     instance.UI.addEventListener('tabAdded', (id, src, options) => {
       console.log(id, src, options);
+    });
+    instance.UI.setHeaderItems(function (header) {
+      header.unshift(printBtn);
+      header.unshift(saveAsBtn);
+      header.unshift(downloadBtn);
     });
     setReady(true);
   };
