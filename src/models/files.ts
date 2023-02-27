@@ -56,6 +56,12 @@ export default () => {
     return false;
   }
 
+  // 文档加密功能不需要判断文档是否加密
+  async function beforeUpload2(file: UploadFile, files: UploadFile[]) {
+    setFileList([...fileList, ...files]);
+    return false;
+  }
+
   // 清除文件列联表
   function clearFileList() {
     setFileList([]);
@@ -109,6 +115,7 @@ export default () => {
     onRemove,
     onReplace,
     beforeUpload,
+    beforeUpload2,
     clearFileList,
     checkFileList,
     checkFile,
