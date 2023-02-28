@@ -11,6 +11,7 @@ const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+
   const { setBread } = useModel('global');
   const {
     fileList,
@@ -122,6 +123,10 @@ const ConvertFrom: React.FC = () => {
     }
   };
 
+  const pdf2imageCallback = (res: ConvertFile[]) => {
+    setConvertList([...convertList, ...res]);
+  };
+
   // 转换
   const convert = async () => {
     setLoading(true);
@@ -129,14 +134,15 @@ const ConvertFrom: React.FC = () => {
     let arr: ConvertFile[] = [];
     if (to === 'image') {
       // const buf = await PDF.file2Buf(lastFile as any as File);
-      arr = await PDF.pdf2image(instance!, fileList);
+      setSuccess(true);
+      arr = await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
     } else if (to === 'pdfa') {
       arr = await PDF.pdf2pdfa(instance!, fileList);
+      setConvertList(arr);
     }
 
     // 下载
     await PDF.downloadZip(arr);
-    setConvertList(arr);
     setLoading(false);
     setSuccess(true);
   };
@@ -242,7 +248,7 @@ const ConvertFrom: React.FC = () => {
         <Spin
           size="large"
           tip="文件转换中请耐心等待"
-          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
+          className="w-full h-full absolute bg-black bg-opacity-5 rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
         ></Spin>
       )}
 

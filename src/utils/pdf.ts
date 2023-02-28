@@ -114,6 +114,7 @@ export default class PDF {
   static async pdf2image(
     instance: WebViewerInstance,
     files: UploadFile[],
+    callback?: (res: ConvertFile[]) => void,
   ): Promise<ConvertFile[]> {
     const { Core } = instance;
 
@@ -132,13 +133,17 @@ export default class PDF {
         const blob = await Tools.buf2Blob(pngBuffer, 'image/png');
         const newFileName = `${prefix}-${pageIndex}.png`;
         const newfile = Tools.blob2File(pngBuffer, newFileName, 'image/png');
-
-        allBlob.push({
+        const res = {
           file: file,
           newfile,
           newFileBlob: blob,
           newFileName,
-        });
+        };
+        allBlob.push(res);
+        if (callback) {
+          // console.log(res)
+          callback(allBlob);
+        }
         itr?.next();
       }
       return allBlob;
