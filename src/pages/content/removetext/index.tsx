@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel } from '@umijs/max';
 import { pullAllBy, sortBy, map } from 'lodash-es';
 import PDF from '@/utils/pdf';
@@ -213,6 +213,13 @@ const ContentRemoveText: React.FC = () => {
 
   return (
     <>
+      {loading && (
+        <Spin
+          size="large"
+          tip="文字删除中请耐心等待"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
+        ></Spin>
+      )}
       <Dragger
         disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -195,7 +195,13 @@ const ExtractText: React.FC = () => {
 
   return (
     <>
-      {/* <Title title="转为PDF" /> */}
+      {loading && (
+        <Spin
+          size="large"
+          tip="文字提取中请耐心等待"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
+        ></Spin>
+      )}
       <Dragger
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}

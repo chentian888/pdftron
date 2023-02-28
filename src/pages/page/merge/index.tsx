@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, message } from 'antd';
+import { Upload, Row, Col, Button, Modal, message, Spin } from 'antd';
 import { useModel } from '@umijs/max';
 // import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
@@ -195,6 +195,7 @@ const PageManipulation: React.FC = () => {
             type="primary"
             size="large"
             block
+            disabled={fileList.length < 2}
             loading={loading}
             onClick={convert}
           >
@@ -212,7 +213,13 @@ const PageManipulation: React.FC = () => {
 
   return (
     <>
-      {/* <Title title="转为PDF" /> */}
+      {loading && (
+        <Spin
+          size="large"
+          tip="文档合并中请耐心等待"
+          className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
+        ></Spin>
+      )}
       <Dragger
         disabled={!ready}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"

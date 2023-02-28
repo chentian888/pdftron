@@ -24,6 +24,7 @@ export default () => {
       'viewControlsButton',
       'ribbons',
       'toolsHeader',
+      'menuButton',
     ]);
     setInstance(instance);
     await instance.Core.PDFNet.initialize();

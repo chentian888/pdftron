@@ -211,7 +211,7 @@ const Home: React.FC = () => {
         desc: '删除PDF中已选择的图片数据',
         icon: 'icon-remove-image',
         className: 'justify-self-end',
-        to: '/content/removeimage',
+        // to: '/content/removeimage',
       },
       {
         title: 'PDF压缩(免费)',
