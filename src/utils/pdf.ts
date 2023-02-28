@@ -2,7 +2,16 @@ import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
-import { map, slice, forEach, flatten, times, includes, join } from 'lodash-es';
+import {
+  map,
+  slice,
+  forEach,
+  flatten,
+  times,
+  includes,
+  join,
+  first,
+} from 'lodash-es';
 import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
 
@@ -62,22 +71,27 @@ export default class PDF {
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
     const { Core } = instance;
+    const firstFile = first(files);
+    const otherFile = slice(files, 1);
 
-    // 通过文件创建pdf类型文档
-    const docsPromise = map(files, async (file) => {
+    const { prefix, suffix } = Tools.fileMsg(firstFile!);
+    const firstDoc = await Core.createDocument(firstFile as any as File, {
+      filename: prefix,
+      extension: suffix,
+      loadAsPDF: true,
+    });
+
+    for (let i = 0; i < otherFile.length; i++) {
+      const file = otherFile[i];
       const { prefix, suffix } = Tools.fileMsg(file);
-      return await Core.createDocument(file as any as File, {
+      const doc = await Core.createDocument(file as any as File, {
         filename: prefix,
         extension: suffix,
         loadAsPDF: true,
       });
-    });
-
-    // 插入内容到第一个文档完成合并操作
-    const docs = await Promise.all(docsPromise);
-    const firstDoc = docs[0];
-    const otherDoc = slice(docs, 1);
-    forEach(otherDoc, (doc) => firstDoc.insertPages(doc));
+      await firstDoc.insertPages(doc);
+      doc.unloadResources();
+    }
 
     // 获取文件数据流
     const data = await firstDoc.getFileData();
@@ -85,7 +99,7 @@ export default class PDF {
     const newFileName = `all.pdf`;
     const newfile = Tools.blob2File(data, newFileName);
     // 释放资源
-    forEach(docs, (doc) => doc.unloadResources());
+    firstDoc.unloadResources();
     return [
       { file: files[0], newfile, newFileName: 'all.pdf', newFileBlob: blob },
     ];
@@ -236,7 +250,6 @@ export default class PDF {
     const { Core } = instance;
     async function main() {
       const newDoc = await Core.PDFNet.PDFDoc.create();
-      console.log(await newDoc.getPageCount());
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const buf = await Tools.file2Buf(file as any as File);
