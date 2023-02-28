@@ -56,7 +56,7 @@ export default () => {
     return false;
   }
 
-  // 文档加密功能不需要判断文档是否加密
+  // 图片转pdf/文档加密功能不需要判断文档是否加密
   async function beforeUpload2(file: UploadFile, files: UploadFile[]) {
     setFileList([...fileList, ...files]);
     return false;

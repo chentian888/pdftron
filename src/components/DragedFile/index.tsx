@@ -13,7 +13,6 @@ interface Props {
   showCheckBox?: boolean;
   showReplaceBtn?: boolean;
   accept: string;
-  validate?: boolean; // 是否校验文件有效
 }
 
 const DragedFile: React.FC<Props> = (props) => {
@@ -111,6 +110,7 @@ const DragedFile: React.FC<Props> = (props) => {
         {showCheckBox && (
           <Checkbox
             style={style}
+            defaultChecked
             className="cursor-pointer absolute right-[15px] top-[5px]"
             onChange={checkBoxChange}
           />

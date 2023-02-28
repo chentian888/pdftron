@@ -26,8 +26,13 @@ export default defineConfig({
       routes: [
         {
           title: 'Word转PDF',
+          path: 'image',
+          component: './convertFrom/image',
+        },
+        {
+          title: 'office转PDF',
           path: ':from',
-          component: './convertFrom',
+          component: './convertFrom/office',
         },
       ],
     },

@@ -18,7 +18,6 @@ const ConvertFrom: React.FC = () => {
     setSuccess,
     onRemove,
     beforeUpload,
-    checkFileList,
     convertList,
     setConvertList,
     resetList,
@@ -53,13 +52,6 @@ const ConvertFrom: React.FC = () => {
       multiple: false,
       title: 'Excel转PDF',
       desc: 'Excel(.xls.xlsx)转PDF',
-    },
-    txt: { accept: '.txt', title: 'Txt转PDF', desc: 'Txt转PDF' },
-    image: {
-      accept: 'image/*',
-      multiple: true,
-      title: '图片转PDF',
-      desc: '图片(.png.jpg)转PDF',
     },
   };
 
@@ -116,12 +108,7 @@ const ConvertFrom: React.FC = () => {
   const renderInitFile = () => {
     const list = fileList.map((file, index) => (
       <Col span={4} key={index}>
-        <DragedFile
-          file={file}
-          accept={baseData.accept}
-          showCheckBox={from === 'image'}
-          validate={false}
-        />
+        <DragedFile file={file} accept={baseData.accept} />
       </Col>
     ));
     if (!success && fileList.length) {
@@ -150,14 +137,7 @@ const ConvertFrom: React.FC = () => {
   const convert = async () => {
     try {
       setLoading(true);
-      let arr = [];
-      // 转blob
-      if (from === 'image') {
-        arr = await PDF.image2pdf(instance!, checkFileList);
-      } else {
-        arr = await PDF.office2pdf(instance!, fileList);
-      }
-
+      const arr = await PDF.office2pdf(instance!, fileList);
       // 下载
       await PDF.downloadZip(arr);
       setConvertList(arr);
@@ -204,8 +184,6 @@ const ConvertFrom: React.FC = () => {
   // 操作按钮
   const renderAction = () => {
     let action;
-    // image转pdf勾选后才能转换
-    const convertBtnDisabled = from === 'image' && !checkFileList.length;
 
     if (success) {
       action = (
@@ -225,7 +203,6 @@ const ConvertFrom: React.FC = () => {
             type="primary"
             size="large"
             block
-            disabled={convertBtnDisabled}
             loading={loading}
             onClick={convert}
           >
