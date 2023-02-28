@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Row, Col, Spin } from 'antd';
+import { Row, Col, Spin, message } from 'antd';
 import WebViewer from '@pdftron/webviewer';
 import { useModel } from '@umijs/max';
 import { last } from 'lodash-es';
 import Tools from '@/utils/tools';
+import Cache from '@/utils/cache';
 import Header from '@/components/Header';
+
 // import type { UploadProps } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 
 // const { Title } = Typography;
 const Editor: React.FC = () => {
+  const { setShowLoginModal, setShowVipModal } = useModel('user');
+
   const viewer = useRef<HTMLDivElement>(null);
   const { fileList, resetList } = useModel('files');
   const [ready, setReady] = useState<boolean>(false);
@@ -39,40 +43,30 @@ const Editor: React.FC = () => {
   //     multiple: false
   //   };
 
+  const validateUser = () => {
+    const { id, vip } = Cache.getCookieUserInfo();
+
+    // 会员
+    const isVip = vip && vip === '1';
+
+    // 游客需要登录
+    if (!id) {
+      setShowLoginModal(true);
+      return false;
+    }
+
+    // 非会员需要充值
+    if (!isVip) {
+      setShowVipModal(true);
+      return false;
+    }
+    return true;
+  };
+
   // 页面卸载
   const pageUmount = () => {
     setReady(false);
     resetList();
-  };
-
-  const downloadBtn = {
-    type: 'actionButton',
-    title: '下载',
-    img: 'icon-header-download',
-    onClick: () => {
-      // save the annotations
-      console.log('====');
-    },
-  };
-
-  const saveAsBtn = {
-    type: 'actionButton',
-    title: '另存为',
-    img: 'icon-save',
-    onClick: () => {
-      // save the annotations
-      console.log('====');
-    },
-  };
-
-  const printBtn = {
-    type: 'actionButton',
-    title: '打印',
-    img: 'icon-header-print-line',
-    onClick: () => {
-      // save the annotations
-      console.log('====');
-    },
   };
 
   const initWebViewer = async (mountDom: HTMLDivElement) => {
@@ -81,9 +75,58 @@ const Editor: React.FC = () => {
       mountDom,
     );
     setInstance(instance);
-    await instance.Core.PDFNet.initialize();
+
+    const downloadBtn = {
+      type: 'actionButton',
+      title: '下载',
+      img: 'icon-header-download',
+      onClick: () => {
+        // 下载pdf
+        const valid = validateUser();
+        if (valid) {
+          try {
+            instance.UI.downloadPdf();
+          } catch (e) {
+            message.error('下载错误');
+          }
+        }
+      },
+    };
+
+    const saveAsBtn = {
+      type: 'actionButton',
+      title: '另存为',
+      img: 'icon-save',
+      onClick: () => {
+        const valid = validateUser();
+        if (valid) {
+          try {
+            instance.UI.toggleElement('saveModal');
+          } catch (e) {
+            message.error('下载错误');
+          }
+        }
+      },
+    };
+
+    const printBtn = {
+      type: 'actionButton',
+      title: '打印',
+      img: 'icon-header-print-line',
+      onClick: () => {
+        // 打印pdf
+        const valid = validateUser();
+        if (valid) {
+          try {
+            instance.UI.print();
+          } catch (e) {
+            message.error('打印错误');
+          }
+        }
+      },
+    };
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
-    // instance.UI.disableElements(['menuButton']);
+    instance.UI.disableElements(['menuButton']);
     instance.UI.enableFeatures([
       instance.UI.Feature.MultiTab,
       instance.UI.Feature.ContentEdit,
@@ -97,6 +140,7 @@ const Editor: React.FC = () => {
       header.unshift(saveAsBtn);
       header.unshift(downloadBtn);
     });
+    await instance.Core.PDFNet.initialize();
     setReady(true);
   };
 

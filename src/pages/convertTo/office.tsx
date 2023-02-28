@@ -14,6 +14,7 @@ const { Dragger } = Upload;
 const ConvertFrom: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { setBread } = useModel('global');
+  const { getUserVipInfo } = useModel('user');
   const { fileList, success, setSuccess, onRemove, beforeUpload, resetList } =
     useModel('files');
   const {
@@ -158,6 +159,7 @@ const ConvertFrom: React.FC = () => {
     try {
       // 在线转换
       const file = fileList[0];
+      await getUserVipInfo();
       const { data } = await uploadFile({ files: file as any as File });
       await pdf2Office({
         fileId: data.fileId,
@@ -168,7 +170,10 @@ const ConvertFrom: React.FC = () => {
       // 下载
       // await PDF.downloadZip(arr);
       // setConvertList(arr);
-    } catch (e) {}
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 内容区域

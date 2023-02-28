@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, useNavigate } from '@umijs/max';
 import useCountDown from '@/hooks/useCountDown';
 
 import { sendEmailCode } from '@/services/user';
@@ -8,10 +8,12 @@ import './index.less';
 
 interface Props {
   type?: string;
+  redirect?: string;
 }
 
 const RegistryForm: React.FC<Props> = (props) => {
-  const { type = '1' } = props;
+  const { type = '1', redirect = '' } = props;
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const { userRegister, userResetPassword, setShowLoginModal } =
     useModel('user');
@@ -43,8 +45,11 @@ const RegistryForm: React.FC<Props> = (props) => {
         }
 
         form.resetFields();
-
-        setShowLoginModal(false);
+        if (redirect) {
+          navigate(redirect, { replace: true });
+        } else {
+          setShowLoginModal(false);
+        }
       } catch (e) {
       } finally {
         setLoading(false);

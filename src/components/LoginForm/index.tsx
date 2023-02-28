@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Form, Input } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, useNavigate } from '@umijs/max';
 import './index.less';
 
-const LoginForm: React.FC = () => {
+interface Props {
+  redirect?: string;
+}
+
+const LoginForm: React.FC<Props> = (props) => {
+  const { redirect = '' } = props;
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const { userLogin, setShowLoginModal } = useModel('user');
   const [loading, setLoading] = useState<boolean>(false);
@@ -21,7 +27,9 @@ const LoginForm: React.FC = () => {
         console.log(data);
         form.resetFields();
         setLoading(false);
-        if (data) {
+        if (data && redirect) {
+          navigate(redirect, { replace: true });
+        } else {
           setShowLoginModal(false);
         }
       } catch (e) {}

@@ -12,12 +12,12 @@ const Login: React.FC = () => {
         <Feature />
         <div className="mb-24"></div>
         <div>
-          <LoginForm />
+          <LoginForm redirect={'/'} />
           <div className="flex justify-between px-5">
             <Link className="no-underline text-black" to="/register">
               去注册
             </Link>
-            <Link className="no-underline text-black" to="/">
+            <Link className="no-underline text-black" to="/forget">
               忘记密码
             </Link>
           </div>

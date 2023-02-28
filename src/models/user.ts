@@ -4,7 +4,7 @@ import Cache from '@/utils/cache';
 import { login, register, getUserInfo, restPassword } from '@/services/user';
 
 export default () => {
-  const { setInitialState } = useModel('@@initialState');
+  const { refresh } = useModel('@@initialState');
 
   const [showLogin, setShowLoginModal] = useState(false);
   const [showVipModal, setShowVipModal] = useState(false);
@@ -12,6 +12,10 @@ export default () => {
   // 获取用户信息
   const getUserVipInfo = async () => {
     const { data } = await getUserInfo();
+    const vip = data.vip ? '1' : '0';
+    const expirationTime = data.expirationTime;
+    Cache.updateCookieUserInfo({ vip, expirationTime });
+    refresh();
     return data;
   };
 
@@ -23,18 +27,8 @@ export default () => {
       });
       const token = headers.authorization || '';
       Cache.setCookieToken(token);
-      const vipData = await getUserVipInfo();
-      const isVip = vipData.vip ? '1' : '0';
-      Cache.setCookieUserInfo({
-        ...data?.data.user,
-        vip: isVip,
-        expirationTime: vipData.expirationTime,
-      });
-      setInitialState({
-        ...data.data.user,
-        vip: isVip,
-        expirationTime: vipData.expirationTime,
-      });
+      Cache.setCookieUserInfo({ ...data?.data.user });
+      await getUserVipInfo();
       return data;
     } catch (e) {}
   };

@@ -154,6 +154,11 @@ export default defineConfig({
       component: './register',
     },
     {
+      title: '忘记密码',
+      path: '/forget',
+      component: './forget',
+    },
+    {
       title: '禁止进入',
       path: '/forbid',
       component: './forbid',

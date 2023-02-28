@@ -3,14 +3,12 @@ import { Modal, Col, Row, Radio, Button } from 'antd';
 import { useModel, useAccess, Access } from '@umijs/max';
 import { CheckSquareTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd';
-import Cache from '@/utils/cache';
 import { vipList, paypal, alipay } from '@/services/user';
 
 import './index.less';
 
 const LoginModal: React.FC = () => {
   const access = useAccess();
-  const { initialState, setInitialState } = useModel('@@initialState');
   const { showVipModal, setShowLoginModal, setShowVipModal, getUserVipInfo } =
     useModel('user');
   const [value, setValue] = useState<number>();
@@ -69,10 +67,7 @@ const LoginModal: React.FC = () => {
         content: '您是否已经完成了支付',
         okText: '我已经完成支付',
         async onOk() {
-          const vipData = await getUserVipInfo();
-          const isVip = vipData.vip ? '1' : '0';
-          Cache.updateCookieUserInfo({ vip: isVip });
-          setInitialState({ ...initialState, vip: isVip });
+          await getUserVipInfo();
         },
       });
     } catch (e) {}
