@@ -141,6 +141,13 @@ const ConvertFrom: React.FC = () => {
     setSuccess(true);
   };
 
+  // pdf转图片选择完文件之后直接进行转换
+  useEffect(() => {
+    if (fileList.length && to === 'image') {
+      convert();
+    }
+  }, [fileList]);
+
   const downloadAll = async () => {
     console.log(convertList);
     await PDF.downloadZip(convertList);
