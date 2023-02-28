@@ -1,4 +1,4 @@
-import { nth, split } from 'lodash-es';
+import { nth, split, last } from 'lodash-es';
 import type { UploadFile } from 'antd/es/upload/interface';
 // import { ConvertFile } from '@/types/typings';
 
@@ -92,7 +92,7 @@ export default class Tools {
   static fileMsg(file: UploadFile) {
     const splitFile = split(file.name, '.');
     const prefix = nth(splitFile, 0);
-    const suffix = nth(splitFile, 1);
+    const suffix = last(splitFile);
     return { prefix, suffix };
   }
 

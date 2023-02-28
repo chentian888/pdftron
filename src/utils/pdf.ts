@@ -234,26 +234,37 @@ export default class PDF {
     files: UploadFile[],
   ) {
     const { Core } = instance;
-
-    const docsPromise = map(files, async (file) => {
+    const newDoc = await Core.PDFNet.PDFDoc.create();
+    console.log(await newDoc.getPageCount());
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      console.log(file);
+      // const b = await Tools.file2Buf(files[i]);
       const { prefix, suffix } = Tools.fileMsg(file);
-      return await Core.createDocument(file as any as File, {
+      const createDoc = await Core.createDocument(file as any as File, {
         filename: prefix,
         extension: suffix,
       });
-    });
+      const doc = await createDoc.getPDFDoc();
+      const pageCount = await doc.getPageCount();
+      const count = await newDoc.getPageCount();
+      newDoc.insertPages(
+        count + 1,
+        doc,
+        1,
+        pageCount,
+        Core.PDFNet.PDFDoc.InsertFlag.e_none,
+      );
+    }
 
-    // 插入内容到第一个文档完成合并操作
-    const docs = await Promise.all(docsPromise);
-    const firstDoc = docs[0];
-    const otherDoc = slice(docs, 1);
-    forEach(otherDoc, (doc) => firstDoc.insertPages(doc));
-    const buf = await firstDoc.getFileData();
+    const buf = await newDoc.saveMemoryBuffer(
+      Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
+    );
     const blob = await Tools.buf2Blob(buf);
     const newFileName = `all.pdf`;
     const newfile = Tools.blob2File(buf, newFileName);
     // 释放资源
-    forEach(docs, (doc) => doc.unloadResources());
+
     return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
   }
 
