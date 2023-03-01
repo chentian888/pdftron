@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Select, Button } from 'antd';
 import { useModel } from '@umijs/max';
 import type { SelectProps } from 'antd';
-import { times, split, map } from 'lodash-es';
+import { times, split, map, difference } from 'lodash-es';
 import Tools from '@/utils/tools';
 import PermissionBtn from '@/components/PermissionBtn';
 import { UploadFile } from 'antd/es/upload/interface';
@@ -16,9 +16,10 @@ interface Props {
 const PdfCrop: React.FC<Props> = (props) => {
   const { file, crop, loading } = props;
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
-  const [excludePages, setExcludePages] = useState<number[]>([]);
+  const [includePages, setIncludePages] = useState<number[]>([]);
   const [cropType, setCropType] = useState<CropType>();
   const [options, setOptions] = useState<SelectProps['options']>([]);
+  const [pages, setPages] = useState<number[]>([]);
 
   // let options: SelectProps['options'] = [];
 
@@ -34,6 +35,7 @@ const PdfCrop: React.FC<Props> = (props) => {
       value: index + 1,
     }));
     setOptions(options);
+    setPages(times(count!, (index) => index + 1));
     console.log(options);
     doc?.unloadResources();
   };
@@ -47,7 +49,7 @@ const PdfCrop: React.FC<Props> = (props) => {
   const handleChange = (value: string) => {
     const arrStr = split(value, ',');
     const arrNum = map(arrStr, (num: string) => Number(num));
-    setExcludePages(arrNum);
+    setIncludePages(difference(pages, arrNum));
   };
 
   // 预览
@@ -69,7 +71,7 @@ const PdfCrop: React.FC<Props> = (props) => {
 
   const handleCrop = () => {
     if (cropType) {
-      crop(excludePages, cropType);
+      crop(includePages, cropType);
     }
   };
 

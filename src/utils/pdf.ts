@@ -429,38 +429,68 @@ export default class PDF {
     instance: WebViewerInstance,
     file: UploadFile,
     deirection: CropType,
-    exclude?: number[],
+    include: number[],
   ): Promise<ConvertFile[]> {
     const { Core } = instance;
     const { prefix, suffix } = Tools.fileMsg(file);
-    const doc = await Core.createDocument(file as any as File, {
+    const doc1 = await Core.createDocument(file as any as File, {
       filename: prefix,
       extension: suffix,
     });
-    const count = doc.getPageCount();
+    const doc2 = await Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
+    const count = doc2.getPageCount();
+    let increment = 0;
 
-    // 裁剪单个页面
-    const cut = async (page: number) => {
-      const { width, height } = doc.getPageInfo(page);
-      let cropTop = 0,
-        cropLeft = 0,
-        cropRight = 0,
-        cropBottom = 0;
-      if (deirection === 'horizontal') {
-        cropTop = height / 2;
-      } else {
-        cropLeft = width / 2;
+    // doc1
+    for (let i = 1; i <= count; i++) {
+      if (include && include.length && includes(include, i)) {
+        const { width, height } = doc1.getPageInfo(i);
+        let cropTop = 0,
+          cropLeft = 0,
+          cropRight = 0,
+          cropBottom = 0;
+        if (deirection === 'horizontal') {
+          cropBottom = height / 2;
+        } else {
+          cropRight = width / 2;
+        }
+
+        await doc1.cropPages([i], cropTop, cropBottom, cropLeft, cropRight);
       }
-      if (exclude && exclude.length && includes(exclude, page)) return;
-      await doc.cropPages([page], cropTop, cropBottom, cropLeft, cropRight);
-    };
-    const allCutPaage = map(times(count, Number), (index) => cut(index + 1));
-    await Promise.all(allCutPaage);
-    const buf = await doc.getFileData();
+    }
+    // doc2
+    for (let j = 1; j <= count; j++) {
+      if (include && include.length && includes(include, j)) {
+        const { width, height } = doc2.getPageInfo(j);
+        let cropTop = 0,
+          cropLeft = 0,
+          cropRight = 0,
+          cropBottom = 0;
+        if (deirection === 'horizontal') {
+          cropTop = height / 2;
+        } else {
+          cropLeft = width / 2;
+        }
+        await doc2.cropPages([j], cropTop, cropBottom, cropLeft, cropRight);
+      }
+    }
+
+    for (let k = 1; k <= count; k++) {
+      if (include && include.length && includes(include, k)) {
+        await doc1.insertPages(doc2, [k], k + 1 + increment);
+        increment++;
+      }
+    }
+
+    const buf = await doc1.getFileData();
     const blob = await Tools.buf2Blob(buf);
     const newFileName = `${prefix}-crop.pdf`;
     const newfile = Tools.blob2File(buf, newFileName);
-    doc.unloadResources();
+    doc1.unloadResources();
+    doc2.unloadResources();
     return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 
