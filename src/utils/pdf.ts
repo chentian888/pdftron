@@ -186,6 +186,48 @@ export default class PDF {
     return arr;
   }
 
+  static async loadPage(
+    instance: WebViewerInstance,
+    file: UploadFile,
+    callback?: (res: PageThumbnailType[]) => void,
+  ): Promise<PageThumbnailType[]> {
+    const { Core } = instance;
+
+    const load = async () => {
+      let allBlob: PageThumbnailType[] = [];
+      const { prefix } = Tools.fileMsg(file);
+      const buf = await Tools.file2Buf(file as any as File);
+      const pdfDoc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
+      const pdfdraw = await Core.PDFNet.PDFDraw.create(92);
+      const itr = await pdfDoc?.getPageIterator(1);
+      const total = await pdfDoc.getPageCount();
+      while (await itr?.hasNext()) {
+        const currPage = await itr?.current();
+        const pageIndex = await currPage.getIndex();
+        const pngBuffer = await pdfdraw?.exportBuffer(currPage!, 'PNG');
+        const blob = await Tools.buf2Blob(pngBuffer, 'image/png');
+        const newFileName = `${prefix}-${pageIndex}.png`;
+        const newfile = Tools.blob2File(pngBuffer, newFileName, 'image/png');
+        const res = {
+          file: file,
+          newfile,
+          newFileBlob: blob,
+          newFileName,
+          totalPage: total,
+          currentPage: pageIndex,
+        };
+        allBlob.push(res);
+        if (callback) {
+          callback(allBlob);
+        }
+        itr?.next();
+      }
+      return allBlob;
+    };
+
+    return await Core.PDFNet.runWithCleanup(await load, LICENSE_KEY);
+  }
+
   /**
    * 生成稳当缩略图
    * @param instance
@@ -366,7 +408,7 @@ export default class PDF {
           newFileBlob: blob,
         };
       };
-      const pdfs = await Promise.all(map(pages, (index) => onPage(index + 1)));
+      const pdfs = await Promise.all(map(pages, (index) => onPage(index)));
       doc.unloadResources();
       return pdfs;
     };

@@ -21,6 +21,11 @@ declare global {
     currentPage: number;
   };
 
+  type PageThumbnailType = {
+    totalPage: number;
+    currentPage: number;
+  } & ConvertFile;
+
   type CropType = 'vertical' | 'horizontal' | null;
 
   type ReplaceTextListType = { from: string; to: string };
