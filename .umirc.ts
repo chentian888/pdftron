@@ -42,14 +42,19 @@ export default defineConfig({
       component: '@/layouts/ConvertLayout',
       routes: [
         {
-          title: 'pdf转换',
-          path: 'office/:to',
-          component: './convertTo/office',
+          title: 'pdf转换为图片',
+          path: 'image',
+          component: './convertTo/image',
+        },
+        {
+          title: 'pdf转换为pdfa',
+          path: 'pdfa',
+          component: './convertTo/pdfa',
         },
         {
           title: 'pdf转换',
-          path: ':to',
-          component: './convertTo',
+          path: 'office/:to',
+          component: './convertTo/office',
         },
       ],
     },

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
-import { useModel, useParams } from '@umijs/max';
-import DragedFile from '@/components/DragedFile';
+import { useModel } from '@umijs/max';
+// import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
-import PermissionBtn from '@/components/PermissionBtn';
+// import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
 
@@ -32,25 +32,14 @@ const ConvertFrom: React.FC = () => {
     initWebViewer,
     webviewerTtile,
   } = useModel('pdf');
-  const { to = 'word' } = useParams();
 
-  const fileType: Record<string, any> = {
-    image: {
-      accept: '.pdf',
-      multiple: false,
-      free: true,
-      title: 'PDF转图片',
-      desc: 'PDF转图片（jpeg,png）',
-    },
-    pdfa: {
-      accept: '.pdf',
-      multiple: false,
-      title: 'PDF转PDF/A',
-      desc: 'PDF转PDF/A',
-    },
+  const baseData = {
+    accept: '.pdf',
+    multiple: false,
+    free: true,
+    title: 'PDF转图片',
+    desc: 'PDF转图片（jpeg,png）',
   };
-
-  const baseData = fileType[to];
 
   const viewer = useRef<HTMLDivElement>(null);
   const props: UploadProps = {
@@ -82,35 +71,6 @@ const ConvertFrom: React.FC = () => {
     return pageUmount;
   }, []);
 
-  const renderMoreFileButton = () => {
-    return (
-      baseData.multiple && (
-        <Col span={4}>
-          <Upload className="w-full h-full block" {...props}>
-            <div className="draged-action">添加更多文件</div>
-          </Upload>
-        </Col>
-      )
-    );
-  };
-
-  // 文件列表
-  const renderInitFile = () => {
-    const list = fileList.map((file, index) => (
-      <Col span={4} key={index}>
-        <DragedFile file={file} accept={baseData.accept} />
-      </Col>
-    ));
-    if (!success && fileList.length) {
-      return (
-        <Row gutter={[16, 16]}>
-          {list}
-          {renderMoreFileButton()}
-        </Row>
-      );
-    }
-  };
-
   // 转换为image列表
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
@@ -118,7 +78,7 @@ const ConvertFrom: React.FC = () => {
         <ConvertedFile convert={file} index={index} />
       </Col>
     ));
-    if (success) {
+    if (convertList.length) {
       return <Row gutter={[16, 16]}>{list}</Row>;
     }
   };
@@ -127,37 +87,27 @@ const ConvertFrom: React.FC = () => {
     setConvertList([...convertList, ...res]);
   };
 
+  const downloadAll = async () => {
+    await PDF.downloadZip(convertList);
+  };
+
   // 转换
   const convert = async () => {
     setLoading(true);
     // 转blob
-    let arr: ConvertFile[] = [];
-    if (to === 'image') {
-      // const buf = await PDF.file2Buf(lastFile as any as File);
-      setSuccess(true);
-      arr = await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
-    } else if (to === 'pdfa') {
-      arr = await PDF.pdf2pdfa(instance!, fileList);
-      setConvertList(arr);
-    }
-
+    await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
     // 下载
-    await PDF.downloadZip(arr);
+    await downloadAll();
     setLoading(false);
     setSuccess(true);
   };
 
   // pdf转图片选择完文件之后直接进行转换
   useEffect(() => {
-    if (fileList.length && to === 'image') {
+    if (fileList.length) {
       convert();
     }
   }, [fileList]);
-
-  const downloadAll = async () => {
-    console.log(convertList);
-    await PDF.downloadZip(convertList);
-  };
 
   // 内容区域
   const renderInitContent = () => {
@@ -196,50 +146,19 @@ const ConvertFrom: React.FC = () => {
 
   // 操作按钮
   const renderAction = () => {
-    let action;
-
     if (success) {
-      action = (
-        <>
+      return (
+        <div className="w-1/3 absolute bottom-20 left-1/2 -translate-x-1/2">
           <Button type="primary" size="large" block onClick={downloadAll}>
             全部下载
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
             继续
           </div>
-        </>
-      );
-    } else if (fileList.length) {
-      // 免费使用的功能
-      action = baseData.free ? (
-        <Button
-          type="primary"
-          size="large"
-          block
-          loading={loading}
-          onClick={() => convert()}
-        >
-          转换
-        </Button>
-      ) : (
-        <PermissionBtn text="转换">
-          <Button
-            type="primary"
-            size="large"
-            block
-            loading={loading}
-            onClick={() => convert()}
-          >
-            转换
-          </Button>
-        </PermissionBtn>
+        </div>
       );
     }
-    return (
-      <div className="w-1/3 absolute bottom-20 left-1/2 -translate-x-1/2">
-        {action}
-      </div>
-    );
+    return '';
   };
 
   return (
@@ -258,7 +177,6 @@ const ConvertFrom: React.FC = () => {
         {...props}
         openFileDialogOnClick={false}
       ></Dragger>
-      {renderInitFile()}
       {renderInitContent()}
       {renderConvertFile()}
 
