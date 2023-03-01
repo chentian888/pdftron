@@ -2,16 +2,7 @@ import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
-import {
-  map,
-  slice,
-  forEach,
-  flatten,
-  times,
-  includes,
-  join,
-  first,
-} from 'lodash-es';
+import { map, slice, forEach, flatten, times, join, first } from 'lodash-es';
 import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
 
@@ -441,48 +432,50 @@ export default class PDF {
       filename: prefix,
       extension: suffix,
     });
-    const count = doc2.getPageCount();
+    // const count = doc2.getPageCount();
     let increment = 0;
-
+    console.log(include);
     // doc1
-    for (let i = 1; i <= count; i++) {
-      if (include && include.length && includes(include, i)) {
-        const { width, height } = doc1.getPageInfo(i);
-        let cropTop = 0,
-          cropLeft = 0,
-          cropRight = 0,
-          cropBottom = 0;
-        if (deirection === 'horizontal') {
-          cropBottom = height / 2;
-        } else {
-          cropRight = width / 2;
-        }
-
-        await doc1.cropPages([i], cropTop, cropBottom, cropLeft, cropRight);
+    for (let i = 0; i < include.length; i++) {
+      const index = include[i];
+      const { width, height } = doc1.getPageInfo(index);
+      let cropTop = 0,
+        cropLeft = 0,
+        cropRight = 0,
+        cropBottom = 0;
+      if (deirection === 'horizontal') {
+        cropBottom = height / 2;
+      } else {
+        cropRight = width / 2;
       }
+      await doc1.cropPages([index], cropTop, cropBottom, cropLeft, cropRight);
     }
     // doc2
-    for (let j = 1; j <= count; j++) {
-      if (include && include.length && includes(include, j)) {
-        const { width, height } = doc2.getPageInfo(j);
-        let cropTop = 0,
-          cropLeft = 0,
-          cropRight = 0,
-          cropBottom = 0;
-        if (deirection === 'horizontal') {
-          cropTop = height / 2;
-        } else {
-          cropLeft = width / 2;
-        }
-        await doc2.cropPages([j], cropTop, cropBottom, cropLeft, cropRight);
+    for (let j = 0; j < include.length; j++) {
+      const { width, height } = doc2.getPageInfo(include[j]);
+      let cropTop = 0,
+        cropLeft = 0,
+        cropRight = 0,
+        cropBottom = 0;
+      if (deirection === 'horizontal') {
+        cropTop = height / 2;
+      } else {
+        cropLeft = width / 2;
       }
+      await doc2.cropPages(
+        [include[j]],
+        cropTop,
+        cropBottom,
+        cropLeft,
+        cropRight,
+      );
     }
 
-    for (let k = 1; k <= count; k++) {
-      if (include && include.length && includes(include, k)) {
-        await doc1.insertPages(doc2, [k], k + 1 + increment);
-        increment++;
-      }
+    for (let k = 0; k < include.length; k++) {
+      const index = include[k];
+      await doc1.insertPages(doc2, [index], index + 1 + increment);
+      increment++;
+      console.log(increment);
     }
 
     const buf = await doc1.getFileData();

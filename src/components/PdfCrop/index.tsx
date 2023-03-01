@@ -19,7 +19,6 @@ const PdfCrop: React.FC<Props> = (props) => {
   const [includePages, setIncludePages] = useState<number[]>([]);
   const [cropType, setCropType] = useState<CropType>();
   const [options, setOptions] = useState<SelectProps['options']>([]);
-  const [pages, setPages] = useState<number[]>([]);
 
   // let options: SelectProps['options'] = [];
 
@@ -34,9 +33,9 @@ const PdfCrop: React.FC<Props> = (props) => {
       label: `第${index + 1}页`,
       value: index + 1,
     }));
+    const allPage = times(count!, (index) => index + 1);
     setOptions(options);
-    setPages(times(count!, (index) => index + 1));
-    console.log(options);
+    setIncludePages(allPage);
     doc?.unloadResources();
   };
 
@@ -49,7 +48,7 @@ const PdfCrop: React.FC<Props> = (props) => {
   const handleChange = (value: string) => {
     const arrStr = split(value, ',');
     const arrNum = map(arrStr, (num: string) => Number(num));
-    setIncludePages(difference(pages, arrNum));
+    setIncludePages(difference(includePages, arrNum));
   };
 
   // 预览
