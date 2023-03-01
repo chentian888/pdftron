@@ -65,7 +65,7 @@ const ConvertedFile: React.FC<Props> = (props) => {
   // 预览
   const handlePreview = () => {
     if (nonsupport) return;
-    const { UI } = instance!;
+    const { UI, Core } = instance!;
     const { prefix, suffix } = Tools.fileMsg(
       convert.newfile as any as UploadFile,
     );
@@ -74,6 +74,9 @@ const ConvertedFile: React.FC<Props> = (props) => {
     UI.loadDocument(convert.newfile as any as File, {
       filename: prefix,
       extension: suffix,
+    });
+    Core.documentViewer.addEventListener('documentLoaded', () => {
+      UI.setLayoutMode(UI.LayoutMode.Continuous);
     });
   };
 

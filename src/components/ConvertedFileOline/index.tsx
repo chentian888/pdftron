@@ -59,10 +59,13 @@ const ConvertedFileOline: React.FC<Props> = (props) => {
 
   // 预览
   const handlePreview = () => {
-    const { UI } = instance!;
+    const { UI, Core } = instance!;
     setShowWebviewer(true);
     setWebviewerTtile(fileName!);
     UI.loadDocument(`${BROWSER_FILE}${src}`);
+    Core.documentViewer.addEventListener('documentLoaded', () => {
+      UI.setLayoutMode(UI.LayoutMode.Continuous);
+    });
   };
 
   // 下载图片

@@ -42,13 +42,16 @@ const DragedFile: React.FC<Props> = (props) => {
 
   // 预览
   const handlePreview = async () => {
-    const { UI } = instance!;
+    const { UI, Core } = instance!;
     setShowWebviewer(true);
     setWebviewerTtile(`${source.currentPage}/${source.totalPage}`);
     const { prefix } = Tools.fileMsg(source.newFileName as any as UploadFile);
     UI.loadDocument(source.newfile, {
       filename: prefix,
       extension: 'png',
+    });
+    Core.documentViewer.addEventListener('documentLoaded', () => {
+      UI.setLayoutMode(UI.LayoutMode.Continuous);
     });
   };
 

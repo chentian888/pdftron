@@ -20,9 +20,9 @@ export default () => {
       'leftPanelButton',
       'selectToolButton',
       'searchButton',
-      'toggleNotesButton',
-      'viewControlsButton',
-      'ribbons',
+      // 'toggleNotesButton',
+      // 'viewControlsButton',
+      // 'ribbons',
       'toolsHeader',
       'menuButton',
     ]);
