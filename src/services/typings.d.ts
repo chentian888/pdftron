@@ -112,4 +112,21 @@ declare namespace API {
     state: number;
     convertedPaths: string[];
   }
+
+  type SysSettingParams = Record<string, unknown>;
+
+  interface SysSettingRes {
+    windows_download_url: string;
+    web_content_english: string;
+    android_download_english: string;
+    android_download_china: string;
+    wndows_download_open: string;
+    mac_download_open: string;
+    video_english: string;
+    video_china: string;
+    web_content: string;
+    iphone_pdf_ios_download: string;
+    web_content_open_url: string;
+    iphone_scan_ios_download: string;
+  }
 }

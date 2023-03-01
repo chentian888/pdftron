@@ -1,5 +1,21 @@
 import { request, AxiosResponse } from '@umijs/max';
 import Cache from '@/utils/cache';
+
+// 登录
+export async function getSysSetting(
+  params?: API.SysSettingParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.HttpResponse<API.SysSettingRes>>('/admin/app/param/json', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    getResponse: true,
+    ...(options || {}),
+  });
+}
+
 // 登录
 export async function login(
   body: API.LoginParams,

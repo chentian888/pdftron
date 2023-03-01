@@ -1,6 +1,7 @@
 import { Button, Modal } from 'antd';
 import { useNavigate, useModel } from '@umijs/max';
 import Header from '@/components/Header';
+import AppStore from '@/components/AppStore';
 
 type TabType = { name: string; value: string };
 
@@ -303,6 +304,7 @@ const Home: React.FC = () => {
         </div>
       </div>
       <div className="w-[1000px] h-[400px] bg-white m-auto my-10 rounded-2xl"></div>
+      <AppStore />
       <div
         className="h-[763px] flex justify-center items-center relative"
         style={{ backgroundImage: `url(${require('./img/bg-footer.png')})` }}
