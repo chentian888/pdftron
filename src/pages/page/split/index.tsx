@@ -103,13 +103,11 @@ const PageManipulation: React.FC = () => {
     extractNo.push(index);
     const sort = sortBy(extractNo, (o) => o);
     setExtractNo(sort);
-    console.log(extractNo);
   };
 
   // 反选文件
   const unCheckFile = (index: number) => {
     pullAllBy(extractNo, [index]);
-    console.log(extractNo);
   };
 
   // 文件列表

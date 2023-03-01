@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 import { pullAllBy, sortBy, map } from 'lodash-es';
 import PDF from '@/utils/pdf';
@@ -11,7 +11,8 @@ const { Dragger } = Upload;
 
 const ContentRemoveText: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [thumbnailList, setThumbnailList] = useState<ExtraThumbnailType[]>();
+  const [loadingPage, setLoadingPage] = useState<boolean>(false);
+  const [thumbnailList, setThumbnailList] = useState<PageThumbnailType[]>([]);
   const [extractNo, setExtractNo] = useState<number[]>([]);
   const { setBread } = useModel('global');
   const {
@@ -72,11 +73,17 @@ const ContentRemoveText: React.FC = () => {
     return pageUmount;
   }, []);
 
+  const callback = (res: PageThumbnailType[]) => {
+    const pages = map(res, (ele) => ele.currentPage);
+    setExtractNo([...pages]);
+    setThumbnailList([...thumbnailList, ...res]);
+  };
+
   const initThumb = async () => {
-    const res = await PDF.genThumbnail(instance!, fileList[0], true);
-    const pageNo = map(res, (ele) => ele.currentPage);
-    setExtractNo(pageNo);
-    setThumbnailList(res);
+    const file = fileList[0];
+    setLoadingPage(true);
+    await PDF.loadPage(instance!, file, callback);
+    setLoadingPage(false);
   };
 
   useEffect(() => {
@@ -102,7 +109,7 @@ const ContentRemoveText: React.FC = () => {
     const list = thumbnailList?.map((file, index) => (
       <Col span={4} key={index}>
         <ExtraThumbnail
-          thumb={file}
+          source={file}
           checkFile={checkFile}
           unCheckFile={unCheckFile}
         />
@@ -127,8 +134,11 @@ const ContentRemoveText: React.FC = () => {
 
   // 提取页面
   const convert = async () => {
+    if (!extractNo.length) {
+      message.error('至少选择1页');
+      return;
+    }
     setLoading(true);
-    console.log(extractNo);
     const res = await PDF.removeText(instance!, fileList, extractNo);
     await PDF.downloadZip(res);
     setThumbnailList([]);
@@ -191,7 +201,7 @@ const ContentRemoveText: React.FC = () => {
           </div>
         </>
       );
-    } else if (fileList.length) {
+    } else if (fileList.length && !loadingPage) {
       action = (
         <Button
           type="primary"
@@ -200,7 +210,7 @@ const ContentRemoveText: React.FC = () => {
           loading={loading || !thumbnailList?.length}
           onClick={convert}
         >
-          {thumbnailList?.length ? '删除文字' : '页面加载中请稍等'}
+          删除文字
         </Button>
       );
     }
@@ -213,6 +223,12 @@ const ContentRemoveText: React.FC = () => {
 
   return (
     <>
+      {loadingPage && (
+        <Spin
+          size="large"
+          className="w-full h-full absolute bg-black bg-opacity-5 rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
+        ></Spin>
+      )}
       {loading && (
         <Spin
           size="large"
