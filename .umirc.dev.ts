@@ -4,8 +4,8 @@ export default defineConfig({
   mock: false,
   define: {
     ENV: 'dev',
-    TOTAL_SIZE: 1, // 单位M
-    SINGLE_SIZE: 5, // 单位M
+    TOTAL_SIZE: 500, // 单位M
+    SINGLE_SIZE: 100, // 单位M
     LICENSE_KEY:
       'demo:demo@pdftron.com:73b0e0bd01e77b55b3c29607184e8750c2d5e94da67da8f1d0',
     BROWSER_FILE: 'https://www.pdfinto.com/file/',
@@ -13,6 +13,10 @@ export default defineConfig({
   },
   proxy: {
     '/api': {
+      target: 'https://www.pdfinto.com',
+      changeOrigin: true,
+    },
+    '/admin': {
       target: 'https://www.pdfinto.com',
       changeOrigin: true,
     },
