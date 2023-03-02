@@ -67,13 +67,11 @@ export default class PDF {
     // 获取文件数据流
     const data = await firstDoc.getFileData();
     const blob = await Tools.buf2Blob(data);
-    const newFileName = `all.pdf`;
+    const newFileName = `pdf_edit_all.pdf`;
     const newfile = Tools.blob2File(data, newFileName);
     // 释放资源
     firstDoc.unloadResources();
-    return [
-      { file: files[0], newfile, newFileName: 'all.pdf', newFileBlob: blob },
-    ];
+    return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
   }
 
   /**
@@ -287,7 +285,7 @@ export default class PDF {
         Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
       );
       const blob = await Tools.buf2Blob(buf);
-      const newFileName = `all.pdf`;
+      const newFileName = `pdf_edit_all.pdf`;
       const newfile = Tools.blob2File(buf, newFileName);
       // 释放资源
 
