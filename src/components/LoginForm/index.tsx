@@ -74,6 +74,7 @@ const LoginForm: React.FC<Props> = (props) => {
       >
         <Input
           placeholder="请输入登录密码"
+          type="password"
           prefix={
             <div className="w-[18px] h-[22px]">
               <img
