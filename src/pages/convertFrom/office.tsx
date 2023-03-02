@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -143,7 +143,11 @@ const ConvertFrom: React.FC = () => {
       setConvertList(arr);
       setLoading(false);
       setSuccess(true);
-    } catch (error) {}
+    } catch (error) {
+      message.error('转换失败。检查文档是否有密码或已损坏');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 内容区域

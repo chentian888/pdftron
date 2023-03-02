@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -131,9 +131,13 @@ const ConvertFrom: React.FC = () => {
       // 下载
       await PDF.downloadZip(arr);
       setConvertList(arr);
-      setLoading(false);
       setSuccess(true);
-    } catch (error) {}
+    } catch (error) {
+      message.error('转换失败');
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 内容区域
