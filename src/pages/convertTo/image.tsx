@@ -96,9 +96,10 @@ const ConvertFrom: React.FC = () => {
     try {
       setLoading(true);
       // 转blob
-      await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
+      const res = await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
+      console.log(res);
       // 下载
-      await downloadAll();
+      await PDF.downloadZip(res);
 
       setSuccess(true);
     } catch (e) {
