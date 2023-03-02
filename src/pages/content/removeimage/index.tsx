@@ -128,9 +128,7 @@ const ContentRemoveImage: React.FC = () => {
   // 提取页面
   const convert = async () => {
     setLoading(true);
-    console.log(extractNo);
     const res = await PDF.removeImage(instance!, fileList, extractNo);
-    console.log(res);
     await PDF.downloadZip(res);
     setThumbnailList([]);
     setConvertList(res);

@@ -30,7 +30,6 @@ const DragedFile: React.FC<Props> = (props) => {
     try {
       const thumbnail = await PDF.genThumbnail(instance!, file);
       setThumb(thumbnail[0].img);
-      console.log(thumb);
     } catch (e) {}
   };
 

@@ -39,10 +39,8 @@ export default () => {
   }
 
   async function beforeUpload(file: UploadFile, files: UploadFile[]) {
-    console.log(file);
     const { suffix } = Tools.fileMsg(file);
     const isPdf = suffix === 'pdf' || suffix === 'PDF';
-    console.log(isPdf);
     try {
       if (isPdf) {
         const hasPassword = await Promise.all(

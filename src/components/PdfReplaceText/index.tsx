@@ -92,7 +92,6 @@ const PdfReplaceText: React.FC<Props> = (props) => {
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => {
-                  console.log(key, name, restField);
                   return (
                     <Row key={key} justify="center">
                       <Col span={9}>

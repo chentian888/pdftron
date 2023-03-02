@@ -8,7 +8,6 @@ const AppStore: React.FC = () => {
   const getSetting = async () => {
     const { data = {} } = await getSysSetting();
     setMsg(data);
-    console.log(data);
   };
   useEffect(() => {
     getSetting();

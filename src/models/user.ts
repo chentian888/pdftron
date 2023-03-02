@@ -40,7 +40,6 @@ export default () => {
       userName: params.userName,
       password: params.password,
     });
-    console.log(data);
 
     return data;
   };

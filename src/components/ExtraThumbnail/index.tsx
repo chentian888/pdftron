@@ -30,7 +30,6 @@ const DragedFile: React.FC<Props> = (props) => {
         source.newfile as any as UploadFile,
       );
       setThumb(thumbnail[0].img);
-      console.log(thumb);
     } catch (e) {}
   };
 

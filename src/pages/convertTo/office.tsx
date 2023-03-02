@@ -48,7 +48,6 @@ const ConvertFrom: React.FC = () => {
   );
 
   const downloadAll = async () => {
-    console.log(data);
     window.open(BROWSER_FILE + data?.convertedPaths[0]);
   };
 

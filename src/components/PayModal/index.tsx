@@ -31,7 +31,6 @@ const LoginModal: React.FC = () => {
 
   // 选择商品
   const checkPrice = (ele: API.VipRes) => {
-    console.log(ele);
     setPrice(ele);
   };
 

@@ -24,7 +24,6 @@ const LoginForm: React.FC<Props> = (props) => {
       try {
         const { userName, password } = values;
         const data = await userLogin({ userName, password });
-        console.log(data);
         form.resetFields();
         setLoading(false);
         if (data && redirect) {
