@@ -128,7 +128,7 @@ const Editor: React.FC = () => {
       },
     };
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
-    instance.UI.disableElements(['menuButton']);
+    instance.UI.disableElements(['menuButton', 'WarningModalSignButton']);
     instance.UI.enableFeatures([
       instance.UI.Feature.MultiTab,
       instance.UI.Feature.ContentEdit,
