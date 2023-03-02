@@ -20,35 +20,15 @@ export default class PDF {
     files: UploadFile[],
   ): Promise<ConvertFile[]> {
     const { Core } = instance;
-
-    const convert = async (file: UploadFile): Promise<ConvertFile> => {
-      const { prefix, suffix } = Tools.fileMsg(file);
-      // const data = await (instance.Core as any).officeToPDFBuffer(file, {
-      //   l: this.licenseKey,
-      // });
-      const doc = await Core.createDocument(file as any as File, {
-        filename: prefix,
-        extension: suffix,
-        loadAsPDF: true,
-      });
-      console.log(doc.getFilename());
-      const data = await doc.getFileData();
-      const blob = await Tools.buf2Blob(data);
-      const newFileName = `${prefix}.pdf`;
-      const newfile = Tools.blob2File(data, newFileName);
-      doc.unloadResources();
-      return { file: file, newfile, newFileName, newFileBlob: blob };
-    };
-
-    const convertSequence = function* () {
-      for (let i = 0; i < files.length; i++) {
-        yield convert(files[i]);
-      }
-    };
-    const blobArray = await Tools.runSequence(convertSequence());
-    // const blobArray = await Promise.all(map(files, convert));
-
-    return blobArray;
+    const file = files[0];
+    const { prefix } = Tools.fileMsg(file);
+    const data = await (Core as any).officeToPDFBuffer(file, {
+      l: this.licenseKey,
+    });
+    const newFileName = `${prefix}.pdf`;
+    const newfile = Tools.blob2File(data, newFileName);
+    const blob = await Tools.buf2Blob(data);
+    return [{ file: file, newfile, newFileName, newFileBlob: blob }];
   }
 
   /**
