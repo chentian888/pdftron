@@ -28,10 +28,12 @@ const LoginForm: React.FC<Props> = (props) => {
         setLoading(false);
         if (data && redirect) {
           navigate(redirect, { replace: true });
-        } else {
+        } else if (data) {
           setShowLoginModal(false);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.log(e);
+      }
     });
   };
 
