@@ -3,6 +3,7 @@ import { Modal } from 'antd';
 import { useModel } from '@umijs/max';
 import { map, includes, filter, reduce } from 'lodash-es';
 import PDF from '@/utils/pdf';
+import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
 // import type { ConvertFile } from '@/types/typings';
 
@@ -38,11 +39,25 @@ export default () => {
   }
 
   async function beforeUpload(file: UploadFile, files: UploadFile[]) {
-    console.log(file.size);
+    console.log(file);
+    const { suffix } = Tools.fileMsg(file);
+    const isPdf = suffix === 'pdf' || suffix === 'PDF';
+    console.log(isPdf);
     try {
-      const hasPassword = await Promise.all(
-        map(files, async (f) => await PDF.hasPassword(instance!, f)),
-      );
+      if (isPdf) {
+        const hasPassword = await Promise.all(
+          map(files, async (f) => await PDF.hasPassword(instance!, f)),
+        );
+
+        // 检测文档密码
+        if (includes(hasPassword, true)) {
+          Modal.warning({
+            title: '无效文档',
+            content: '暂不支持有密码的文档进行转换',
+          });
+          return false;
+        }
+      }
       const limit = filter(
         files,
         (f) => (f as any as File).size > SINGLE_SIZE * 1024 * 1024,
@@ -54,15 +69,6 @@ export default () => {
         },
         0,
       );
-      // 检测文档密码
-      if (includes(hasPassword, true)) {
-        Modal.warning({
-          title: '无效文档',
-          content: '暂不支持有密码的文档进行转换',
-        });
-        return false;
-      }
-
       // 检测单个文件是否有超过限制
       if (limit.length) {
         Modal.warning({
