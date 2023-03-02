@@ -14,6 +14,7 @@ import type { WebViewerInstance } from '@pdftron/webviewer';
 const Editor: React.FC = () => {
   const { setShowLoginModal, setShowVipModal } = useModel('user');
 
+  const { setBread } = useModel('global');
   const viewer = useRef<HTMLDivElement>(null);
   const { fileList, resetList } = useModel('files');
   const [ready, setReady] = useState<boolean>(false);
@@ -67,6 +68,7 @@ const Editor: React.FC = () => {
   const pageUmount = () => {
     setReady(false);
     resetList();
+    setBread([]);
   };
 
   const initWebViewer = async (mountDom: HTMLDivElement) => {
@@ -145,6 +147,7 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
+    setBread([{ title: '首页', link: '/' }, { title: 'PDF在线编辑器' }]);
     if (viewer.current) {
       initWebViewer(viewer.current);
     }

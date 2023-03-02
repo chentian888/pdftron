@@ -3,7 +3,7 @@ import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
-import PermissionBtn from '@/components/PermissionBtn';
+// import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
 
@@ -185,17 +185,15 @@ const ConvertFrom: React.FC = () => {
     } else if (fileList.length) {
       // 免费使用的功能
       action = (
-        <PermissionBtn text="转换">
-          <Button
-            type="primary"
-            size="large"
-            block
-            loading={loading}
-            onClick={() => convert()}
-          >
-            转换
-          </Button>
-        </PermissionBtn>
+        <Button
+          type="primary"
+          size="large"
+          block
+          loading={loading}
+          onClick={() => convert()}
+        >
+          转换
+        </Button>
       );
     }
     return (

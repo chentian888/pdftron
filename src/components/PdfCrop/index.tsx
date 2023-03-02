@@ -53,13 +53,16 @@ const PdfCrop: React.FC<Props> = (props) => {
 
   // 预览
   const handlePreview = () => {
-    const { UI } = instance!;
+    const { UI, Core } = instance!;
     const { prefix, suffix } = Tools.fileMsg(file);
     setShowWebviewer(true);
     setWebviewerTtile(file.name);
     UI.loadDocument(file as any as File, {
       filename: prefix,
       extension: suffix,
+    });
+    Core.documentViewer.addEventListener('documentLoaded', () => {
+      UI.setLayoutMode(UI.LayoutMode.Continuous);
     });
   };
 

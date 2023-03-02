@@ -122,20 +122,21 @@ const Header: React.FC<Props> = (props) => {
           } m-auto h-full flex justify-between items-center`}
         >
           <div className="text-lg h-full">
-            <div
-              className=" text-black no-underline text-lg flex justify-start items-center h-full cursor-pointer"
-              onClick={handleLogoClick}
-            >
-              <img className="block w-[50px]" src="/logo.png" alt="" />
-              <div>
+            <div className=" text-black no-underline text-lg flex justify-start items-center h-full cursor-pointer">
+              <div
+                className="flex justify-start items-center cursor-pointer"
+                onClick={handleLogoClick}
+              >
+                <img className="block w-[50px]" src="/logo.png" alt="" />
                 PDF Edit All
-                <span
-                  className="text-xs text-gray-500 ml-4"
-                  onClick={(e) => viewSupported(e)}
-                >
-                  *支持的格式
-                </span>
               </div>
+
+              <span
+                className="text-xs text-gray-500 ml-4"
+                onClick={(e) => viewSupported(e)}
+              >
+                *支持的格式
+              </span>
             </div>
           </div>
 
@@ -169,20 +170,22 @@ const Header: React.FC<Props> = (props) => {
         </div>
       </div>
       {bread.length ? (
-        <div className="w-1200 m-auto mb-3">
-          <Breadcrumb>
-            {bread.map((b, index) => {
-              return (
-                <Breadcrumb.Item key={index}>
-                  {b.link ? (
-                    <Link to={b.link}>{b.title}</Link>
-                  ) : (
-                    <span>{b.title}</span>
-                  )}
-                </Breadcrumb.Item>
-              );
-            })}
-          </Breadcrumb>
+        <div className="bg-white">
+          <div className="w-1200 m-auto mb-3">
+            <Breadcrumb>
+              {bread.map((b, index) => {
+                return (
+                  <Breadcrumb.Item key={index}>
+                    {b.link ? (
+                      <Link to={b.link}>{b.title}</Link>
+                    ) : (
+                      <span>{b.title}</span>
+                    )}
+                  </Breadcrumb.Item>
+                );
+              })}
+            </Breadcrumb>
+          </div>
         </div>
       ) : (
         ''

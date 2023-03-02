@@ -133,7 +133,7 @@ const ConvertFrom: React.FC = () => {
       setConvertList(arr);
       setSuccess(true);
     } catch (error) {
-      message.error('转换失败');
+      message.error('请检查，您选择了损坏的图片');
       console.log(error);
     } finally {
       setLoading(false);
