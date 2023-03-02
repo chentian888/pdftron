@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, message } from 'antd';
 import { useModel } from '@umijs/max';
 import PDF from '@/utils/pdf';
 import DragedFile from '@/components/DragedFile';
@@ -112,12 +112,17 @@ const PageManipulation: React.FC = () => {
 
   // 提取页面
   const convert = async () => {
-    setLoading(true);
-    const res = await PDF.compress(instance!, fileList);
-    await PDF.downloadZip(res);
-    setConvertList(res);
-    setLoading(false);
-    setSuccess(true);
+    try {
+      setLoading(true);
+      const res = await PDF.compress(instance!, fileList);
+      await PDF.downloadZip(res);
+      setConvertList(res);
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadAll = async () => {

@@ -127,10 +127,16 @@ const PageManipulation: React.FC = () => {
       message.error('PDF合并最少需要2个文件');
       return;
     }
-    setLoading(true);
-    await startMergeDocument();
-    setLoading(false);
-    setSuccess(true);
+
+    try {
+      setLoading(true);
+      await startMergeDocument();
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadAll = async () => {

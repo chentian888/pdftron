@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -113,14 +113,19 @@ const ConvertFrom: React.FC = () => {
 
   // 转换
   const convert = async () => {
-    setLoading(true);
-    // 转blob
-    const arr = await PDF.pdf2pdfa(instance!, fileList);
-    setConvertList(arr);
-    // 下载
-    await PDF.downloadZip(arr);
-    setLoading(false);
-    setSuccess(true);
+    try {
+      setLoading(true);
+      // 转blob
+      const arr = await PDF.pdf2pdfa(instance!, fileList);
+      setConvertList(arr);
+      // 下载
+      await PDF.downloadZip(arr);
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadAll = async () => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal } from 'antd';
+import { Upload, Row, Col, Button, Modal, message } from 'antd';
 import { useModel } from '@umijs/max';
 // import WebViewer, { Core } from '@pdftron/webviewer';
 // import { times } from 'lodash-es';
@@ -75,13 +75,18 @@ const PageManipulation: React.FC = () => {
 
   // 裁剪页面
   const handleCrop = async (pagesNum: number[] = [], cropType: CropType) => {
-    const file = fileList[0];
-    setLoading(true);
-    const res = await PDF.cropPage(instance!, file, cropType, pagesNum);
-    setConvertList(res);
-    await PDF.downloadZip(res);
-    setLoading(false);
-    setSuccess(true);
+    try {
+      const file = fileList[0];
+      setLoading(true);
+      const res = await PDF.cropPage(instance!, file, cropType, pagesNum);
+      setConvertList(res);
+      await PDF.downloadZip(res);
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 文件列表

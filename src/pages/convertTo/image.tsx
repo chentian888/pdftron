@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 // import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -93,13 +93,19 @@ const ConvertFrom: React.FC = () => {
 
   // 转换
   const convert = async () => {
-    setLoading(true);
-    // 转blob
-    await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
-    // 下载
-    await downloadAll();
-    setLoading(false);
-    setSuccess(true);
+    try {
+      setLoading(true);
+      // 转blob
+      await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
+      // 下载
+      await downloadAll();
+
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // pdf转图片选择完文件之后直接进行转换

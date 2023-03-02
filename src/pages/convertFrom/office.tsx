@@ -144,7 +144,7 @@ const ConvertFrom: React.FC = () => {
       setLoading(false);
       setSuccess(true);
     } catch (error) {
-      message.error('转换失败。检查文档是否有密码或已损坏');
+      message.error('转换失败请检查文档是否有密码或已损坏！');
     } finally {
       setLoading(false);
     }

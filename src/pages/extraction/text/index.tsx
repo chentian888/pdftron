@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -111,12 +111,17 @@ const ExtractText: React.FC = () => {
 
   // 提取文字
   const extraText = async () => {
-    setLoading(true);
-    const list = await PDF.extraText(instance!, fileList);
-    await PDF.downloadZip(list);
-    setConvertList(list);
-    setLoading(false);
-    setSuccess(true);
+    try {
+      setLoading(true);
+      const list = await PDF.extraText(instance!, fileList);
+      await PDF.downloadZip(list);
+      setConvertList(list);
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadAll = async () => {

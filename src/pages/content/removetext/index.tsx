@@ -138,13 +138,19 @@ const ContentRemoveText: React.FC = () => {
       message.error('至少选择1页');
       return;
     }
-    setLoading(true);
-    const res = await PDF.removeText(instance!, fileList, extractNo);
-    await PDF.downloadZip(res);
-    setThumbnailList([]);
-    setConvertList(res);
-    setLoading(false);
-    setSuccess(true);
+
+    try {
+      setLoading(true);
+      const res = await PDF.removeText(instance!, fileList, extractNo);
+      await PDF.downloadZip(res);
+      setThumbnailList([]);
+      setConvertList(res);
+      setSuccess(true);
+    } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadAll = async () => {

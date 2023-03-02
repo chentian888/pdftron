@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel, useParams, useRequest } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFileOline from '@/components/ConvertedFileOline';
@@ -171,6 +171,7 @@ const ConvertFrom: React.FC = () => {
       // await PDF.downloadZip(arr);
       // setConvertList(arr);
     } catch (e) {
+      message.error('转换失败请检查文档是否有密码或已损坏！');
     } finally {
       setLoading(false);
     }
