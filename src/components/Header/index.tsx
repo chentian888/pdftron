@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Avatar, Breadcrumb, Modal, Space, Tag, Popover } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { Link, useModel } from '@umijs/max';
+import { Link, useModel, useNavigate } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
 import Cache from '@/utils/cache';
@@ -12,6 +12,7 @@ interface Props {
 
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
+  const navigate = useNavigate();
   const { initialState, setInitialState } = useModel('@@initialState');
   const { setShowLoginModal, setShowVipModal } = useModel('user');
   const { bread } = useModel('global');
@@ -57,6 +58,10 @@ const Header: React.FC<Props> = (props) => {
     );
   };
   const handleLogoClick = () => {
+    navigate('/');
+  };
+  const viewSupported = (e: React.MouseEvent) => {
+    e.preventDefault();
     Modal.info({
       title: 'PDF Edit All 支持以下格式文件',
       content: <SupportFile />,
@@ -121,8 +126,16 @@ const Header: React.FC<Props> = (props) => {
               className=" text-black no-underline text-lg flex justify-start items-center h-full cursor-pointer"
               onClick={handleLogoClick}
             >
-              <img className="block w-[50px]" src="/logo.png" alt="" /> PDF Edit
-              All
+              <img className="block w-[50px]" src="/logo.png" alt="" />
+              <div>
+                PDF Edit All
+                <span
+                  className="text-xs text-gray-500 ml-4"
+                  onClick={(e) => viewSupported(e)}
+                >
+                  *支持的格式
+                </span>
+              </div>
             </div>
           </div>
 
