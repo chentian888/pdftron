@@ -6,7 +6,7 @@ import {
   DownloadOutlined,
 } from '@ant-design/icons';
 import { useModel } from '@umijs/max';
-// import { last, split } from 'lodash-es';
+import { last, split } from 'lodash-es';
 import LoadingThumbnail from '@/components/LoadingThumbnail';
 import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -20,6 +20,8 @@ interface Props {
 const ConvertedFileOline: React.FC<Props> = (props) => {
   const { src, file } = props;
   const url = `${BROWSER_FILE}${src}`;
+  const { prefix } = Tools.fileMsg(file);
+  const suffix = last(split(src, '.'));
   const fileName = file.name;
   const { instance, setShowWebviewer, setWebviewerTtile } = useModel('pdf');
   const [thumb, setThumb] = useState<string>('');
@@ -33,10 +35,11 @@ const ConvertedFileOline: React.FC<Props> = (props) => {
         1,
         (thumbnail: HTMLCanvasElement | HTMLImageElement) => {
           let base64 = '';
-          (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
-          (thumbnail as HTMLImageElement).onload = function () {
-            base64 = Tools.getBase64Image(thumbnail as HTMLImageElement);
-          };
+          // (thumbnail as HTMLImageElement).crossOrigin = 'anonymous';
+          // (thumbnail as HTMLImageElement).onload = function () {
+          //   base64 = Tools.getBase64Image(thumbnail as HTMLImageElement);
+          // };
+          base64 = (thumbnail as HTMLCanvasElement).toDataURL();
           doc.unloadResources();
           setThumb(base64);
         },
@@ -90,8 +93,8 @@ const ConvertedFileOline: React.FC<Props> = (props) => {
           </div>
         </div>
         <div className="h-[86px]">
-          <div className="text-gray-400 p-1 text-center overflow-hidden text-ellipsis whitespace-normal">
-            {fileName}
+          <div className="multi-ellipsis text-gray-400 m-1 text-center overflow-hidden text-ellipsis whitespace-normal">
+            {prefix}.{suffix}
           </div>
         </div>
 

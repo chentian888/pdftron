@@ -99,7 +99,7 @@ const DragedFile: React.FC<Props> = (props) => {
           </div>
         </div>
         <div className="h-[86px]">
-          <div className="text-gray-400 p-1 text-center overflow-hidden text-ellipsis whitespace-normal">
+          <div className="multi-ellipsis text-gray-400 m-1 text-center overflow-hidden text-ellipsis whitespace-normal">
             {file.name}
           </div>
         </div>

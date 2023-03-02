@@ -170,9 +170,8 @@ const ConvertFrom: React.FC = () => {
       // await PDF.downloadZip(arr);
       // setConvertList(arr);
     } catch (e) {
-      message.error('转换失败请检查文档是否有密码或已损坏！');
-    } finally {
       setLoading(false);
+      message.error('转换失败请检查文档是否有密码或已损坏！');
     }
   };
 
@@ -234,7 +233,7 @@ const ConvertFrom: React.FC = () => {
             size="large"
             block
             loading={loading}
-            onClick={() => convert()}
+            onClick={convert}
           >
             转换
           </Button>
