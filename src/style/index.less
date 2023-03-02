@@ -27,6 +27,17 @@ body,
   height: 100%;
 }
 
+/* stylelint-disable */
+.multi-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .draged-action {
   padding: 5px;
   height: 240px;
