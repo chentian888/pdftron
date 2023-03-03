@@ -2,7 +2,7 @@
 import type { UploadFile } from 'antd/es/upload/interface';
 
 declare global {
-  const LICENSE_KEY: string;
+  const LK: string;
   const BROWSER_FILE: string;
   const TOTAL_SIZE: number;
   const SINGLE_SIZE: number;

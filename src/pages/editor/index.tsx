@@ -3,6 +3,7 @@ import { Row, Col, Spin, message } from 'antd';
 import WebViewer from '@pdftron/webviewer';
 import { useModel } from '@umijs/max';
 import { last } from 'lodash-es';
+import { decode } from 'js-base64';
 import Tools from '@/utils/tools';
 import Cache from '@/utils/cache';
 import Header from '@/components/Header';
@@ -73,7 +74,7 @@ const Editor: React.FC = () => {
 
   const initWebViewer = async (mountDom: HTMLDivElement) => {
     const instance = await WebViewer(
-      { path: '/webviewer/lib', licenseKey: LICENSE_KEY },
+      { path: '/webviewer/lib', licenseKey: decode(LK) },
       mountDom,
     );
     setInstance(instance);

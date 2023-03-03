@@ -4,11 +4,12 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 import JSZip from 'jszip';
 import { map, slice, forEach, flatten, times, join, first } from 'lodash-es';
+import { decode } from 'js-base64';
 import Tools from '@/utils/tools';
 // import { ConvertFile } from '@/types/typings';
 
 export default class PDF {
-  private static licenseKey = LICENSE_KEY;
+  private static bb = decode(LK);
 
   /**
    * office转PDF
@@ -24,7 +25,7 @@ export default class PDF {
     const file = files[0];
     const { prefix } = Tools.fileMsg(file);
     const data = await (Core as any).officeToPDFBuffer(file, {
-      l: this.licenseKey,
+      l: this.bb,
     });
     const newFileName = `${prefix}.pdf`;
     const newfile = Tools.blob2File(data, newFileName);
@@ -155,7 +156,7 @@ export default class PDF {
           const newfile = Tools.blob2File(buf, newFileName);
           resolve({ file, newfile, newFileName, newFileBlob: blob });
         }
-        Core.PDFNet.runWithCleanup(main, this.licenseKey);
+        Core.PDFNet.runWithCleanup(main, this.bb);
       });
     };
     const arr = await Promise.all(map(files, pdfa));
@@ -201,7 +202,7 @@ export default class PDF {
       return allBlob;
     };
 
-    return await Core.PDFNet.runWithCleanup(await load, LICENSE_KEY);
+    return await Core.PDFNet.runWithCleanup(await load, this.bb);
   }
 
   /**
@@ -298,7 +299,7 @@ export default class PDF {
 
       return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
     }
-    return Core.PDFNet.runWithCleanup(await main, LICENSE_KEY);
+    return Core.PDFNet.runWithCleanup(await main, this.bb);
   }
 
   /**
@@ -528,7 +529,7 @@ export default class PDF {
       const newfile = Tools.blob2File(docbuf, newFileName);
       return [{ file: file, newfile, newFileName, newFileBlob: blob }];
     }
-    return await PDFNet.runWithCleanup(main, LICENSE_KEY);
+    return await PDFNet.runWithCleanup(main, this.bb);
   }
 
   /**
@@ -828,7 +829,7 @@ export default class PDF {
       return memoryBuffer;
     };
 
-    const docbuf = await Core.PDFNet.runWithCleanup(await setPwd, LICENSE_KEY);
+    const docbuf = await Core.PDFNet.runWithCleanup(await setPwd, this.bb);
 
     const newFileName = `${prefix}.pdf`;
     const blob = await Tools.buf2Blob(docbuf);
@@ -877,10 +878,7 @@ export default class PDF {
       }
     };
 
-    const docbuf = await Core.PDFNet.runWithCleanup(
-      await resetPwd,
-      LICENSE_KEY,
-    );
+    const docbuf = await Core.PDFNet.runWithCleanup(await resetPwd, this.bb);
 
     const newFileName = `${prefix}.pdf`;
     const blob = await Tools.buf2Blob(docbuf);
@@ -903,7 +901,7 @@ export default class PDF {
     };
     const isEncrypted: boolean = await Core.PDFNet.runWithCleanup(
       await main,
-      LICENSE_KEY,
+      this.bb,
     );
     return isEncrypted;
   }
@@ -925,7 +923,7 @@ export default class PDF {
     };
     const isBlank: boolean = await Core.PDFNet.runWithCleanup(
       await main,
-      LICENSE_KEY,
+      this.bb,
     );
     return isBlank;
   }
@@ -943,10 +941,7 @@ export default class PDF {
       const success = await doc.initStdSecurityHandlerUString(pwd);
       return success;
     };
-    const pass: boolean = await Core.PDFNet.runWithCleanup(
-      await main,
-      LICENSE_KEY,
-    );
+    const pass: boolean = await Core.PDFNet.runWithCleanup(await main, this.bb);
     return pass;
   }
 

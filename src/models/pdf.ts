@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import WebViewer from '@pdftron/webviewer';
+import { decode } from 'js-base64';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 
 export default () => {
@@ -11,7 +12,7 @@ export default () => {
   // 初始化PDF查看器
   const initWebViewer = async (mountDom: HTMLDivElement) => {
     const instance = await WebViewer(
-      { path: '/webviewer/lib', fullAPI: true, licenseKey: LICENSE_KEY },
+      { path: '/webviewer/lib', fullAPI: true, licenseKey: decode(LK) },
       mountDom,
     );
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
