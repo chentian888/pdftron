@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
+import { Upload, Row, Col, Button, Modal, Spin } from 'antd';
 import { useModel } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
@@ -129,11 +129,11 @@ const ConvertFrom: React.FC = () => {
       setLoading(true);
       const arr = await PDF.image2pdf(instance!, checkFileList);
       // 下载
-      await PDF.downloadZip(arr);
-      setConvertList(arr);
+      await PDF.downloadZip(arr as ConvertFile[]);
+      setConvertList(arr as ConvertFile[]);
       setSuccess(true);
     } catch (error) {
-      message.error('请检查，您选择了损坏的图片');
+      // message.error('请检查，您选择了损坏的图片');
       console.log(error);
     } finally {
       setLoading(false);

@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { saveAs } from 'file-saver';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
@@ -40,38 +41,44 @@ export default class PDF {
   static async image2pdf(
     instance: WebViewerInstance,
     files: UploadFile[],
-  ): Promise<ConvertFile[]> {
+  ): Promise<ConvertFile[] | undefined> {
     const { Core } = instance;
     const firstFile = first(files);
     const otherFile = slice(files, 1);
-
+    let current = 1;
     const { prefix, suffix } = Tools.fileMsg(firstFile!);
-    const firstDoc = await Core.createDocument(firstFile as any as File, {
-      filename: prefix,
-      extension: suffix,
-      loadAsPDF: true,
-    });
-
-    for (let i = 0; i < otherFile.length; i++) {
-      const file = otherFile[i];
-      const { prefix, suffix } = Tools.fileMsg(file);
-      const doc = await Core.createDocument(file as any as File, {
+    try {
+      const firstDoc = await Core.createDocument(firstFile as any as File, {
         filename: prefix,
         extension: suffix,
         loadAsPDF: true,
       });
-      await firstDoc.insertPages(doc);
-      doc.unloadResources();
-    }
 
-    // 获取文件数据流
-    const data = await firstDoc.getFileData();
-    const blob = await Tools.buf2Blob(data);
-    const newFileName = `pdf_edit_all.pdf`;
-    const newfile = Tools.blob2File(data, newFileName);
-    // 释放资源
-    firstDoc.unloadResources();
-    return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
+      for (let i = 0; i < otherFile.length; i++) {
+        const file = otherFile[i];
+        const { prefix, suffix } = Tools.fileMsg(file);
+        current = i + 2;
+        const doc = await Core.createDocument(file as any as File, {
+          filename: prefix,
+          extension: suffix,
+          loadAsPDF: true,
+        });
+
+        await firstDoc.insertPages(doc);
+        doc.unloadResources();
+      }
+
+      // 获取文件数据流
+      const data = await firstDoc.getFileData();
+      const blob = await Tools.buf2Blob(data);
+      const newFileName = `pdf_edit_all.pdf`;
+      const newfile = Tools.blob2File(data, newFileName);
+      // 释放资源
+      firstDoc.unloadResources();
+      return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
+    } catch (e) {
+      message.error(`请检查，第张${current}图片已损坏`);
+    }
   }
 
   /**
