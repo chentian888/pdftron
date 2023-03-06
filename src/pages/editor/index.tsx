@@ -129,7 +129,7 @@ const Editor: React.FC = () => {
       },
     };
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
-    instance.UI.disableElements(['menuButton', 'WarningModalSignButton']);
+    instance.UI.disableElements(['menuButton']);
     instance.UI.enableFeatures([
       instance.UI.Feature.MultiTab,
       instance.UI.Feature.ContentEdit,
@@ -138,12 +138,19 @@ const Editor: React.FC = () => {
     instance.UI.addEventListener('tabAdded', (id, src, options) => {
       console.log(id, src, options);
     });
+    instance.UI.addEventListener('tabDeleted', (id, src, options) => {
+      console.log(id, src, options);
+    });
+    const iframeDoc = instance.UI.iframeWindow.document;
+    const TabsHeader = iframeDoc.querySelector('.TabsHeader');
+    // TabsHeader.style.display = 'none';
+    console.log(TabsHeader);
     instance.UI.setHeaderItems(function (header) {
       header.unshift(printBtn);
       header.unshift(saveAsBtn);
       header.unshift(downloadBtn);
     });
-    await instance.Core.PDFNet.initialize();
+    // await instance.Core.PDFNet.initialize();
     setReady(true);
   };
 
