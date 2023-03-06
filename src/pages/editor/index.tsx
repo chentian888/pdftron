@@ -1,15 +1,22 @@
+// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { Row, Col, Spin, message } from 'antd';
+import { Row, Col, Spin, message, Tabs } from 'antd';
 import WebViewer from '@pdftron/webviewer';
 import { useModel } from '@umijs/max';
-import { last } from 'lodash-es';
+import { last, filter, findIndex, find } from 'lodash-es';
 import { decode } from 'js-base64';
 import Tools from '@/utils/tools';
 import Cache from '@/utils/cache';
 import Header from '@/components/Header';
 
-// import type { UploadProps } from 'antd/es/upload/interface';
 import type { WebViewerInstance } from '@pdftron/webviewer';
+type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
+// type TabType = {
+//   label: string;
+//   children: string;
+//   key: string;
+//   id: number;
+// };
 
 // const { Title } = Typography;
 const Editor: React.FC = () => {
@@ -20,6 +27,9 @@ const Editor: React.FC = () => {
   const { fileList, resetList } = useModel('files');
   const [ready, setReady] = useState<boolean>(false);
   const [instance, setInstance] = useState<WebViewerInstance>();
+
+  const [activeKey, setActiveKey] = useState<string>('');
+  const [items, setItems] = useState<[]>([]);
 
   // const supportFile = [
   //   '.pdf',
@@ -78,7 +88,7 @@ const Editor: React.FC = () => {
       mountDom,
     );
     setInstance(instance);
-
+    const { UI } = instance;
     const downloadBtn = {
       type: 'actionButton',
       title: '下载',
@@ -88,7 +98,7 @@ const Editor: React.FC = () => {
         const valid = validateUser();
         if (valid) {
           try {
-            instance.UI.downloadPdf();
+            UI.downloadPdf();
           } catch (e) {
             message.error('下载错误');
           }
@@ -104,7 +114,7 @@ const Editor: React.FC = () => {
         const valid = validateUser();
         if (valid) {
           try {
-            instance.UI.toggleElement('saveModal');
+            UI.toggleElement('saveModal');
           } catch (e) {
             message.error('下载错误');
           }
@@ -121,36 +131,31 @@ const Editor: React.FC = () => {
         const valid = validateUser();
         if (valid) {
           try {
-            instance.UI.print();
+            UI.print();
           } catch (e) {
             message.error('打印错误');
           }
         }
       },
     };
-    instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
-    instance.UI.disableElements(['menuButton']);
-    instance.UI.enableFeatures([
-      instance.UI.Feature.MultiTab,
-      instance.UI.Feature.ContentEdit,
-    ]);
+    UI.setLanguage(instance.UI.Languages.ZH_CN);
+    UI.disableElements(['menuButton']);
+    UI.enableFeatures([UI.Feature.MultiTab, UI.Feature.ContentEdit]);
 
-    instance.UI.addEventListener('tabAdded', (id, src, options) => {
+    // UI.addEventListener(UI.Events.TAB_ADDED, tabAdded);
+    UI.addEventListener('tabDeleted', (id, src, options) => {
       console.log(id, src, options);
     });
-    instance.UI.addEventListener('tabDeleted', (id, src, options) => {
-      console.log(id, src, options);
-    });
-    const iframeDoc = instance.UI.iframeWindow.document;
+    const iframeDoc = UI.iframeWindow.document;
     const TabsHeader = iframeDoc.querySelector('.TabsHeader');
     // TabsHeader.style.display = 'none';
     console.log(TabsHeader);
-    instance.UI.setHeaderItems(function (header) {
+    UI.setHeaderItems(function (header) {
       header.unshift(printBtn);
       header.unshift(saveAsBtn);
       header.unshift(downloadBtn);
     });
-    // await instance.Core.PDFNet.initialize();
+    // await Core.PDFNet.initialize();
     setReady(true);
   };
 
@@ -181,10 +186,56 @@ const Editor: React.FC = () => {
     }
   }, [fileList]);
 
+  const onChange = (targetKey: string) => {
+    const { key, id } = find(items, (pane) => (pane as any).key === targetKey);
+    setActiveKey(key);
+    instance?.UI.TabManager.setActiveTab(id);
+  };
+
+  const add = () => {
+    instance?.UI.toggleElement('OpenFileModal');
+    // const newActiveKey = `newTab${newTabIndex.current++}`;
+    // setItems([
+    //   ...items,
+    //   { label: 'New Tab', children: 'New Tab Pane', key: newActiveKey },
+    // ]);
+    // setActiveKey(newActiveKey);
+  };
+
+  const remove = (targetKey: TargetKey) => {
+    const targetIndex = findIndex(items, (pane) => pane.key === targetKey);
+    const newPanes = filter(items, (pane) => pane.key !== targetKey);
+    const target = items[targetIndex];
+    if (newPanes.length && targetKey === activeKey) {
+      const { key, id } =
+        newPanes[
+          targetIndex === newPanes.length ? targetIndex - 1 : targetIndex
+        ];
+      instance?.UI.TabManager.setActiveTab(id);
+      setActiveKey(key);
+    }
+    instance?.UI.TabManager.deleteTab(target.id);
+    setItems(newPanes);
+  };
+
+  const onEdit = (targetKey: TargetKey, action: 'add' | 'remove') => {
+    if (action === 'add') {
+      add();
+    } else {
+      remove(targetKey);
+    }
+  };
   return (
     <div className="flex flex-col h-full bg-gray-200">
       <Header block />
       <div className="h-full border-t border-solid border-gray-100">
+        <Tabs
+          onChange={onChange}
+          activeKey={activeKey}
+          type="editable-card"
+          onEdit={onEdit}
+          items={items}
+        />
         <Row className="h-full">
           <Col span={24}>
             {!ready ? (

@@ -24,7 +24,7 @@ const Home: React.FC = () => {
       return (
         <div
           className={`w-1/3 flex justify-center items-center rounded-full cursor-pointer  ${
-            tab === ele.value ? 'bg-[#6672FB] text-white' : ''
+            tab === ele.value ? 'bg-[#7f66fa] text-white' : ''
           }`}
           key={index}
           onClick={() => tabChange(ele)}
