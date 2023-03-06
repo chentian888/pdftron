@@ -296,7 +296,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="w-[1000px] h-[400px] bg-white m-auto my-10 rounded-2xl"></div>
       <AppStore />
       <div
         className="h-[763px] flex justify-center items-center relative"
