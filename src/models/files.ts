@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Modal } from 'antd';
-import { useModel } from '@umijs/max';
-import { map, includes, filter, reduce } from 'lodash-es';
-import PDF from '@/utils/pdf';
-import Tools from '@/utils/tools';
+// import { useModel } from '@umijs/max';
+import { filter, reduce } from 'lodash-es';
+// import PDF from '@/utils/pdf';
+// import Tools from '@/utils/tools';
 import type { UploadFile } from 'antd/es/upload/interface';
 // import type { ConvertFile } from '@/types/typings';
 
 export default () => {
-  const { instance } = useModel('pdf');
+  // const { instance } = useModel('pdf');
 
   // 选择的文件列表
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -39,23 +39,24 @@ export default () => {
   }
 
   async function beforeUpload(file: UploadFile, files: UploadFile[]) {
-    const { suffix } = Tools.fileMsg(file);
-    const isPdf = suffix === 'pdf' || suffix === 'PDF';
+    // const { suffix } = Tools.fileMsg(file);
+    // const isPdf = suffix === 'pdf' || suffix === 'PDF';
     try {
-      if (isPdf) {
-        const hasPassword = await Promise.all(
-          map(files, async (f) => await PDF.hasPassword(instance!, f)),
-        );
+      // 文档密码检测
+      // if (isPdf) {
+      //   const hasPassword = await Promise.all(
+      //     map(files, async (f) => await PDF.hasPassword(instance!, f)),
+      //   );
 
-        // 检测文档密码
-        if (includes(hasPassword, true)) {
-          Modal.warning({
-            title: '无效文档',
-            content: '暂不支持有密码的文档进行转换',
-          });
-          return false;
-        }
-      }
+      //   // 检测文档密码
+      //   if (includes(hasPassword, true)) {
+      //     Modal.warning({
+      //       title: '无效文档',
+      //       content: '暂不支持有密码的文档进行转换',
+      //     });
+      //     return false;
+      //   }
+      // }
       const limit = filter(
         files,
         (f) => (f as any as File).size > SINGLE_SIZE * 1024 * 1024,
