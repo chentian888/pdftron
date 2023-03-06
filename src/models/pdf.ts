@@ -10,9 +10,12 @@ export default () => {
   const [webviewerTtile, setWebviewerTtile] = useState<string>('');
 
   // 初始化PDF查看器
-  const initWebViewer = async (mountDom: HTMLDivElement) => {
+  const initWebViewer = async (
+    mountDom: HTMLDivElement,
+    fullAPI: boolean = true,
+  ) => {
     const instance = await WebViewer(
-      { path: '/webviewer/lib', fullAPI: true, licenseKey: decode(LK) },
+      { path: '/webviewer/lib', fullAPI, licenseKey: decode(LK) },
       mountDom,
     );
     instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
