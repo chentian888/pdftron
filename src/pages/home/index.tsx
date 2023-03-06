@@ -1,5 +1,5 @@
 import { Button, Modal } from 'antd';
-import { useNavigate, useModel } from '@umijs/max';
+import { useNavigate, useModel, Link } from '@umijs/max';
 import Header from '@/components/Header';
 import AppStore from '@/components/AppStore';
 
@@ -311,7 +311,19 @@ const Home: React.FC = () => {
       >
         <div className="w-[180px] h-[180px] rounded-lg bg-white"></div>
         <div className="h-[60px] text-gray-300  bg-[#725697] bg-opacity-50  absolute left-0 bottom-0 w-full flex justify-center items-center">
-          ©2018 Yubanmei. All rights reserved. Website by yubanmei@163.co
+          <span className="px-4 text-white">
+            {' '}
+            公司名称：东莞市青木网络科技有限公司
+          </span>
+          <span className="px-4 text-white">
+            ICP主体备案号：粤ICP备2021139496号
+          </span>
+          <Link
+            className="px-4 no-underline text-white"
+            to="mailto:912786297@qq.com"
+          >
+            联系客服（邮箱）：912786297@qq.com
+          </Link>
         </div>
       </div>
     </div>
