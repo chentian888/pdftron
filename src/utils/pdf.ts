@@ -272,34 +272,37 @@ export default class PDF {
     files: UploadFile[],
   ) {
     const { Core } = instance;
-    async function main() {
-      const newDoc = await Core.PDFNet.PDFDoc.create();
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const buf = await Tools.file2Buf(file as any as File);
-        const doc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-        const pageCount = await doc.getPageCount();
-        const count = await newDoc.getPageCount();
-        newDoc.insertPages(
-          count + 1,
-          doc,
-          1,
-          pageCount,
-          Core.PDFNet.PDFDoc.InsertFlag.e_none,
-        );
-      }
-
-      const buf = await newDoc.saveMemoryBuffer(
-        Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
-      );
-      const blob = await Tools.buf2Blob(buf);
-      const newFileName = `pdf_edit_all.pdf`;
-      const newfile = Tools.blob2File(buf, newFileName);
-      // 释放资源
-
-      return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
+    // const newDoc = await Core.PDFNet.PDFDoc.create();
+    let allDoc = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const { prefix, suffix } = Tools.fileMsg(file);
+      const doc = await Core.createDocument(file as any as File, {
+        filename: prefix,
+        extension: suffix,
+      });
+      allDoc.push(doc);
     }
-    return Core.PDFNet.runWithCleanup(await main, this.bb);
+    console.log(allDoc);
+    const firstDoc = first(allDoc);
+    const otherDoc = slice(allDoc, 1);
+    console.log(otherDoc);
+    for (let i = 0; i < otherDoc.length; i++) {
+      await firstDoc?.insertPages(otherDoc[i]);
+    }
+
+    // const buf = await newDoc.saveMemoryBuffer(
+    //   Core.PDFNet.SDFDoc.SaveOptions.e_linearized,
+    // );
+    const buf = await firstDoc?.getFileData();
+    const blob = await Tools.buf2Blob(buf!);
+    console.log(firstDoc, otherDoc);
+    const newFileName = `pdf_edit_all.pdf`;
+    const newfile = Tools.blob2File(buf!, newFileName);
+    // // 释放资源
+
+    return [{ file: files[0], newfile, newFileName, newFileBlob: blob }];
+    // return [];
   }
 
   /**
