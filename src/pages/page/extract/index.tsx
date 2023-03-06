@@ -91,10 +91,13 @@ const PageManipulation: React.FC = () => {
     return pageUmount;
   }, []);
 
-  const callback = (res: PageThumbnailType[]) => {
+  const callback = (res: PageThumbnailType[], finish: boolean = false) => {
     const pages = map(res, (ele) => ele.currentPage);
     setExtractNo([...pages]);
     setThumbnailList([...thumbnailList, ...res]);
+    if (finish) {
+      setLoadingPage(false);
+    }
   };
 
   // 初始化加载有页面
@@ -102,7 +105,6 @@ const PageManipulation: React.FC = () => {
     const file = fileList[0];
     setLoadingPage(true);
     await PDF.loadPage(instance!, file, callback);
-    setLoadingPage(false);
   };
 
   useEffect(() => {

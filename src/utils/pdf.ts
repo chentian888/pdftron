@@ -166,7 +166,7 @@ export default class PDF {
   static async loadPage(
     instance: WebViewerInstance,
     file: UploadFile,
-    callback?: (res: PageThumbnailType[]) => void,
+    callback?: (res: PageThumbnailType[], finish: boolean) => void,
   ): Promise<PageThumbnailType[]> {
     const { Core } = instance;
     const { prefix, suffix } = Tools.fileMsg(file);
@@ -197,7 +197,7 @@ export default class PDF {
             currentPage: i,
           });
           if (callback) {
-            callback(pageArr);
+            callback(pageArr, i === pageCount);
           }
         },
       });
