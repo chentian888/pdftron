@@ -69,13 +69,6 @@ const Home: React.FC = () => {
         className: 'justify-self-end',
         to: '/convertFrom/excel',
       },
-      // {
-      //   title: 'Txt转PDF',
-      //   desc: 'Txt转PDF',
-      //   icon: 'icon-txt',
-      //   className: '',
-      //   to: '/convertFrom/txt',
-      // },
       {
         title: '图片转PDF',
         desc: '图片(.png.jpg)转PDF',
@@ -128,13 +121,13 @@ const Home: React.FC = () => {
         className: '',
         to: '/convertTo/image',
       },
-      {
-        title: 'PDF转PDF/A(免费)',
-        desc: 'PDF转PDF/A',
-        icon: 'icon-pdfa',
-        className: 'justify-self-center',
-        to: '/convertTo/pdfa',
-      },
+      // {
+      //   title: 'PDF转PDF/A(免费)',
+      //   desc: 'PDF转PDF/A',
+      //   icon: 'icon-pdfa',
+      //   className: 'justify-self-center',
+      //   to: '/convertTo/pdfa',
+      // },
     ];
 
     const items3 = [
@@ -200,34 +193,34 @@ const Home: React.FC = () => {
       //   // to: '/extraction/image',
       //   to: '/forbid',
       // },
-      {
-        title: 'PDF删除文字(免费)',
-        desc: '删除PDF中已选择的文字',
-        icon: 'icon-remove-text',
-        className: 'justify-self-end',
-        to: '/content/removetext',
-      },
-      {
-        title: 'PDF删除图片(免费)',
-        desc: '删除PDF中已选择的图片数据',
-        icon: 'icon-remove-image',
-        className: '',
-        to: '/content/removeimage',
-      },
-      {
-        title: 'PDF压缩(免费)',
-        desc: 'PDF压缩',
-        icon: 'icon-compress',
-        className: 'justify-self-center',
-        to: '/compress',
-      },
-      {
-        title: 'PDF加密解密(免费)',
-        desc: 'PDF加密解密',
-        icon: 'icon-lock',
-        className: 'justify-self-end',
-        to: '/security',
-      },
+      // {
+      //   title: 'PDF删除文字(免费)',
+      //   desc: '删除PDF中已选择的文字',
+      //   icon: 'icon-remove-text',
+      //   className: 'justify-self-end',
+      //   to: '/content/removetext',
+      // },
+      // {
+      //   title: 'PDF删除图片(免费)',
+      //   desc: '删除PDF中已选择的图片数据',
+      //   icon: 'icon-remove-image',
+      //   className: '',
+      //   to: '/content/removeimage',
+      // },
+      // {
+      //   title: 'PDF压缩(免费)',
+      //   desc: 'PDF压缩',
+      //   icon: 'icon-compress',
+      //   className: 'justify-self-center',
+      //   to: '/compress',
+      // },
+      // {
+      //   title: 'PDF加密解密(免费)',
+      //   desc: 'PDF加密解密',
+      //   icon: 'icon-lock',
+      //   className: 'justify-self-end',
+      //   to: '/security',
+      // },
     ];
 
     let cols: HomeItemType[] = items1;
