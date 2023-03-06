@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
 import { useModel } from '@umijs/max';
 // import DragedFile from '@/components/DragedFile';
-import ConvertedFile from '@/components/ConvertedFile';
+import ConvertedImage from '@/components/ConvertedImage';
 // import PermissionBtn from '@/components/PermissionBtn';
 import type { UploadProps } from 'antd/es/upload/interface';
 import PDF from '@/utils/pdf';
@@ -71,11 +71,15 @@ const ConvertFrom: React.FC = () => {
     return pageUmount;
   }, []);
 
+  const downloadAll = async () => {
+    await PDF.downloadZip(convertList);
+  };
+
   // 转换为image列表
   const renderConvertFile = () => {
     const list = convertList.map((file, index) => (
       <Col span={4} key={index}>
-        <ConvertedFile convert={file} index={index} />
+        <ConvertedImage convert={file as PageThumbnailType} index={index} />
       </Col>
     ));
     if (convertList.length) {
@@ -83,35 +87,36 @@ const ConvertFrom: React.FC = () => {
     }
   };
 
-  const pdf2imageCallback = (res: ConvertFile[]) => {
+  // const pdf2imageCallback = (res: ConvertFile[]) => {
+  //   setConvertList([...convertList, ...res]);
+  // };
+
+  const callback = (res: PageThumbnailType[], finish: boolean = false) => {
     setConvertList([...convertList, ...res]);
-  };
-
-  const downloadAll = async () => {
-    await PDF.downloadZip(convertList);
-  };
-
-  // 转换
-  const convert = async () => {
-    try {
-      setLoading(true);
-      // 转blob
-      const res = await PDF.pdf2image(instance!, fileList, pdf2imageCallback);
-      // 下载
-      await PDF.downloadZip(res);
-
-      setSuccess(true);
-    } catch (e) {
-      message.error('转换失败请检查文档是否有密码或已损坏！');
-    } finally {
+    if (finish) {
       setLoading(false);
+      setSuccess(true);
+      // downloadAll();
+      PDF.downloadZip(res);
     }
   };
 
-  // pdf转图片选择完文件之后直接进行转换
+  // 初始化加载有页面
+  const initThumb = async () => {
+    try {
+      const file = fileList[0];
+      setLoading(true);
+      await PDF.loadPage(instance!, file, callback);
+    } catch (e) {
+      setLoading(false);
+      going();
+      message.error('转换失败请检查文档是否有密码或已损坏！');
+    }
+  };
+
   useEffect(() => {
     if (fileList.length) {
-      convert();
+      initThumb();
     }
   }, [fileList]);
 

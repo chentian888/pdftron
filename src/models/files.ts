@@ -17,7 +17,9 @@ export default () => {
   const [checkFileList, setCheckFileList] = useState<UploadFile[]>([]);
 
   // 转换后的文件列表
-  const [convertList, setConvertList] = useState<ConvertFile[]>([]);
+  const [convertList, setConvertList] = useState<
+    ConvertFile[] | PageThumbnailType[]
+  >([]);
 
   const [success, setSuccess] = useState<boolean>(false);
 

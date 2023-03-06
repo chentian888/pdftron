@@ -88,9 +88,15 @@ const PageManipulation: React.FC = () => {
   };
 
   const initThumb = async () => {
-    const file = fileList[0];
-    setLoadingPage(true);
-    await PDF.loadPage(instance!, file, callback);
+    try {
+      const file = fileList[0];
+      setLoadingPage(true);
+      await PDF.loadPage(instance!, file, callback);
+    } catch (e) {
+      setLoadingPage(false);
+      going();
+      message.error('请检查文档是否有密码或已损坏！');
+    }
   };
 
   useEffect(() => {
