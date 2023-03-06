@@ -25,11 +25,15 @@ const DragedFile: React.FC<Props> = (props) => {
 
   const computedThumb = async () => {
     try {
-      const thumbnail = await PDF.genThumbnail(
-        instance!,
-        source.newfile as any as UploadFile,
-      );
-      setThumb(thumbnail[0].img);
+      if (source?.img) {
+        setThumb(source.img);
+      } else {
+        const thumbnail = await PDF.genThumbnail(
+          instance!,
+          source.newfile as any as UploadFile,
+        );
+        setThumb(thumbnail[0].img);
+      }
     } catch (e) {}
   };
 

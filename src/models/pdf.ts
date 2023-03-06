@@ -12,7 +12,7 @@ export default () => {
   // 初始化PDF查看器
   const initWebViewer = async (
     mountDom: HTMLDivElement,
-    fullAPI: boolean = true,
+    fullAPI: boolean = false,
   ) => {
     const instance = await WebViewer(
       { path: '/webviewer/lib', fullAPI, licenseKey: decode(LK) },
@@ -31,7 +31,7 @@ export default () => {
       'menuButton',
     ]);
     setInstance(instance);
-    await instance.Core.PDFNet.initialize();
+    // await instance.Core.PDFNet.initialize();
     setReady(true);
   };
 

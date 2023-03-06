@@ -24,6 +24,7 @@ declare global {
   type PageThumbnailType = {
     totalPage: number;
     currentPage: number;
+    img: string;
   } & ConvertFile;
 
   type CropType = 'vertical' | 'horizontal' | null;

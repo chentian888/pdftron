@@ -169,40 +169,40 @@ export default class PDF {
     callback?: (res: PageThumbnailType[]) => void,
   ): Promise<PageThumbnailType[]> {
     const { Core } = instance;
-
-    const load = async () => {
-      let allBlob: PageThumbnailType[] = [];
-      const { prefix } = Tools.fileMsg(file);
-      const buf = await Tools.file2Buf(file as any as File);
-      const pdfDoc = await Core.PDFNet.PDFDoc.createFromBuffer(buf);
-      const pdfdraw = await Core.PDFNet.PDFDraw.create(92);
-      const itr = await pdfDoc?.getPageIterator(1);
-      const total = await pdfDoc.getPageCount();
-      while (await itr?.hasNext()) {
-        const currPage = await itr?.current();
-        const pageIndex = await currPage.getIndex();
-        const pngBuffer = await pdfdraw?.exportBuffer(currPage!, 'PNG');
-        const blob = await Tools.buf2Blob(pngBuffer, 'image/png');
-        const newFileName = `${prefix}-${pageIndex}.png`;
-        const newfile = Tools.blob2File(pngBuffer, newFileName, 'image/png');
-        const res = {
-          file: file,
-          newfile,
-          newFileBlob: blob,
-          newFileName,
-          totalPage: total,
-          currentPage: pageIndex,
-        };
-        allBlob.push(res);
-        if (callback) {
-          callback(allBlob);
-        }
-        itr?.next();
-      }
-      return allBlob;
-    };
-
-    return await Core.PDFNet.runWithCleanup(await load, this.bb);
+    const { prefix, suffix } = Tools.fileMsg(file);
+    const doc = await Core.createDocument(file as any as File, {
+      filename: prefix,
+      extension: suffix,
+    });
+    const pageCount = doc.getPageCount();
+    const pageArr: PageThumbnailType[] = [];
+    for (let i = 1; i <= pageCount; i++) {
+      doc.loadCanvasAsync({
+        pageNumber: i,
+        zoom: 0.5,
+        drawComplete: async (
+          thumbnail: HTMLCanvasElement | HTMLImageElement,
+        ) => {
+          const newFileName = `${prefix}-${i}.png`;
+          const base64 = (thumbnail as HTMLCanvasElement).toDataURL();
+          const blob = await Tools.base642Blob(base64);
+          const newfile = await Tools.blob2File(blob, newFileName);
+          pageArr.push({
+            newfile,
+            newFileBlob: blob,
+            newFileName,
+            img: base64,
+            file,
+            totalPage: pageCount,
+            currentPage: i,
+          });
+          if (callback) {
+            callback(pageArr);
+          }
+        },
+      });
+    }
+    return pageArr;
   }
 
   /**
