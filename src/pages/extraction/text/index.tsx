@@ -41,10 +41,10 @@ const ExtractText: React.FC = () => {
   const viewer = useRef<HTMLDivElement>(null);
   const props: UploadProps = {
     onRemove,
-    onChange: beforeUpload,
+    beforeUpload,
+    fileList,
     accept: baseData.accept,
     showUploadList: false,
-    maxCount: 1,
     multiple: baseData.multiple || false,
   };
 

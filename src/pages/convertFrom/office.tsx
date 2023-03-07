@@ -61,10 +61,10 @@ const ConvertFrom: React.FC = () => {
 
   const props: UploadProps = {
     onRemove,
-    onChange: beforeUpload,
+    beforeUpload,
+    fileList,
     accept: baseData.accept,
     showUploadList: false,
-    maxCount: 1,
     multiple: baseData.multiple || false,
   };
 
