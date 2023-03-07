@@ -39,6 +39,7 @@ const ConvertFrom: React.FC = () => {
     free: true,
     title: 'PDF转图片',
     desc: 'PDF转图片（jpeg,png）',
+    maxCount: 1,
   };
 
   const viewer = useRef<HTMLDivElement>(null);
@@ -183,7 +184,7 @@ const ConvertFrom: React.FC = () => {
       )}
 
       <Dragger
-        disabled={!ready}
+        disabled={!ready || fileList.length >= baseData.maxCount}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}

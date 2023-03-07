@@ -58,6 +58,7 @@ const ConvertFrom: React.FC = () => {
       multiple: false,
       title: 'PDF转Word',
       desc: 'PDF转Word',
+      maxCount: 1,
     },
     ppt: {
       accept: '.pdf',
@@ -65,6 +66,7 @@ const ConvertFrom: React.FC = () => {
       multiple: false,
       title: 'PDF转PPT',
       desc: 'PDF转PPT',
+      maxCount: 1,
     },
     excel: {
       accept: '.pdf',
@@ -72,6 +74,7 @@ const ConvertFrom: React.FC = () => {
       multiple: false,
       title: 'PDF转Excel',
       desc: 'PDF转Excel',
+      maxCount: 1,
     },
   };
 
@@ -258,7 +261,7 @@ const ConvertFrom: React.FC = () => {
       )}
 
       <Dragger
-        disabled={!ready}
+        disabled={!ready || fileList.length >= baseData.maxCount}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}

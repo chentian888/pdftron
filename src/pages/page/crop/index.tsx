@@ -40,6 +40,7 @@ const PageManipulation: React.FC = () => {
     multiple: false,
     title: 'PDF裁剪',
     desc: '将PDF拆分成两半再按正确顺序合并',
+    maxCount: 1,
   };
 
   const viewer = useRef<HTMLDivElement>(null);
@@ -173,7 +174,7 @@ const PageManipulation: React.FC = () => {
     <>
       {/* <Title title="转为PDF" /> */}
       <Dragger
-        disabled={!ready}
+        disabled={!ready || fileList.length >= baseData.maxCount}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}

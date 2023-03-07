@@ -38,6 +38,7 @@ const ConvertFrom: React.FC = () => {
     multiple: false,
     title: 'PDF转PDF/A',
     desc: 'PDF转PDF/A',
+    maxCount: 1,
   };
 
   const viewer = useRef<HTMLDivElement>(null);
@@ -214,7 +215,7 @@ const ConvertFrom: React.FC = () => {
       )}
 
       <Dragger
-        disabled={!ready}
+        disabled={!ready || fileList.length >= baseData.maxCount}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}

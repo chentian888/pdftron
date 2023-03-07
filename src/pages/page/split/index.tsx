@@ -44,6 +44,7 @@ const PageManipulation: React.FC = () => {
     multiple: false,
     title: 'PDF分割',
     desc: '选择PDF中的页面拆分成多个单独PDF',
+    maxCount: 1,
   };
 
   const viewer = useRef<HTMLDivElement>(null);
@@ -259,7 +260,7 @@ const PageManipulation: React.FC = () => {
         ></Spin>
       )}
       <Dragger
-        disabled={!ready}
+        disabled={!ready || fileList.length >= baseData.maxCount}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}

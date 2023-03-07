@@ -33,9 +33,10 @@ const ExtractText: React.FC = () => {
 
   const baseData = {
     accept: '.pdf',
-    multiple: true,
+    multiple: false,
     title: 'PDF提取文字',
     desc: 'PDF提取文字',
+    maxCount: 1,
   };
 
   const viewer = useRef<HTMLDivElement>(null);
@@ -208,6 +209,7 @@ const ExtractText: React.FC = () => {
         ></Spin>
       )}
       <Dragger
+        disabled={!ready || fileList.length >= baseData.maxCount}
         className="w-full min-h-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0"
         {...props}
         openFileDialogOnClick={false}
