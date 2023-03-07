@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'antd';
+import { Button, Typography } from 'antd';
 import { getSysSetting } from '@/services/user';
+
+const { Title } = Typography;
 
 const AppStore: React.FC = () => {
   const [msg, setMsg] = useState<API.SysSettingParams>({});
@@ -14,6 +16,9 @@ const AppStore: React.FC = () => {
   }, []);
   return (
     <>
+      <Title className="text-center pt-12" level={2}>
+        编辑帮助视频
+      </Title>
       <div className="w-[1000px] h-[500px] bg-white m-auto my-10 rounded-2xl">
         {msg.video_china ? (
           <video
@@ -47,14 +52,14 @@ const AppStore: React.FC = () => {
                 href={msg?.android_download_china as string}
                 target="_blank"
               >
-                下载 Android安装包
+                中文版下载
               </Button>
               <Button
                 type="primary"
                 href={msg?.android_download_english as string}
                 target="_blank"
               >
-                Android商店安装
+                英文版下载
               </Button>
             </div>
           </div>
@@ -74,14 +79,14 @@ const AppStore: React.FC = () => {
                 href={msg?.iphone_pdf_ios_download as string}
                 target="_blank"
               >
-                下载苹果安装包
+                官方地址下载
               </Button>
               <Button
                 type="primary"
                 href={msg?.iphone_scan_ios_download as string}
                 target="_blank"
               >
-                苹果商店安装
+                文档扫描app下载
               </Button>
             </div>
           </div>

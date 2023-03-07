@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { Row, Col, Spin, message, Tabs, Modal, Upload } from 'antd';
+import { Button, Spin, message, Tabs, Modal, Upload } from 'antd';
 import { InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import WebViewer from '@pdftron/webviewer';
 import { useModel } from '@umijs/max';
@@ -268,22 +268,32 @@ const Editor: React.FC = () => {
           </div>
         }
       />
-      <div className="h-full border-t border-solid border-gray-100 ">
-        <Row className="h-full">
-          <Col span={24}>
-            {!ready ? (
-              <Spin
-                className="absolute w-full h-full flex flex-col justify-center items-center"
-                size="large"
-                tip="编辑器加载中请耐心等待"
-              />
-            ) : (
-              ''
-            )}
+      <div className="h-full border-t border-solid border-gray-100 relative">
+        {!ready ? (
+          <Spin
+            className="absolute w-full h-full flex flex-col justify-center items-center"
+            size="large"
+            tip="编辑器加载中请耐心等待"
+          />
+        ) : (
+          ''
+        )}
+        {ready && !items.length ? (
+          <div className="absolute w-full h-full flex flex-col justify-center items-center">
+            <div className="max-w-1/3">
+              {/* <InboxOutlined size={60} /> */}
+              <Upload className="w-full" disabled={!ready} {...props}>
+                <Button className="w-full" type="primary" size="large" block>
+                  选择本地文件
+                </Button>
+              </Upload>
+            </div>
+          </div>
+        ) : (
+          ''
+        )}
 
-            <div className="webviewer h-full shadow-2xl" ref={viewer}></div>
-          </Col>
-        </Row>
+        <div className="webviewer h-full shadow-2xl" ref={viewer}></div>
       </div>
     </div>
   );
