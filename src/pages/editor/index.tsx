@@ -237,7 +237,7 @@ const Editor: React.FC = () => {
     }
   };
   return (
-    <div className="flex flex-col h-full bg-gray-200">
+    <div className="flex flex-col h-full">
       <Header block />
       <Modal
         title="选择要加载到 WebViewer 的文件"
@@ -255,20 +255,20 @@ const Editor: React.FC = () => {
           <p className="ant-upload-hint">只支持单个上传</p>
         </Dragger>
       </Modal>
-      <div className="h-full border-t border-solid border-gray-100 bg-white">
-        <Tabs
-          onChange={onChange}
-          activeKey={activeKey}
-          type="editable-card"
-          onEdit={onEdit}
-          items={items}
-          addIcon={
-            <div className="px-[16px] py-[8px]">
-              <PlusOutlined />
-              点击添加文件
-            </div>
-          }
-        />
+      <Tabs
+        onChange={onChange}
+        activeKey={activeKey}
+        type="editable-card"
+        onEdit={onEdit}
+        items={items}
+        addIcon={
+          <div className="px-[16px] py-[8px]">
+            <PlusOutlined />
+            点击添加文件
+          </div>
+        }
+      />
+      <div className="h-full border-t border-solid border-gray-100 ">
         <Row className="h-full">
           <Col span={24}>
             {!ready ? (
