@@ -244,6 +244,7 @@ const Editor: React.FC = () => {
         open={isModalOpen}
         onOk={handleOk}
         okText="添加标签"
+        footer={false}
         onCancel={handleCancel}
       >
         <Dragger {...props} className=" h-[300px]">
