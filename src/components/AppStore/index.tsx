@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Typography } from 'antd';
+import { useModel } from '@umijs/max';
 import { getSysSetting } from '@/services/user';
 
 const { Title } = Typography;
 
 const AppStore: React.FC = () => {
-  const [msg, setMsg] = useState<API.SysSettingParams>({});
+  const { sysMsg, setSysMsg } = useModel('global');
+  // const [msg, setMsg] = useState<API.SysSettingParams>({});
 
   const getSetting = async () => {
     const { data = {} } = await getSysSetting();
-    setMsg(data);
+    // setMsg(data);
+    setSysMsg(data);
   };
   useEffect(() => {
     getSetting();
@@ -20,11 +23,11 @@ const AppStore: React.FC = () => {
         编辑帮助视频
       </Title>
       <div className="w-[1000px] h-[500px] bg-white m-auto my-10 rounded-2xl">
-        {msg.video_china ? (
+        {sysMsg.video_china ? (
           <video
             width="100%"
             height="100%"
-            src={msg.video_china as string}
+            src={sysMsg.video_china as string}
             controls
             autoPlay
             loop
@@ -49,14 +52,14 @@ const AppStore: React.FC = () => {
                 className="mb-4 w-[160px]"
                 type="primary"
                 ghost
-                href={msg?.android_download_china as string}
+                href={sysMsg?.android_download_china as string}
                 target="_blank"
               >
                 中文版下载
               </Button>
               <Button
                 type="primary"
-                href={msg?.android_download_english as string}
+                href={sysMsg?.android_download_english as string}
                 target="_blank"
               >
                 英文版下载
@@ -76,14 +79,14 @@ const AppStore: React.FC = () => {
                 className="mb-4 w-[160px]"
                 type="primary"
                 ghost
-                href={msg?.iphone_pdf_ios_download as string}
+                href={sysMsg?.iphone_pdf_ios_download as string}
                 target="_blank"
               >
                 官方地址下载
               </Button>
               <Button
                 type="primary"
-                href={msg?.iphone_scan_ios_download as string}
+                href={sysMsg?.iphone_scan_ios_download as string}
                 target="_blank"
               >
                 文档扫描app下载
@@ -102,7 +105,7 @@ const AppStore: React.FC = () => {
               <Button
                 className="w-[160px]"
                 type="primary"
-                href={msg?.mac_download_open as string}
+                href={sysMsg?.mac_download_open as string}
                 target="_blank"
               >
                 Mac端安装
@@ -122,14 +125,14 @@ const AppStore: React.FC = () => {
                 className="mb-4 w-[160px]"
                 type="primary"
                 ghost
-                href={msg?.windows_download_url as string}
+                href={sysMsg?.windows_download_url as string}
                 target="_blank"
               >
                 下载Windows安装包
               </Button>
               <Button
                 type="primary"
-                href={msg?.wndows_download_open as string}
+                href={sysMsg?.wndows_download_open as string}
                 target="_blank"
               >
                 Windows商店安装

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Avatar, Breadcrumb, Modal, Space, Tag, Popover } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { Link, useModel, useNavigate } from '@umijs/max';
+import { Link, useModel, useNavigate, Helmet } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
 import Cache from '@/utils/cache';
@@ -15,23 +15,8 @@ const Header: React.FC<Props> = (props) => {
   const navigate = useNavigate();
   const { initialState, setInitialState } = useModel('@@initialState');
   const { setShowLoginModal, setShowVipModal } = useModel('user');
-  const { bread } = useModel('global');
-  // const { resetList } = useModel('files');
-  // const { setReady } = useModel('pdf');
-  // const supportFile = [
-  //   '.pdf',
-  //   '.jpg',
-  //   '.jpeg',
-  //   '.png',
-  //   '.doc',
-  //   '.docx',
-  //   '.xls',
-  //   '.xlsx',
-  //   '.ppt',
-  //   '.pptx',
-  //   '.md',
-  //   '.xod',
-  // ];
+  const { bread, sysMsg } = useModel('global');
+
   const SupportFile = () => {
     const fileList = [
       '.pdf',
@@ -113,6 +98,11 @@ const Header: React.FC<Props> = (props) => {
 
   return (
     <>
+      <Helmet>
+        <title>{sysMsg.web_title as string}</title>
+        <meta name="description" content={sysMsg.web_content as string} />
+        <meta name="keywords" content={sysMsg.web_gjc as string} />
+      </Helmet>
       <div className={`h-[101px]  ${block ? 'bg-white' : ''}`}>
         <LoginModal />
         <PayModal />

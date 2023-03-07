@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { matchRoutes } from '@umijs/max';
+// import { matchRoutes } from '@umijs/max';
 import type { RequestConfig, AxiosResponse } from '@umijs/max';
 import { message, Modal } from 'antd';
 import Cache from '@/utils/cache';
@@ -15,12 +15,12 @@ export async function getInitialState(): Promise<Record<string, unknown>> {
   return initInfo;
 }
 
-export function onRouteChange({ clientRoutes, location }) {
-  const route = matchRoutes(clientRoutes, location.pathname)?.pop()?.route;
-  if (route) {
-    document.title = route.title || '';
-  }
-}
+// export function onRouteChange({ clientRoutes, location }) {
+//   const route = matchRoutes(clientRoutes, location.pathname)?.pop()?.route;
+//   if (route) {
+//     document.title = route.title || '';
+//   }
+// }
 
 export const request: RequestConfig = {
   timeout: 1000 * 60 * 3,
