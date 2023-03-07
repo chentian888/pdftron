@@ -48,10 +48,10 @@ const PageManipulation: React.FC = () => {
 
   const props: UploadProps = {
     onRemove,
-    beforeUpload,
-    fileList,
+    onChange: beforeUpload,
     accept: baseData.accept,
     showUploadList: false,
+    maxCount: 1,
     multiple: baseData.multiple || false,
   };
 

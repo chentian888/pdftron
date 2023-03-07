@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Modal } from 'antd';
 // import { useModel } from '@umijs/max';
-import { filter, reduce } from 'lodash-es';
+import { filter, reduce, map } from 'lodash-es';
 // import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
-import type { UploadFile } from 'antd/es/upload/interface';
+import type { UploadFile, UploadChangeParam } from 'antd/es/upload/interface';
 // import type { ConvertFile } from '@/types/typings';
 
 export default () => {
@@ -40,61 +40,68 @@ export default () => {
     setFileList(newFileList);
   }
 
-  async function beforeUpload(file: UploadFile, files: UploadFile[]) {
+  async function beforeUpload(info: UploadChangeParam) {
     // const { suffix } = Tools.fileMsg(file);
     // const isPdf = suffix === 'pdf' || suffix === 'PDF';
-    try {
-      // 文档密码检测
-      // if (isPdf) {
-      //   const hasPassword = await Promise.all(
-      //     map(files, async (f) => await PDF.hasPassword(instance!, f)),
-      //   );
 
-      //   // 检测文档密码
-      //   if (includes(hasPassword, true)) {
-      //     Modal.warning({
-      //       title: '无效文档',
-      //       content: '暂不支持有密码的文档进行转换',
-      //     });
-      //     return false;
-      //   }
-      // }
-      const limit = filter(
-        files,
-        (f) => (f as any as File).size > SINGLE_SIZE * 1024 * 1024,
-      );
-      const total = reduce(
-        files,
-        function (result, f) {
-          return result + (f as any as File).size;
-        },
-        0,
-      );
-      // 检测单个文件是否有超过限制
-      if (limit.length) {
+    const { status } = info.file;
+    if (status === 'done') {
+      console.log(info);
+      const { fileList } = info;
+      const files = map(fileList, (f) => f.originFileObj);
+      console.log(files);
+      try {
+        // 文档密码检测
+        // if (isPdf) {
+        //   const hasPassword = await Promise.all(
+        //     map(files, async (f) => await PDF.hasPassword(instance!, f)),
+        //   );
+
+        //   // 检测文档密码
+        //   if (includes(hasPassword, true)) {
+        //     Modal.warning({
+        //       title: '无效文档',
+        //       content: '暂不支持有密码的文档进行转换',
+        //     });
+        //     return false;
+        //   }
+        // }
+        const limit = filter(
+          files,
+          (f) => (f as any as File).size > SINGLE_SIZE * 1024 * 1024,
+        );
+        const total = reduce(
+          files,
+          function (result, f) {
+            return result + (f as any as File).size;
+          },
+          0,
+        );
+        // 检测单个文件是否有超过限制
+        if (limit.length) {
+          Modal.warning({
+            title: '无效文档',
+            content: `单个文档限制${SINGLE_SIZE}M以内`,
+          });
+          return false;
+        }
+
+        // 检测所有文档是否超过限制
+        if (total > TOTAL_SIZE * 1024 * 1024) {
+          Modal.warning({
+            title: '无效文档',
+            content: `所有文档限制${TOTAL_SIZE}M以内`,
+          });
+          return false;
+        }
+        setFileList(files as any as UploadFile[]);
+      } catch (e) {
         Modal.warning({
           title: '无效文档',
-          content: `单个文档限制${SINGLE_SIZE}M以内`,
+          content: '暂不支持有密码的文档进行转换',
         });
-        return false;
       }
-
-      // 检测所有文档是否超过限制
-      if (total > TOTAL_SIZE * 1024 * 1024) {
-        Modal.warning({
-          title: '无效文档',
-          content: `所有文档限制${TOTAL_SIZE}M以内`,
-        });
-        return false;
-      }
-      setFileList([...fileList, ...files]);
-    } catch (e) {
-      Modal.warning({
-        title: '无效文档',
-        content: '暂不支持有密码的文档进行转换',
-      });
     }
-    return false;
   }
 
   // 图片转pdf/文档加密功能不需要判断文档是否加密
