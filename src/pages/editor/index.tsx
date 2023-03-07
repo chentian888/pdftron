@@ -1,14 +1,15 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { Row, Col, Spin, message, Tabs } from 'antd';
+import { Row, Col, Spin, message, Tabs, Modal, Upload } from 'antd';
+import { InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import WebViewer from '@pdftron/webviewer';
 import { useModel } from '@umijs/max';
-import { last, filter, findIndex, find } from 'lodash-es';
+import { filter, findIndex, find } from 'lodash-es';
 import { decode } from 'js-base64';
 import Tools from '@/utils/tools';
 import Cache from '@/utils/cache';
 import Header from '@/components/Header';
-
+import type { UploadProps } from 'antd';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 // type TabType = {
@@ -18,42 +19,75 @@ type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 //   id: number;
 // };
 
-// const { Title } = Typography;
+const { Dragger } = Upload;
+
 const Editor: React.FC = () => {
   const { setShowLoginModal, setShowVipModal } = useModel('user');
 
   const { setBread } = useModel('global');
   const viewer = useRef<HTMLDivElement>(null);
-  const { fileList, resetList } = useModel('files');
+  // const { fileList, resetList } = useModel('files');
   const [ready, setReady] = useState<boolean>(false);
   const [instance, setInstance] = useState<WebViewerInstance>();
 
   const [activeKey, setActiveKey] = useState<string>('');
   const [items, setItems] = useState<[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // const supportFile = [
-  //   '.pdf',
-  //   '.jpg',
-  //   '.jpeg',
-  //   '.png',
-  //   '.doc',
-  //   '.docx',
-  //   '.xls',
-  //   '.xlsx',
-  //   '.ppt',
-  //   '.pptx',
-  //   '.md',
-  //   '.xod',
-  // ];
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
 
-  //   const uploadProps: UploadProps = {
-  //     onRemove,
-  //     beforeUpload,
-  //     fileList,
-  //     accept: supportFile.join(','),
-  //     showUploadList: false,
-  //     multiple: false
-  //   };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const props: UploadProps = {
+    name: 'file',
+    showUploadList: false,
+    multiple: false,
+    accept: '.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.md,.xod',
+    async onChange(info) {
+      const { status } = info.file;
+      // if (status !== 'uploading') {
+      //   console.log(info.file, info.fileList);
+      // }
+      if (status === 'done') {
+        // setFileList([...fileList, info.file]);
+        // message.success(`${info.file.name} file uploaded successfully.`);
+        const { prefix, suffix } = Tools.fileMsg(info.file);
+        let options = {
+          extension: suffix,
+          filename: info.file?.name, // Used as the name of the tab
+          setActive: true, // Defaults to true
+          saveCurrentActiveTabState: false, // Defaults to true
+        };
+
+        const tabId = await instance.UI.TabManager.addTab(
+          info.file.originFileObj,
+          options,
+        );
+        const newActiveKey = `${info.file.name}${tabId}`;
+        setItems([
+          ...items,
+          { label: prefix, children: '', key: newActiveKey, id: tabId },
+        ]);
+        setActiveKey(newActiveKey);
+        handleCancel();
+        console.log(info.file);
+      } else if (status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+    onDrop(e) {
+      console.log('Dropped files', e.dataTransfer.files);
+    },
+    maxCount: 1,
+  };
 
   const validateUser = () => {
     const { id, vip } = Cache.getCookieUserInfo();
@@ -78,7 +112,7 @@ const Editor: React.FC = () => {
   // 页面卸载
   const pageUmount = () => {
     setReady(false);
-    resetList();
+    // resetList();
     setBread([]);
   };
 
@@ -139,7 +173,7 @@ const Editor: React.FC = () => {
       },
     };
     UI.setLanguage(instance.UI.Languages.ZH_CN);
-    UI.disableElements(['menuButton']);
+    UI.disableElements(['menuButton', 'multiTabsEmptyPage']);
     UI.enableFeatures([UI.Feature.MultiTab, UI.Feature.ContentEdit]);
 
     // UI.addEventListener(UI.Events.TAB_ADDED, tabAdded);
@@ -148,7 +182,7 @@ const Editor: React.FC = () => {
     });
     const iframeDoc = UI.iframeWindow.document;
     const TabsHeader = iframeDoc.querySelector('.TabsHeader');
-    // TabsHeader.style.display = 'none';
+    TabsHeader.style.display = 'none';
     console.log(TabsHeader);
     UI.setHeaderItems(function (header) {
       header.unshift(printBtn);
@@ -167,45 +201,22 @@ const Editor: React.FC = () => {
     return pageUmount;
   }, []);
 
-  const loadDoc = () => {
-    const { UI } = instance!;
-    const file = last(fileList);
-    const { suffix } = Tools.fileMsg(file!);
-    let options = {
-      extension: suffix,
-      filename: file?.name, // Used as the name of the tab
-      setActive: true, // Defaults to true
-      saveCurrentActiveTabState: false, // Defaults to true
-    };
-    UI.TabManager.addTab(file as any as File, options);
-  };
-
-  useEffect(() => {
-    if (fileList.length) {
-      loadDoc();
-    }
-  }, [fileList]);
-
   const onChange = (targetKey: string) => {
     const { key, id } = find(items, (pane) => (pane as any).key === targetKey);
-    setActiveKey(key);
+    setActiveKey(key, id);
     instance?.UI.TabManager.setActiveTab(id);
   };
 
   const add = () => {
-    instance?.UI.toggleElement('OpenFileModal');
-    // const newActiveKey = `newTab${newTabIndex.current++}`;
-    // setItems([
-    //   ...items,
-    //   { label: 'New Tab', children: 'New Tab Pane', key: newActiveKey },
-    // ]);
-    // setActiveKey(newActiveKey);
+    showModal();
   };
 
   const remove = (targetKey: TargetKey) => {
+    const valid = validateUser();
+    if (!valid) return;
     const targetIndex = findIndex(items, (pane) => pane.key === targetKey);
     const newPanes = filter(items, (pane) => pane.key !== targetKey);
-    const target = items[targetIndex];
+    const { id } = items[targetIndex];
     if (newPanes.length && targetKey === activeKey) {
       const { key, id } =
         newPanes[
@@ -214,7 +225,7 @@ const Editor: React.FC = () => {
       instance?.UI.TabManager.setActiveTab(id);
       setActiveKey(key);
     }
-    instance?.UI.TabManager.deleteTab(target.id);
+    instance?.UI.TabManager.deleteTab(id);
     setItems(newPanes);
   };
 
@@ -228,13 +239,34 @@ const Editor: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-gray-200">
       <Header block />
-      <div className="h-full border-t border-solid border-gray-100">
+      <Modal
+        title="选择要加载到 WebViewer 的文件"
+        open={isModalOpen}
+        onOk={handleOk}
+        okText="添加标签"
+        onCancel={handleCancel}
+      >
+        <Dragger {...props} className=" h-[300px]">
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">单击或拖动文件到此区域</p>
+          <p className="ant-upload-hint">只支持单个上传</p>
+        </Dragger>
+      </Modal>
+      <div className="h-full border-t border-solid border-gray-100 bg-white">
         <Tabs
           onChange={onChange}
           activeKey={activeKey}
           type="editable-card"
           onEdit={onEdit}
           items={items}
+          addIcon={
+            <div className="px-[16px] py-[8px]">
+              <PlusOutlined />
+              点击添加文件
+            </div>
+          }
         />
         <Row className="h-full">
           <Col span={24}>
