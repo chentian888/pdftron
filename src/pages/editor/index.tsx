@@ -51,38 +51,60 @@ const Editor: React.FC = () => {
     showUploadList: false,
     multiple: false,
     accept: '.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.md,.xod',
-    async onChange(info) {
-      const { status } = info.file;
-      // if (status !== 'uploading') {
-      //   console.log(info.file, info.fileList);
-      // }
-      if (status === 'done') {
-        // setFileList([...fileList, info.file]);
-        // message.success(`${info.file.name} file uploaded successfully.`);
-        const { prefix, suffix } = Tools.fileMsg(info.file);
-        let options = {
-          extension: suffix,
-          filename: info.file?.name, // Used as the name of the tab
-          setActive: true, // Defaults to true
-          saveCurrentActiveTabState: false, // Defaults to true
-        };
+    async beforeUpload(file: UploadFile) {
+      // setFileList([...fileList, ...files]);
+      console.log(file);
+      const { prefix, suffix } = Tools.fileMsg(file);
+      let options = {
+        extension: suffix,
+        filename: file.name, // Used as the name of the tab
+        setActive: true, // Defaults to true
+        saveCurrentActiveTabState: false, // Defaults to true
+      };
 
-        const tabId = await instance.UI.TabManager.addTab(
-          info.file.originFileObj,
-          options,
-        );
-        const newActiveKey = `${info.file.name}${tabId}`;
-        setItems([
-          ...items,
-          { label: prefix, children: '', key: newActiveKey, id: tabId },
-        ]);
-        setActiveKey(newActiveKey);
-        handleCancel();
-        console.log(info.file);
-      } else if (status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-      }
+      const tabId = await instance.UI.TabManager.addTab(file, options);
+      const newActiveKey = `${file.name}${tabId}`;
+      setItems([
+        ...items,
+        { label: prefix, children: '', key: newActiveKey, id: tabId },
+      ]);
+      setActiveKey(newActiveKey);
+      handleCancel();
+
+      return false;
     },
+    // async onChange(info) {
+    //   const { status } = info.file;
+    //   // if (status !== 'uploading') {
+    //   //   console.log(info.file, info.fileList);
+    //   // }
+    //   if (status === 'done') {
+    //     // setFileList([...fileList, info.file]);
+    //     // message.success(`${info.file.name} file uploaded successfully.`);
+    //     const { prefix, suffix } = Tools.fileMsg(info.file);
+    //     let options = {
+    //       extension: suffix,
+    //       filename: info.file?.name, // Used as the name of the tab
+    //       setActive: true, // Defaults to true
+    //       saveCurrentActiveTabState: false, // Defaults to true
+    //     };
+
+    //     const tabId = await instance.UI.TabManager.addTab(
+    //       info.file.originFileObj,
+    //       options,
+    //     );
+    //     const newActiveKey = `${info.file.name}${tabId}`;
+    //     setItems([
+    //       ...items,
+    //       { label: prefix, children: '', key: newActiveKey, id: tabId },
+    //     ]);
+    //     setActiveKey(newActiveKey);
+    //     handleCancel();
+    //     console.log(info.file);
+    //   } else if (status === 'error') {
+    //     message.error(`${info.file.name} file upload failed.`);
+    //   }
+    // },
     onDrop(e) {
       console.log('Dropped files', e.dataTransfer.files);
     },
