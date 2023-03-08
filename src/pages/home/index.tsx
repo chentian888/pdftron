@@ -301,7 +301,7 @@ const Home: React.FC = () => {
         className="h-[763px] flex justify-center items-center relative"
         style={{ backgroundImage: `url(${require('./img/bg-footer.png')})` }}
       >
-        <div className="w-[180px] h-[180px] rounded-lg bg-white"></div>
+        {/* <div className="w-[180px] h-[180px] rounded-lg bg-white"></div> */}
         <div className="h-[60px] text-gray-300  bg-[#725697] bg-opacity-50  absolute left-0 bottom-0 w-full flex justify-center items-center">
           <span className="px-4 text-white">
             公司名称：东莞市青木网络科技有限公司

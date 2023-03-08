@@ -238,7 +238,7 @@ const Editor: React.FC = () => {
   const remove = () => {
     if (!items.length) return;
     const targetKey = removeTargetKey.current;
-    console.log(items, removeTargetKey.current);
+    // console.log(items, removeTargetKey.current);
     const targetIndex = findIndex(items, (pane) => pane.key === targetKey);
     const newPanes = filter(items, (pane) => pane.key !== targetKey);
     console.log(targetIndex, newPanes);

@@ -1,7 +1,14 @@
 import React from 'react';
 import { Button, Avatar, Breadcrumb, Modal, Space, Tag, Popover } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { Link, useModel, useNavigate, Helmet } from '@umijs/max';
+import {
+  Link,
+  useModel,
+  useNavigate,
+  Helmet,
+  SelectLang,
+  FormattedMessage,
+} from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
 import Cache from '@/utils/cache';
@@ -71,25 +78,33 @@ const Header: React.FC<Props> = (props) => {
       <>
         <div className="w-[270px]">
           <div className="flex justify-between pb-3">
-            <div className="font-bold text-black">昵称</div>
+            <div className="font-bold text-black">
+              <FormattedMessage id="nickname" />
+            </div>
             <div className="text-gray-500">{nickName}</div>
           </div>
           <div className="flex justify-between pb-3">
-            <div className="font-bold text-black">邮箱</div>
+            <div className="font-bold text-black">
+              <FormattedMessage id="email" />
+            </div>
             <div className="text-gray-500">{userName}</div>
           </div>
           <div className="flex justify-between pb-3">
-            <div className="font-bold text-black">会员状态</div>
+            <div className="font-bold text-black">
+              <FormattedMessage id="member" />
+            </div>
             <div className="text-gray-500">
               {initialState?.vip === '1' ? '已开通' : '未开通'}
             </div>
           </div>
           <div className="flex justify-between pb-3">
-            <div className="font-bold text-black">到期时间</div>
+            <div className="font-bold text-black">
+              <FormattedMessage id="expire" />
+            </div>
             <div className="text-gray-500">{expirationTime}</div>
           </div>
           <Button type="primary" block onClick={logout}>
-            退出登录
+            <FormattedMessage id="logout" />
           </Button>
         </div>
       </>
@@ -125,20 +140,20 @@ const Header: React.FC<Props> = (props) => {
                 className="text-xs text-gray-500 ml-4"
                 onClick={(e) => viewSupported(e)}
               >
-                *支持的格式
+                *<FormattedMessage id="subTitle" />
               </span>
             </div>
           </div>
 
           <div className="flex justify-end items-center">
             <Link to="/" className="px-8 text-black no-underline text-lg">
-              首页
+              <FormattedMessage id="navHome" />
             </Link>
             <div
               onClick={() => setShowVipModal(true)}
               className="px-8 text-black no-underline text-lg cursor-pointer"
             >
-              购买
+              <FormattedMessage id="navBuy" />
             </div>
             {initialState?.id ? (
               <Popover placement="bottomRight" content={() => avatarContent()}>
@@ -153,9 +168,10 @@ const Header: React.FC<Props> = (props) => {
               </Popover>
             ) : (
               <Button type="primary" onClick={() => setShowLoginModal(true)}>
-                登录/注册
+                <FormattedMessage id="login" />
               </Button>
             )}
+            <SelectLang />
           </div>
         </div>
       </div>

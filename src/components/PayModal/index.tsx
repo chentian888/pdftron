@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Col, Row, Radio, Button } from 'antd';
-import { useModel, useAccess, Access } from '@umijs/max';
+import { useModel, useAccess, Access, FormattedMessage } from '@umijs/max';
 import { CheckSquareTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd';
 import { vipList, paypal, alipay } from '@/services/user';
@@ -144,13 +144,17 @@ const LoginModal: React.FC = () => {
         <Row>
           <Col span={12}>
             <div className="vip-card">
-              <div className="pay-card-title">套餐选择</div>
+              <div className="pay-card-title">
+                <FormattedMessage id="vipTitle" />
+              </div>
               <div className="vip-box">{renderVip()}</div>
             </div>
           </Col>
           <Col span={12}>
             <div className="pay-list">
-              <div className="pay-card-title">支付方式选择</div>
+              <div className="pay-card-title">
+                <FormattedMessage id="payTitle" />
+              </div>
               {renderPays()}
               <Access
                 accessible={!access.isVisitor}
@@ -162,7 +166,7 @@ const LoginModal: React.FC = () => {
                     size="large"
                     onClick={toLogin}
                   >
-                    请登录
+                    <FormattedMessage id="loginBtn" />
                   </Button>
                 }
               >
@@ -175,14 +179,16 @@ const LoginModal: React.FC = () => {
                   size="large"
                   onClick={toPay}
                 >
-                  立即支付
+                  <FormattedMessage id="payBtn" />
                 </Button>
               </Access>
             </div>
             <div className="pay-tips">
-              <div className="pay-card-title">温馨提示</div>
+              <div className="pay-card-title">
+                <FormattedMessage id="tipsTitle" />
+              </div>
               <div>
-                扫码支付成功后、系统将自动关闭该页面。如遇订单问题请联系客服邮箱:912786297@qq.com。感谢您的支持与信任。
+                <FormattedMessage id="tipsDesc" />
               </div>
             </div>
           </Col>
