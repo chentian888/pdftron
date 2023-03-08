@@ -33,7 +33,8 @@ const Editor: React.FC = () => {
   const [activeKey, setActiveKey] = useState<string>('');
   const [items, setItems] = useState<[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  // const [removeTargetKey, setRemoveTargetKey] = useState<TargetKey>();
+  let removeTargetKey = useRef(null);
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -202,6 +203,7 @@ const Editor: React.FC = () => {
     UI.addEventListener('tabDeleted', (id, src, options) => {
       console.log(id, src, options);
     });
+
     const iframeDoc = UI.iframeWindow.document;
     const TabsHeader = iframeDoc.querySelector('.TabsHeader');
     TabsHeader.style.display = 'none';
@@ -233,12 +235,13 @@ const Editor: React.FC = () => {
     showModal();
   };
 
-  const remove = (targetKey: TargetKey) => {
-    const valid = validateUser();
-    if (!valid) return;
+  const remove = () => {
+    if (!items.length) return;
+    const targetKey = removeTargetKey.current;
+    console.log(items, removeTargetKey.current);
     const targetIndex = findIndex(items, (pane) => pane.key === targetKey);
     const newPanes = filter(items, (pane) => pane.key !== targetKey);
-    const { id } = items[targetIndex];
+    console.log(targetIndex, newPanes);
     if (newPanes.length && targetKey === activeKey) {
       const { key, id } =
         newPanes[
@@ -247,15 +250,30 @@ const Editor: React.FC = () => {
       instance?.UI.TabManager.setActiveTab(id);
       setActiveKey(key);
     }
-    instance?.UI.TabManager.deleteTab(id);
+
     setItems(newPanes);
   };
+
+  useEffect(() => {
+    if (instance) {
+      const { UI } = instance;
+      UI.addEventListener(UI.Events.TAB_DELETED, remove);
+    }
+  }, [instance, items]);
 
   const onEdit = (targetKey: TargetKey, action: 'add' | 'remove') => {
     if (action === 'add') {
       add();
     } else {
-      remove(targetKey);
+      const valid = validateUser();
+      if (!valid) return;
+      // remove(targetKey);
+      removeTargetKey.current = targetKey;
+      // setRemoveTargetKey(targetKey);
+      const targetIndex = findIndex(items, (pane) => pane.key === targetKey);
+      const { id } = items[targetIndex];
+      console.log(id, targetKey);
+      instance?.UI.TabManager.deleteTab(id);
     }
   };
   return (
