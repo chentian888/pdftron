@@ -1,5 +1,11 @@
 import { Button, Modal } from 'antd';
-import { useNavigate, useModel, Link } from '@umijs/max';
+import {
+  useNavigate,
+  useModel,
+  Link,
+  FormattedMessage,
+  useIntl,
+} from '@umijs/max';
 import Header from '@/components/Header';
 import AppStore from '@/components/AppStore';
 
@@ -7,12 +13,14 @@ type TabType = { name: string; value: string };
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const intl = useIntl();
+
   const { tab, setTab } = useModel('global');
 
   const tabs: TabType[] = [
-    { name: '转换为PDF', value: '1' },
-    { name: 'PDF转其他', value: '2' },
-    { name: 'PDF功能层', value: '3' },
+    { name: intl.formatMessage({ id: 'toPdf' }), value: '1' },
+    { name: intl.formatMessage({ id: 'pdfTo' }), value: '2' },
+    { name: intl.formatMessage({ id: 'pdf' }), value: '3' },
   ];
 
   const tabChange = (item: TabType) => {
@@ -49,29 +57,29 @@ const Home: React.FC = () => {
   const renderTabContent = () => {
     const items1 = [
       {
-        title: 'Word转PDF',
-        desc: 'Word(.doc.docx)转PDF',
+        title: intl.formatMessage({ id: 'word2pdf' }),
+        desc: intl.formatMessage({ id: 'word2pdfDesc' }),
         icon: 'icon-word',
         className: '',
         to: '/convertFrom/word',
       },
       {
-        title: 'PPT转PDF',
-        desc: 'PPT(.ppt.pptx)转PDF',
+        title: intl.formatMessage({ id: 'ppt2pdf' }),
+        desc: intl.formatMessage({ id: 'ppt2pdfDesc' }),
         icon: 'icon-ppt',
         className: 'justify-self-center',
         to: '/convertFrom/ppt',
       },
       {
-        title: 'Excel转PDF',
-        desc: 'Excel(.xls.xlsx)转PDF',
+        title: intl.formatMessage({ id: 'excel2pdf' }),
+        desc: intl.formatMessage({ id: 'excel2pdfDesc' }),
         icon: 'icon-excel',
         className: 'justify-self-end',
         to: '/convertFrom/excel',
       },
       {
-        title: '图片转PDF',
-        desc: '图片(.png.jpg)转PDF',
+        title: intl.formatMessage({ id: 'img2pdf' }),
+        desc: intl.formatMessage({ id: 'img2pdfDesc' }),
         icon: 'icon-image',
         className: '',
         to: '/convertFrom/image',
@@ -80,22 +88,22 @@ const Home: React.FC = () => {
 
     const items2 = [
       {
-        title: 'PDF转Word',
-        desc: 'PDF转Word',
+        title: intl.formatMessage({ id: 'pdf2word' }),
+        desc: intl.formatMessage({ id: 'pdf2word' }),
         icon: 'icon-word',
         className: '',
         to: '/convertTo/office/word',
       },
       {
-        title: 'PDF转PPT',
-        desc: 'PDF转PPT',
+        title: intl.formatMessage({ id: 'pdf2ppt' }),
+        desc: intl.formatMessage({ id: 'pdf2ppt' }),
         icon: 'icon-ppt',
         className: 'justify-self-center',
         to: '/convertTo/office/ppt',
       },
       {
-        title: 'PDF转Excel',
-        desc: 'PDF转Excel',
+        title: intl.formatMessage({ id: 'pdf2excel' }),
+        desc: intl.formatMessage({ id: 'pdf2excelDesc' }),
         icon: 'icon-excel',
         className: 'justify-self-end',
         to: '/convertTo/office/excel',
@@ -115,8 +123,8 @@ const Home: React.FC = () => {
       //   to: '/convertTo/epud',
       // },
       {
-        title: 'PDF转图片(免费)',
-        desc: 'PDF转图片（jpeg,png）',
+        title: intl.formatMessage({ id: 'pdf2img' }),
+        desc: intl.formatMessage({ id: 'pdf2imgDesc' }),
         icon: 'icon-image',
         className: '',
         to: '/convertTo/image',
@@ -132,29 +140,29 @@ const Home: React.FC = () => {
 
     const items3 = [
       {
-        title: 'PDF合并',
-        desc: '选择多个PDF文档文件进行合并操作',
+        title: intl.formatMessage({ id: 'pdfMerge' }),
+        desc: intl.formatMessage({ id: 'pdfMergeDesc' }),
         icon: 'icon-merge',
         className: '',
         to: '/page/merge',
       },
       {
-        title: 'PDF拆分1',
-        desc: '选择PDF中的页面拆分成新的文档',
+        title: intl.formatMessage({ id: 'pdfExtract' }),
+        desc: intl.formatMessage({ id: 'pdfExtractDesc' }),
         icon: 'icon-split1',
         className: 'justify-self-center',
         to: '/page/extract',
       },
       {
-        title: 'PDF拆分2',
-        desc: '选择PDF中的页面拆分成多个单独PDF',
+        title: intl.formatMessage({ id: 'pdfSplit' }),
+        desc: intl.formatMessage({ id: 'pdfSplitDesc' }),
         icon: 'icon-split2',
         className: 'justify-self-end',
         to: '/page/split',
       },
       {
-        title: 'PDF裁剪',
-        desc: '将PDF拆分成两半再按正确顺序合并',
+        title: intl.formatMessage({ id: 'pdfCrop' }),
+        desc: intl.formatMessage({ id: 'pdfCropDesc' }),
         icon: 'icon-crop',
         className: '',
         to: '/page/crop',
@@ -179,8 +187,8 @@ const Home: React.FC = () => {
       //   className: 'justify-self-end',
       // },
       {
-        title: 'PDF提取文字(免费)',
-        desc: 'PDF提取文字',
+        title: intl.formatMessage({ id: 'pdfText' }),
+        desc: intl.formatMessage({ id: 'pdfTextDesc' }),
         icon: 'icon-extra-text',
         className: 'justify-self-center',
         to: '/extraction/text',
@@ -244,7 +252,7 @@ const Home: React.FC = () => {
             <div className="text-black text-lg py-4 text-center">
               {ele.title}
             </div>
-            <div className="w-[140px] text-gray-400 text-center leading-6">
+            <div className="w-[190px] text-gray-400 text-center leading-6">
               {ele.desc}
             </div>
           </div>
@@ -271,13 +279,15 @@ const Home: React.FC = () => {
         />
         <div className="bg-[#EBF0FE] w-[860px] h-[255px] m-auto mt-20 mb-4 p-12 flex justify-between items-center rounded-lg ">
           <div className="w-1/2">
-            <div className="text-4xl pb-4">欢迎您，尊敬的用户</div>
+            <div className="text-4xl pb-4">
+              <FormattedMessage id="welcome" />
+            </div>
             <div className="text-gray-400 pb-7 leading-6">
-              PDF Edit All专注PDF在线编辑服务，为你提供最便捷 的操作方案与服务！
+              <FormattedMessage id="welcomeDesc" />
             </div>
             <a href="/editor">
               <Button size="large" type="primary">
-                PDF在线编辑
+                <FormattedMessage id="edit" />
               </Button>
             </a>
           </div>
@@ -304,16 +314,16 @@ const Home: React.FC = () => {
         {/* <div className="w-[180px] h-[180px] rounded-lg bg-white"></div> */}
         <div className="h-[60px] text-gray-300  bg-[#725697] bg-opacity-50  absolute left-0 bottom-0 w-full flex justify-center items-center">
           <span className="px-4 text-white">
-            公司名称：东莞市青木网络科技有限公司
+            <FormattedMessage id="company" />
           </span>
           <span className="px-4 text-white">
-            ICP主体备案号：粤ICP备2021139496号
+            <FormattedMessage id="icp" />
           </span>
           <Link
             className="px-4 no-underline text-white"
             to="mailto:912786297@qq.com"
           >
-            联系客服（邮箱）：912786297@qq.com
+            <FormattedMessage id="concat" />
           </Link>
         </div>
       </div>

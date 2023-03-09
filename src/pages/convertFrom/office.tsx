@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
-import { useModel, useParams } from '@umijs/max';
+import { useModel, useParams, FormattedMessage, useIntl } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
 import PermissionBtn from '@/components/PermissionBtn';
@@ -10,6 +10,7 @@ import PDF from '@/utils/pdf';
 const { Dragger } = Upload;
 
 const ConvertFrom: React.FC = () => {
+  const intl = useIntl();
   const [loading, setLoading] = useState<boolean>(false);
   const { setBread } = useModel('global');
   const {
@@ -38,22 +39,22 @@ const ConvertFrom: React.FC = () => {
     word: {
       accept: '.doc,.docx',
       multiple: false,
-      title: 'Word转PDF',
-      desc: 'Word(.doc.docx)转PDF',
+      title: intl.formatMessage({ id: 'word2pdf' }),
+      desc: intl.formatMessage({ id: 'word2pdfDesc' }),
       maxCount: 1,
     },
     ppt: {
       accept: '.ppt,.pptx',
       multiple: false,
-      title: 'PPT转PDF',
-      desc: 'PPT(.ppt.pptx)转PDF',
+      title: intl.formatMessage({ id: 'ppt2pdf' }),
+      desc: intl.formatMessage({ id: 'ppt2pdfDesc' }),
       maxCount: 1,
     },
     excel: {
       accept: '.xls,.xlsx',
       multiple: false,
-      title: 'Excel转PDF',
-      desc: 'Excel(.xls.xlsx)转PDF',
+      title: intl.formatMessage({ id: 'excel2pdf' }),
+      desc: intl.formatMessage({ id: 'excel2pdfDesc' }),
       maxCount: 1,
     },
   };
@@ -100,7 +101,9 @@ const ConvertFrom: React.FC = () => {
       baseData.multiple && (
         <Col span={4}>
           <Upload className="w-full h-full block" {...props}>
-            <div className="draged-action">添加更多文件</div>
+            <div className="draged-action">
+              <FormattedMessage id="addMoreBtn" />
+            </div>
           </Upload>
         </Col>
       )
@@ -170,7 +173,7 @@ const ConvertFrom: React.FC = () => {
             loading={!ready}
             ghost
           >
-            可以拖拽至此
+            <FormattedMessage id="dragFileBtn" />
           </Button>
           <Upload className="w-full" disabled={!ready} {...props}>
             <Button
@@ -180,7 +183,7 @@ const ConvertFrom: React.FC = () => {
               loading={!ready}
               block
             >
-              选择本地文件
+              <FormattedMessage id="chooseFileBtn" />
             </Button>
           </Upload>
         </div>
@@ -196,16 +199,16 @@ const ConvertFrom: React.FC = () => {
       action = (
         <>
           <Button type="primary" size="large" block onClick={downloadAll}>
-            全部下载
+            <FormattedMessage id="downloadAll" />
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
-            继续
+            <FormattedMessage id="continue" />
           </div>
         </>
       );
     } else if (fileList.length) {
       action = (
-        <PermissionBtn text="转换">
+        <PermissionBtn text={intl.formatMessage({ id: 'convertBtn' })}>
           <Button
             type="primary"
             size="large"
@@ -213,7 +216,7 @@ const ConvertFrom: React.FC = () => {
             loading={loading}
             onClick={convert}
           >
-            转换
+            <FormattedMessage id="convertBtn" />
           </Button>
         </PermissionBtn>
       );
@@ -231,7 +234,7 @@ const ConvertFrom: React.FC = () => {
       {loading && (
         <Spin
           size="large"
-          tip="文件转换中请耐心等待"
+          tip={intl.formatMessage({ id: 'converting' })}
           className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
         ></Spin>
       )}

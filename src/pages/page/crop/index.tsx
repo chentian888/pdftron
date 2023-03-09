@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, message } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, FormattedMessage, useIntl } from '@umijs/max';
 // import WebViewer, { Core } from '@pdftron/webviewer';
 // import { times } from 'lodash-es';
 import PDF from '@/utils/pdf';
@@ -13,6 +13,7 @@ import type { UploadProps } from 'antd/es/upload/interface';
 const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
+  const intl = useIntl();
   const [loading, setLoading] = useState<boolean>(false);
   const { setBread } = useModel('global');
   const {
@@ -38,8 +39,8 @@ const PageManipulation: React.FC = () => {
   const baseData = {
     accept: '.pdf',
     multiple: false,
-    title: 'PDF裁剪',
-    desc: '将PDF拆分成两半再按正确顺序合并',
+    title: intl.formatMessage({ id: 'pdfCrop' }),
+    desc: intl.formatMessage({ id: 'pdfCropDesc' }),
     maxCount: 1,
   };
 
@@ -136,7 +137,7 @@ const PageManipulation: React.FC = () => {
             loading={!ready}
             ghost
           >
-            可以拖拽至此
+            <FormattedMessage id="dragFileBtn" />
           </Button>
           <Upload className="w-full" {...props}>
             <Button
@@ -146,7 +147,7 @@ const PageManipulation: React.FC = () => {
               loading={!ready}
               block
             >
-              选择本地文件
+              <FormattedMessage id="chooseFileBtn" />
             </Button>
           </Upload>
         </div>
@@ -160,10 +161,10 @@ const PageManipulation: React.FC = () => {
       return (
         <div className="w-1/3 absolute bottom-20 left-1/2 -translate-x-1/2">
           <Button type="primary" size="large" block onClick={downloadAll}>
-            全部下载
+            <FormattedMessage id="downloadAll" />
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
-            继续
+            <FormattedMessage id="continue" />
           </div>
         </div>
       );

@@ -8,6 +8,7 @@ import {
   Helmet,
   SelectLang,
   FormattedMessage,
+  useIntl,
 } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
@@ -19,6 +20,7 @@ interface Props {
 
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
+  const intl = useIntl();
   const navigate = useNavigate();
   const { initialState, setInitialState } = useModel('@@initialState');
   const { setShowLoginModal, setShowVipModal } = useModel('user');
@@ -55,7 +57,7 @@ const Header: React.FC<Props> = (props) => {
   const viewSupported = (e: React.MouseEvent) => {
     e.preventDefault();
     Modal.info({
-      title: 'PDF Edit All 支持以下格式文件',
+      title: `PDF Edit All ${intl.formatMessage({ id: 'subTitle' })}`,
       content: <SupportFile />,
       onOk() {},
     });

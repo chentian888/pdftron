@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, FormattedMessage, useIntl } from '@umijs/max';
 import { pullAllBy, sortBy, map } from 'lodash-es';
 import PDF from '@/utils/pdf';
 // import Tools from '@/utils/tools';
@@ -12,6 +12,7 @@ import type { UploadProps } from 'antd/es/upload/interface';
 const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
+  const intl = useIntl();
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
   const [thumbnailList, setThumbnailList] = useState<PageThumbnailType[]>([]);
@@ -40,8 +41,8 @@ const PageManipulation: React.FC = () => {
   const baseData = {
     accept: '.pdf',
     multiple: false,
-    title: 'PDF拆分',
-    desc: '选择PDF中的页面拆分成新的文档',
+    title: intl.formatMessage({ id: 'pdfExtract' }),
+    desc: intl.formatMessage({ id: 'pdfExtractDesc' }),
     maxCount: 1,
   };
 
@@ -190,7 +191,7 @@ const PageManipulation: React.FC = () => {
             loading={!ready}
             ghost
           >
-            可以拖拽至此
+            <FormattedMessage id="dragFileBtn" />
           </Button>
           <Upload className="w-full" {...props}>
             <Button
@@ -200,7 +201,7 @@ const PageManipulation: React.FC = () => {
               loading={!ready}
               block
             >
-              选择本地文件
+              <FormattedMessage id="chooseFileBtn" />
             </Button>
           </Upload>
         </div>
@@ -216,16 +217,16 @@ const PageManipulation: React.FC = () => {
       action = (
         <>
           <Button type="primary" size="large" block onClick={downloadAll}>
-            全部下载
+            <FormattedMessage id="downloadAll" />
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
-            继续
+            <FormattedMessage id="continue" />
           </div>
         </>
       );
     } else if (fileList.length && !loadingPage) {
       action = (
-        <PermissionBtn text="合并选中">
+        <PermissionBtn text={intl.formatMessage({ id: 'extractBtn' })}>
           <Button
             type="primary"
             size="large"
@@ -233,7 +234,7 @@ const PageManipulation: React.FC = () => {
             loading={loading}
             onClick={convert}
           >
-            合并选中
+            <FormattedMessage id="extractBtn" />
           </Button>
         </PermissionBtn>
       );
@@ -256,7 +257,7 @@ const PageManipulation: React.FC = () => {
       {loading && (
         <Spin
           size="large"
-          tip="文档分割中请耐心等待"
+          tip={intl.formatMessage({ id: 'extracting' })}
           className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
         ></Spin>
       )}

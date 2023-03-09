@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Col, Row, Radio, Button } from 'antd';
-import { useModel, useAccess, Access, FormattedMessage } from '@umijs/max';
+import {
+  useModel,
+  useAccess,
+  Access,
+  FormattedMessage,
+  useIntl,
+} from '@umijs/max';
 import { CheckSquareTwoTone, CloseCircleOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd';
 import { vipList, paypal, alipay } from '@/services/user';
@@ -8,6 +14,7 @@ import { vipList, paypal, alipay } from '@/services/user';
 import './index.less';
 
 const LoginModal: React.FC = () => {
+  const intl = useIntl();
   const access = useAccess();
   const { showVipModal, setShowLoginModal, setShowVipModal, getUserVipInfo } =
     useModel('user');
@@ -95,8 +102,16 @@ const LoginModal: React.FC = () => {
   };
 
   const pays = [
-    { text: '支付宝支付', icon: 'icon-alipay', value: 1 },
-    { text: 'paypal支付', icon: 'icon-paypal', value: 2 },
+    {
+      text: intl.formatMessage({ id: 'alipay' }),
+      icon: 'icon-alipay',
+      value: 1,
+    },
+    {
+      text: intl.formatMessage({ id: 'paypal' }),
+      icon: 'icon-paypal',
+      value: 2,
+    },
   ];
 
   // 支付方式

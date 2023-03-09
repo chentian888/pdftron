@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, message, Spin } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, FormattedMessage, useIntl } from '@umijs/max';
 // import WebViewer from '@pdftron/webviewer';
 // import { last, split, nth } from 'lodash-es';
 import DragedFile from '@/components/DragedFile';
@@ -12,6 +12,7 @@ import PDF from '@/utils/pdf';
 const { Dragger } = Upload;
 
 const PageManipulation: React.FC = () => {
+  const intl = useIntl();
   const [loading, setLoading] = useState<boolean>(false);
   const { setBread } = useModel('global');
   const {
@@ -37,8 +38,8 @@ const PageManipulation: React.FC = () => {
   const baseData = {
     accept: '.pdf',
     multiple: true,
-    title: 'PDF合并',
-    desc: 'PDF合并',
+    title: intl.formatMessage({ id: 'pdfMerge' }),
+    desc: intl.formatMessage({ id: 'pdfMergeDesc' }),
     maxCount: 1,
   };
 
@@ -78,7 +79,9 @@ const PageManipulation: React.FC = () => {
       baseData.multiple && (
         <Col span={4}>
           <Upload className="w-full h-full block" {...props}>
-            <div className="draged-action">添加更多文件</div>
+            <div className="draged-action">
+              <FormattedMessage id="addMoreBtn" />
+            </div>
           </Upload>
         </Col>
       )
@@ -162,7 +165,7 @@ const PageManipulation: React.FC = () => {
             loading={!ready}
             ghost
           >
-            可以拖拽至此
+            <FormattedMessage id="dragFileBtn" />
           </Button>
           <Upload className="w-full" {...props}>
             <Button
@@ -172,7 +175,7 @@ const PageManipulation: React.FC = () => {
               loading={!ready}
               block
             >
-              选择本地文件
+              <FormattedMessage id="chooseFileBtn" />
             </Button>
           </Upload>
         </div>
@@ -188,16 +191,16 @@ const PageManipulation: React.FC = () => {
       action = (
         <>
           <Button type="primary" size="large" block onClick={downloadAll}>
-            全部下载
+            <FormattedMessage id="downloadAll" />
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
-            继续
+            <FormattedMessage id="continue" />
           </div>
         </>
       );
     } else if (fileList.length) {
       action = (
-        <PermissionBtn text="合并">
+        <PermissionBtn text={intl.formatMessage({ id: 'mergeBtn' })}>
           <Button
             type="primary"
             size="large"
@@ -206,7 +209,7 @@ const PageManipulation: React.FC = () => {
             loading={loading}
             onClick={convert}
           >
-            合并
+            <FormattedMessage id="mergeBtn" />
           </Button>
         </PermissionBtn>
       );

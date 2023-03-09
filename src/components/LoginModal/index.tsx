@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'antd';
 import { CloseCircleOutlined } from '@ant-design/icons';
-import { Link, useModel } from '@umijs/max';
+import { Link, useModel, FormattedMessage } from '@umijs/max';
 import LoginForm from '@/components/LoginForm';
 import RegistryForm from '@/components/RegistryForm';
 import Feature from '@/components/Feature';
@@ -42,19 +42,19 @@ const LoginModal: React.FC = () => {
             onClick={showRegistryForm}
             className="no-underline text-black cursor-pointer"
           >
-            去注册
+            <FormattedMessage id="registry" />
           </div>
           <div
             onClick={showResetForm}
             className="no-underline text-black cursor-pointer"
           >
-            忘记密码
+            <FormattedMessage id="forget" />
           </div>
         </div>
         <div className="flex justify-center pt-10">
-          注册表示同意
+          <FormattedMessage id="agree" />
           <Link className="no-underline" to="/">
-            《用户协议》
+            <FormattedMessage id="protocol" />
           </Link>
         </div>
       </>
@@ -69,7 +69,7 @@ const LoginModal: React.FC = () => {
           onClick={showLoginForm}
           className=" text-center text-black no-underline m-auto block cursor-pointer"
         >
-          已有账号，去登录
+          <FormattedMessage id="hasAccount" />
         </div>
       </>
     );

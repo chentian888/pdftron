@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Typography } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, FormattedMessage } from '@umijs/max';
 import { getSysSetting } from '@/services/user';
 
 const { Title } = Typography;
@@ -20,7 +20,7 @@ const AppStore: React.FC = () => {
   return (
     <>
       <Title className="text-center pt-12" level={2}>
-        编辑帮助视频
+        <FormattedMessage id="videoTitle" />
       </Title>
       <div className="w-[1000px] h-[500px] bg-white m-auto my-10 rounded-2xl">
         {sysMsg.video_china ? (
@@ -49,20 +49,21 @@ const AppStore: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <Button
-                className="mb-4 w-[160px]"
+                className="mb-4 w-[160px] no-underline"
                 type="primary"
                 ghost
                 href={sysMsg?.android_download_china as string}
                 target="_blank"
               >
-                中文版下载
+                <FormattedMessage id="androidDownload1" />
               </Button>
               <Button
                 type="primary"
+                className="no-underline"
                 href={sysMsg?.android_download_english as string}
                 target="_blank"
               >
-                英文版下载
+                <FormattedMessage id="androidDownload2" />
               </Button>
             </div>
           </div>
@@ -76,20 +77,21 @@ const AppStore: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <Button
-                className="mb-4 w-[160px]"
+                className="mb-4 w-[160px] no-underline"
                 type="primary"
                 ghost
                 href={sysMsg?.iphone_pdf_ios_download as string}
                 target="_blank"
               >
-                官方地址下载
+                <FormattedMessage id="appleDownload1" />
               </Button>
               <Button
                 type="primary"
+                className="no-underline"
                 href={sysMsg?.iphone_scan_ios_download as string}
                 target="_blank"
               >
-                文档扫描app下载
+                <FormattedMessage id="appleDownload2" />
               </Button>
             </div>
           </div>
@@ -103,12 +105,12 @@ const AppStore: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <Button
-                className="w-[160px]"
+                className="w-[160px] no-underline"
                 type="primary"
                 href={sysMsg?.mac_download_open as string}
                 target="_blank"
               >
-                Mac端安装
+                <FormattedMessage id="macDownload1" />
               </Button>
             </div>
           </div>
@@ -122,20 +124,21 @@ const AppStore: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <Button
-                className="mb-4 w-[160px]"
+                className="mb-4 w-[160px] no-underline"
                 type="primary"
                 ghost
                 href={sysMsg?.windows_download_url as string}
                 target="_blank"
               >
-                下载Windows安装包
+                <FormattedMessage id="windowsDownload1" />
               </Button>
               <Button
                 type="primary"
+                className="no-underline"
                 href={sysMsg?.wndows_download_open as string}
                 target="_blank"
               >
-                Windows商店安装
+                <FormattedMessage id="windowsDownload2" />
               </Button>
             </div>
           </div>

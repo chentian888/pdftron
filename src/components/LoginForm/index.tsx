@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, Input } from 'antd';
-import { useModel, useNavigate } from '@umijs/max';
+import { useModel, useNavigate, FormattedMessage, useIntl } from '@umijs/max';
 import './index.less';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 
 const LoginForm: React.FC<Props> = (props) => {
   const { redirect = '' } = props;
+  const intl = useIntl();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { userLogin, setShowLoginModal } = useModel('user');
@@ -48,12 +49,15 @@ const LoginForm: React.FC<Props> = (props) => {
       <Form.Item
         name="userName"
         rules={[
-          { required: true, message: '请输入邮箱' },
-          { type: 'email', message: '请输入正确邮箱' },
+          { required: true, message: intl.formatMessage({ id: 'loginEmail' }) },
+          {
+            type: 'email',
+            message: intl.formatMessage({ id: 'loginEmailFormat' }),
+          },
         ]}
       >
         <Input
-          placeholder="请输入登录邮箱"
+          placeholder={intl.formatMessage({ id: 'loginEmail' })}
           prefix={
             <div className="w-[18px] h-[22px]">
               <img
@@ -68,12 +72,16 @@ const LoginForm: React.FC<Props> = (props) => {
       <Form.Item
         name="password"
         rules={[
-          { required: true, message: '请输入密码' },
-          { min: 6, max: 12, message: '密码最短6位最长12位' },
+          { required: true, message: intl.formatMessage({ id: 'loginPwd' }) },
+          {
+            min: 6,
+            max: 12,
+            message: intl.formatMessage({ id: 'loginPwdFormat' }),
+          },
         ]}
       >
         <Input
-          placeholder="请输入登录密码"
+          placeholder={intl.formatMessage({ id: 'loginPwd' })}
           type="password"
           prefix={
             <div className="w-[18px] h-[22px]">
@@ -94,7 +102,7 @@ const LoginForm: React.FC<Props> = (props) => {
           loading={loading}
           htmlType="submit"
         >
-          登录
+          <FormattedMessage id="loginBtn" />
         </Button>
       </Form.Item>
     </Form>

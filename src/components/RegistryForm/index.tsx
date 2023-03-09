@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
-import { useModel, useNavigate } from '@umijs/max';
+import { useModel, useNavigate, FormattedMessage, useIntl } from '@umijs/max';
 import useCountDown from '@/hooks/useCountDown';
 
 import { sendEmailCode } from '@/services/user';
@@ -13,6 +13,7 @@ interface Props {
 
 const RegistryForm: React.FC<Props> = (props) => {
   const { type = '1', redirect = '' } = props;
+  const intl = useIntl();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { userRegister, userResetPassword, setShowLoginModal } =
@@ -78,21 +79,34 @@ const RegistryForm: React.FC<Props> = (props) => {
       <Form.Item
         name="email"
         rules={[
-          { required: true, message: '请输入邮箱' },
-          { type: 'email', message: '请输入正确邮箱' },
+          {
+            required: true,
+            message: intl.formatMessage({ id: 'registryEmail' }),
+          },
+          {
+            type: 'email',
+            message: intl.formatMessage({ id: 'loginEmailFormat' }),
+          },
         ]}
       >
-        <Input placeholder="请输入邮箱" />
+        <Input placeholder={intl.formatMessage({ id: 'registryEmail' })} />
       </Form.Item>
       <Form.Item
         name="code"
         rules={[
-          { required: true, message: '请输入邮箱验证码' },
-          { min: 6, max: 6, message: '邮箱验证码由6位数字组成' },
+          {
+            required: true,
+            message: intl.formatMessage({ id: 'registryCode' }),
+          },
+          {
+            min: 6,
+            max: 6,
+            message: intl.formatMessage({ id: 'registryCodeFormat' }),
+          },
         ]}
       >
         <Input
-          placeholder="请输入邮箱验证码"
+          placeholder={intl.formatMessage({ id: 'registryCode' })}
           suffix={
             <Button
               shape="round"
@@ -101,7 +115,7 @@ const RegistryForm: React.FC<Props> = (props) => {
               disabled={!sendable}
               onClick={sendCode}
             >
-              {sendable ? '发送验证码' : count + 's后发送'}
+              {sendable ? <FormattedMessage id="sendCode" /> : count + 's'}
             </Button>
           }
         ></Input>
@@ -109,28 +123,46 @@ const RegistryForm: React.FC<Props> = (props) => {
       <Form.Item
         name="password"
         rules={[
-          { required: true, message: '请输入密码' },
-          { min: 6, max: 12, message: '密码最短6位最长12位' },
+          {
+            required: true,
+            message: intl.formatMessage({ id: 'registryPwd' }),
+          },
+          {
+            min: 6,
+            max: 12,
+            message: intl.formatMessage({ id: 'registryPwdFormat' }),
+          },
         ]}
       >
-        <Input type="password" placeholder="请输入密码" />
+        <Input
+          type="password"
+          placeholder={intl.formatMessage({ id: 'registryPwd' })}
+        />
       </Form.Item>
       <Form.Item
         name="password2"
         dependencies={['password']}
         rules={[
-          { required: true, message: '请确认密码' },
+          {
+            required: true,
+            message: intl.formatMessage({ id: 'registryPwdConfirm' }),
+          },
           ({ getFieldValue }) => ({
             validator(_, value) {
               if (!value || getFieldValue('password') === value) {
                 return Promise.resolve();
               }
-              return Promise.reject(new Error('两次输入密码不一致'));
+              return Promise.reject(
+                new Error(intl.formatMessage({ id: 'registryPwdNoEqual' })),
+              );
             },
           }),
         ]}
       >
-        <Input type="password" placeholder="请再次输入密码" />
+        <Input
+          type="password"
+          placeholder={intl.formatMessage({ id: 'registryPwdConfirm' })}
+        />
       </Form.Item>
       <Form.Item>
         <Button
@@ -140,7 +172,11 @@ const RegistryForm: React.FC<Props> = (props) => {
           loading={loading}
           htmlType="submit"
         >
-          {type === '1' ? '注册账号' : '重置密码'}
+          {type === '1' ? (
+            <FormattedMessage id="registryBtn" />
+          ) : (
+            <FormattedMessage id="resetPwdBtn" />
+          )}
         </Button>
       </Form.Item>
     </Form>

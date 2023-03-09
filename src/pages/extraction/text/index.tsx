@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Row, Col, Button, Modal, Spin, message } from 'antd';
-import { useModel } from '@umijs/max';
+import { useModel, FormattedMessage, useIntl } from '@umijs/max';
 import DragedFile from '@/components/DragedFile';
 import ConvertedFile from '@/components/ConvertedFile';
 import PDF from '@/utils/pdf';
@@ -9,6 +9,7 @@ import type { UploadProps } from 'antd/es/upload/interface';
 const { Dragger } = Upload;
 
 const ExtractText: React.FC = () => {
+  const intl = useIntl();
   const [loading, setLoading] = useState<boolean>(false);
   const { setBread } = useModel('global');
   const {
@@ -34,8 +35,8 @@ const ExtractText: React.FC = () => {
   const baseData = {
     accept: '.pdf',
     multiple: false,
-    title: 'PDF提取文字',
-    desc: 'PDF提取文字',
+    title: intl.formatMessage({ id: 'pdfText' }),
+    desc: intl.formatMessage({ id: 'pdfTextDesc' }),
     maxCount: 1,
   };
 
@@ -74,7 +75,9 @@ const ExtractText: React.FC = () => {
       baseData.multiple && (
         <Col span={4}>
           <Upload className="w-full h-full block" {...props}>
-            <div className="draged-action">添加更多文件</div>
+            <div className="draged-action">
+              <FormattedMessage id="addMoreBtn" />
+            </div>
           </Upload>
         </Col>
       )
@@ -146,7 +149,7 @@ const ExtractText: React.FC = () => {
             loading={!ready}
             ghost
           >
-            可以拖拽至此
+            <FormattedMessage id="dragFileBtn" />
           </Button>
           <Upload className="w-full" {...props}>
             <Button
@@ -156,7 +159,7 @@ const ExtractText: React.FC = () => {
               loading={!ready}
               block
             >
-              选择本地文件
+              <FormattedMessage id="chooseFileBtn" />
             </Button>
           </Upload>
         </div>
@@ -172,10 +175,10 @@ const ExtractText: React.FC = () => {
       action = (
         <>
           <Button type="primary" size="large" block onClick={downloadAll}>
-            全部下载
+            <FormattedMessage id="downloadAll" />
           </Button>
           <div className="text-center mt-4 cursor-pointer" onClick={going}>
-            继续
+            <FormattedMessage id="continue" />
           </div>
         </>
       );
@@ -188,7 +191,7 @@ const ExtractText: React.FC = () => {
           loading={loading}
           onClick={extraText}
         >
-          提取文字
+          <FormattedMessage id="extractTextBtn" />
         </Button>
       );
     }
@@ -204,7 +207,7 @@ const ExtractText: React.FC = () => {
       {loading && (
         <Spin
           size="large"
-          tip="文字提取中请耐心等待"
+          tip={intl.formatMessage({ id: 'extractTexting' })}
           className="w-full h-full absolute bg-[#f2f3f6] rounded-lg top-0 left-0 z-10 flex justify-center items-center flex-col"
         ></Spin>
       )}
