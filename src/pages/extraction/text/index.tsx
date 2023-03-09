@@ -63,7 +63,10 @@ const ExtractText: React.FC = () => {
   };
 
   useEffect(() => {
-    setBread([{ title: '首页', link: '/' }, { title: '提取文字' }]);
+    setBread([
+      { title: intl.formatMessage({ id: 'navHome' }), link: '/' },
+      { title: '提取文字' },
+    ]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

@@ -67,7 +67,10 @@ const PageManipulation: React.FC = () => {
   };
 
   useEffect(() => {
-    setBread([{ title: '首页', link: '/' }, { title: 'PDF合并' }]);
+    setBread([
+      { title: intl.formatMessage({ id: 'navHome' }), link: '/' },
+      { title: 'PDF合并' },
+    ]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }

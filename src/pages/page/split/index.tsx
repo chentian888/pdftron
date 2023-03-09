@@ -102,7 +102,10 @@ const PageManipulation: React.FC = () => {
   };
 
   useEffect(() => {
-    setBread([{ title: '首页', link: '/' }, { title: 'PDF分割' }]);
+    setBread([
+      { title: intl.formatMessage({ id: 'navHome' }), link: '/' },
+      { title: 'PDF分割' },
+    ]);
     if (fileList.length) {
       initThumb();
     }

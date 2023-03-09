@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Spin, message, Tabs, Modal, Upload } from 'antd';
 import { InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import WebViewer from '@pdftron/webviewer';
-import { useModel } from '@umijs/max';
+import { useModel, getLocale, FormattedMessage } from '@umijs/max';
 import { filter, findIndex, find } from 'lodash-es';
 import { decode } from 'js-base64';
 import Tools from '@/utils/tools';
@@ -195,7 +195,10 @@ const Editor: React.FC = () => {
         }
       },
     };
-    UI.setLanguage(instance.UI.Languages.ZH_CN);
+    const lang = getLocale();
+    instance.UI.setLanguage(
+      lang === 'zh-CN' ? instance.UI.Languages.ZH_CN : instance.UI.Languages.EN,
+    );
     UI.disableElements(['menuButton', 'multiTabsEmptyPage']);
     UI.enableFeatures([UI.Feature.MultiTab, UI.Feature.ContentEdit]);
 
@@ -304,7 +307,7 @@ const Editor: React.FC = () => {
         addIcon={
           <div className="px-[16px] py-[8px]">
             <PlusOutlined />
-            点击添加文件
+            <FormattedMessage id="editorTabAddBtn" />
           </div>
         }
       />
@@ -324,7 +327,7 @@ const Editor: React.FC = () => {
               {/* <InboxOutlined size={60} /> */}
               <Upload className="w-full" disabled={!ready} {...props}>
                 <Button className="w-full" type="primary" size="large" block>
-                  选择本地文件
+                  <FormattedMessage id="chooseFileBtn" />
                 </Button>
               </Upload>
             </div>

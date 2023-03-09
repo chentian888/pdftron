@@ -57,6 +57,7 @@ export default {
 
   // feat
   edit: 'PDF Online Editing',
+  editorTabAddBtn: 'Click Add File',
   toPdf: 'Convert to PDF',
   pdfTo: 'PDF to other',
   pdf: 'PDF',

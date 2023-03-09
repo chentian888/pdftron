@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import WebViewer from '@pdftron/webviewer';
 import { decode } from 'js-base64';
+import { getLocale } from '@umijs/max';
 import type { WebViewerInstance } from '@pdftron/webviewer';
 
 export default () => {
@@ -14,11 +15,15 @@ export default () => {
     mountDom: HTMLDivElement,
     fullAPI: boolean = false,
   ) => {
+    const lang = getLocale();
+    console.log(lang);
     const instance = await WebViewer(
       { path: '/webviewer/lib', fullAPI, licenseKey: decode(LK) },
       mountDom,
     );
-    instance.UI.setLanguage(instance.UI.Languages.ZH_CN);
+    instance.UI.setLanguage(
+      lang === 'zh-CN' ? instance.UI.Languages.ZH_CN : instance.UI.Languages.EN,
+    );
     instance.UI.disableElements([
       'leftPanel',
       'leftPanelButton',

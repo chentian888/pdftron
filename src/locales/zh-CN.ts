@@ -57,6 +57,7 @@ export default {
 
   // feat
   edit: 'PDF在线编辑',
+  editorTabAddBtn: '点击添加文件',
   toPdf: '转换为PDF',
   pdfTo: 'PDF转其他',
   pdf: 'PDF功能层',

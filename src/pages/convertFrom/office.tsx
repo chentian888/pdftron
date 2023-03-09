@@ -85,7 +85,10 @@ const ConvertFrom: React.FC = () => {
   };
 
   useEffect(() => {
-    setBread([{ title: '首页', link: '/' }, { title: baseData.title }]);
+    setBread([
+      { title: intl.formatMessage({ id: 'navHome' }), link: '/' },
+      { title: baseData.title },
+    ]);
     if (viewer.current) {
       initWebViewer(viewer.current!);
     }
