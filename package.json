@@ -4,6 +4,7 @@
   "scripts": {
     "build": "max build",
     "dev": "max dev",
+    "font": "node tools/createFont.js",
     "format": "prettier --cache --write .",
     "postinstall": "max setup && node tools/copy-webviewer-files.js",
     "prepare": "husky install",

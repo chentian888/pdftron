@@ -3,14 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Spin, message, Tabs, Modal, Upload } from 'antd';
 import { InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import WebViewer from '@pdftron/webviewer';
-import { useModel, getLocale, FormattedMessage } from '@umijs/max';
-import { filter, findIndex, find } from 'lodash-es';
+import { useModel, getLocale, FormattedMessage, useIntl } from '@umijs/max';
+import { filter, findIndex, find, forEach } from 'lodash-es';
 import { decode } from 'js-base64';
 import Tools from '@/utils/tools';
 import Cache from '@/utils/cache';
 import Header from '@/components/Header';
+import fonts from '@/fonts.json';
 import type { UploadProps } from 'antd';
 import type { WebViewerInstance } from '@pdftron/webviewer';
+
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 // type TabType = {
 //   label: string;
@@ -22,6 +24,7 @@ type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 const { Dragger } = Upload;
 
 const Editor: React.FC = () => {
+  const intl = useIntl();
   const { setShowLoginModal, setShowVipModal } = useModel('user');
 
   const { setBread } = useModel('global');
@@ -141,7 +144,11 @@ const Editor: React.FC = () => {
 
   const initWebViewer = async (mountDom: HTMLDivElement) => {
     const instance = await WebViewer(
-      { path: '/webviewer/lib', licenseKey: decode(LK) },
+      {
+        path: '/webviewer/lib',
+        licenseKey: decode(LK),
+        preloadWorker: `${WebViewer.WorkerTypes.CONTENT_EDIT}`,
+      },
       mountDom,
     );
     setInstance(instance);
@@ -199,6 +206,9 @@ const Editor: React.FC = () => {
     instance.UI.setLanguage(
       lang === 'zh-CN' ? instance.UI.Languages.ZH_CN : instance.UI.Languages.EN,
     );
+    forEach(fonts, (f) => instance.UI.Fonts.addAnnotationFont(f));
+    forEach(fonts, (f) => instance.UI.Fonts.addSignatureFont(f));
+
     UI.disableElements(['menuButton', 'multiTabsEmptyPage']);
     UI.enableFeatures([UI.Feature.MultiTab, UI.Feature.ContentEdit]);
 
@@ -221,7 +231,10 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
-    setBread([{ title: '首页', link: '/' }, { title: 'PDF在线编辑器' }]);
+    setBread([
+      { title: intl.formatMessage({ id: 'navHome' }), link: '/' },
+      { title: intl.formatMessage({ id: 'edit' }) },
+    ]);
     if (viewer.current) {
       initWebViewer(viewer.current);
     }

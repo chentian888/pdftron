@@ -1,18 +1,31 @@
 import React from 'react';
-import { Button, Avatar, Breadcrumb, Modal, Space, Tag, Popover } from 'antd';
+import {
+  Button,
+  Avatar,
+  Breadcrumb,
+  Modal,
+  Space,
+  Tag,
+  Popover,
+  Radio,
+} from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import {
   Link,
   useModel,
   useNavigate,
   Helmet,
-  SelectLang,
+  // SelectLang,
+  getLocale,
+  setLocale,
   FormattedMessage,
   useIntl,
 } from '@umijs/max';
 import LoginModal from '@/components/LoginModal';
 import PayModal from '@/components/PayModal';
 import Cache from '@/utils/cache';
+
+import type { RadioChangeEvent } from 'antd';
 
 interface Props {
   block?: boolean;
@@ -21,6 +34,7 @@ interface Props {
 const Header: React.FC<Props> = (props) => {
   const { block = false } = props;
   const intl = useIntl();
+  const lang = getLocale();
   const navigate = useNavigate();
   const { initialState, setInitialState } = useModel('@@initialState');
   const { setShowLoginModal, setShowVipModal } = useModel('user');
@@ -61,6 +75,12 @@ const Header: React.FC<Props> = (props) => {
       content: <SupportFile />,
       onOk() {},
     });
+  };
+
+  const langChange = ({ target: { value } }: RadioChangeEvent) => {
+    console.log('radio1 checked', value);
+    // setLangVal(value);
+    setLocale(value);
   };
 
   const logout = () => {
@@ -173,7 +193,16 @@ const Header: React.FC<Props> = (props) => {
                 <FormattedMessage id="login" />
               </Button>
             )}
-            <SelectLang />
+            {/* <SelectLang /> */}
+            <Radio.Group
+              className="ml-10"
+              defaultValue={lang}
+              buttonStyle="solid"
+              onChange={langChange}
+            >
+              <Radio.Button value="zh-CN">中文</Radio.Button>
+              <Radio.Button value="en-US">English</Radio.Button>
+            </Radio.Group>
           </div>
         </div>
       </div>
